@@ -1,3 +1,9 @@
+/build
+node_modules
+.env
+.gitsigners
+
+
 # Logs
 logs
 *.log

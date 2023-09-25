@@ -1,0 +1,11 @@
+{
+  "name": "rethink-core",
+  "version": "0.0.1",
+  "engines": {
+    "node": "16.20.x",
+    "npm": "8.19.x"
+  },
+  "devDependencies": {
+    "truffle": "^5.11.5"
+  }
+}
