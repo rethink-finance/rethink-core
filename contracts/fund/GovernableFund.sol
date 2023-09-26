@@ -90,10 +90,12 @@ contract GovernableFund is ERC20Votes {
 
 	*/
 	struct NAVComposableUpdate {
+		uint256 index;
 		address remoteContractAddress;
 		string functionSignatures;
 		bytes encodedFunctionSignaturWithInputs;
 		uint256 normalizationDecimals;
+		bool isAdditionOperationOnPrevIndex;
 	}
 
 	enum NavUpdateType {
