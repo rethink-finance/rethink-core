@@ -13,7 +13,7 @@ abstract contract NAVLiquid {
 		struct NAVLiquidUpdate {
 			address tokenPair;
 			address aggregatorAddress;
-			bytes functionSignatureWithEncodedInputes;
+			bytes functionSignatureWithEncodedInputs;
 			address assetTokenAddress;
 			address nonAssetTokenAddress;
 			bool isReturnArray;
@@ -31,9 +31,9 @@ abstract contract NAVLiquid {
 			bytes memory swapPriceData;
 
 			if (liquid[i].tokenPair != address(0)) {
-				(, swapPriceData) = liquid[i].tokenPair.staticcall(liquid[i].functionSignatureWithEncodedInputes);
+				(, swapPriceData) = liquid[i].tokenPair.staticcall(liquid[i].functionSignatureWithEncodedInputs);
 			} else {
-				(, swapPriceData) = liquid[i].aggregatorAddress.staticcall(liquid[i].functionSignatureWithEncodedInputes);
+				(, swapPriceData) = liquid[i].aggregatorAddress.staticcall(liquid[i].functionSignatureWithEncodedInputs);
 			}
 
 			uint256 price;

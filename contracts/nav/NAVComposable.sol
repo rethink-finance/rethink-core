@@ -16,7 +16,7 @@ abstract contract NAVComposable {
 					BYTES needs to be decoded with `abi.decode(BYTES, (TYPE)) or abi.decode(BYTES, (TYPE[])) or abi.decode(BYTES, (TYPE, TYPE, etc)) or abi.decode(BYTES, (TYPE[], TYPE[], etc))`
 					Should return an integers that represents the value of the position
 	*/
-	function composableCalculation() external view returns (uint256) {
+	function composableCalculation(IGovernableFund.NAVComposableUpdate[] calldata composable, address safe) external view returns (uint256) {
 
 	}
 }

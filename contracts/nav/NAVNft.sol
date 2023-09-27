@@ -11,7 +11,7 @@ abstract contract NAVNft {
 
 		Chainlink https://docs.chain.link/data-feeds/nft-floor-price/addresses 
 	*/
-	function nftCalculation() external view returns (uint256) {
+	function nftCalculation(IGovernableFund.NAVNFTUpdate[] calldata nft, address safe) external view returns (uint256) {
 
 	}
 }

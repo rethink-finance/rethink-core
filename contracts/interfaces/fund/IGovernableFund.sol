@@ -29,7 +29,7 @@ interface IGovernableFund {
 	struct NAVLiquidUpdate {
 		address tokenPair;
 		address aggregatorAddress;
-		bytes functionSignatureWithEncodedInputes;
+		bytes functionSignatureWithEncodedInputs;
 		address assetTokenAddress;
 		address nonAssetTokenAddress;
 		bool isReturnArray;

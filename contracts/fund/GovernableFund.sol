@@ -22,6 +22,7 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 	address _navCalculatorAddress;
 	
 	mapping(address => uint256) allowedFundMannagers;
+	mapping(address => uint256) whitelistedDepositors;
 	mapping(address => uint256) _userDepositBal;//USED TO KEEP TRACK OF PERFORMANCE FROM DEPOSITS
 	mapping(uint256 => uint256) navUpdatedTime;
 	mapping(uint256 => NavUpdateEntry[]) navUpdate;//nav update index -> nav entries for update
@@ -41,6 +42,10 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 		//TODO: can be triggered by governance or fund manager if not already set?
 	}
 
+	function navUpdateLatestIndex() external view returns (uint256) {
+		return _navUpdateLatestIndex;
+	}
+
 	function updateNav(NavUpdateEntry[] calldata navUpdateData) external {
 		//TODO: can be triggered by governance or fund manager
 		_navUpdateLatestIndex++;
@@ -58,19 +63,15 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 	function processNav(NavUpdateEntry[] calldata navUpdateData) private returns (uint256) {
 		//TODO: call proper interface for each type, may need to happen over multiple transactions?
 		uint256 updateedNav = 0;
-		for(uint256 i=0; i< navUpdate[_navUpdateLatestIndex].length; i++) {
-			if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				//TODO
-				//updateedNav += INAVCalculator(_navCalculatorAddress);
-			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
-				//TODO
-				//updateedNav += INAVCalculator(_navCalculatorAddress);
-			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				//TODO
-				//updateedNav += INAVCalculator(_navCalculatorAddress);
-			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				//TODO
-				//updateedNav += INAVCalculator(_navCalculatorAddress);
+		for(uint256 i=0; i< navUpdateData.length; i++) {
+			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
+				updateedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(navUpdateData[i].liquid, FundSettings.safe);
+			} else if (navUpdateData[i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
+				updateedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(navUpdateData[i].illiquid, FundSettings.safe);
+			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
+				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdateData[i].nft, FundSettings.safe);
+			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
+				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdateData[i].composable, FundSettings.safe) ;
 			}
 			navUpdate[_navUpdateLatestIndex].push(navUpdateData[i]);
  		}
@@ -78,29 +79,22 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 		return updateedNav;
 	}
 
-	function computeLatestNav() public view returns (uint256) {
-		//TODO: call proper interface for each type
-		uint256 updateedNav = 0;
-		for(uint256 i=0; i< navUpdate[_navUpdateLatestIndex].length; i++) {
-			if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				//pass
-				updateedNav += 0;
-			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
-				//pass
-				updateedNav += 0;
-			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				//pass
-				updateedNav += 0;
-			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				//pass
-				updateedNav += 0;
+	function computeNavAtIndex(uint256 navUpdateIndex) external view returns (uint) {
+		uint256 historicalNav = 0;
+		for(uint256 i=0; i< navUpdate[navUpdateIndex].length; i++) {
+			if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVLiquidUpdateType) {
+				historicalNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(navUpdate[navUpdateIndex][i].liquid, FundSettings.safe);
+			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
+				historicalNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(navUpdate[navUpdateIndex][i].illiquid, FundSettings.safe);
+			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVNFTUpdateType) {
+				historicalNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdate[navUpdateIndex][i].nft, FundSettings.safe);
+			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVComposableUpdateType) {
+				historicalNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdate[navUpdateIndex][i].composable, FundSettings.safe) ;
 			}
  		}
 
-		return updateedNav;
+		return historicalNav;
 	}
-
-	function computeNavAtIndex(uint256 navUpdateIndex) public view returns (uint) {}
 
 	function deposit(uint256  amount) external {
 

@@ -10,7 +10,7 @@ abstract contract NAVIlliquid {
 
 	*/
 	
-	function illiquidCalculation() external view returns (uint256) {
+	function illiquidCalculation(IGovernableFund.NAVIlliquidUpdate[] calldata illiquid, address safe) external view returns (uint256) {
 
 	}
 }
