@@ -1,18 +1,27 @@
 pragma solidity ^0.8.0;
+pragma experimental ABIEncoderV2;
+
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../utils/Arrays.sol";
+import "../interfaces/nav/INAVCalculator.sol";
 
 contract GovernableFund is ERC20Votes {
 	constructor(string memory _name_, string memory _symbol_) ERC20(_name_, _symbol_)  ERC20Permit(_name_) {}
 
-	mapping(address => uint256) allowedFundMannagers;
+	using SafeERC20 for IERC20;
+
 	uint256 _nav; //TODO: NEEDS TO BE IN BASE TOKEN?
 	uint256 _depositBal;
 	uint256 _totalDepositBal;
-	mapping(address => uint256) _userDepositBal;//USED TO KEEP TRACK OF PERFORMANCE FROM DEPOSITSs
 	uint256 _navUpdateLatestIndex;
 	uint256 _navUpdateLatestTime;
+
+	address _navCalculatorAddress;
+	
+	mapping(address => uint256) allowedFundMannagers;
+	mapping(address => uint256) _userDepositBal;//USED TO KEEP TRACK OF PERFORMANCE FROM DEPOSITS
 	mapping(uint256 => uint256) navUpdatedTime;
 	mapping(uint256 => NavUpdateEntry[]) navUpdate;//nav update index -> nav entries for update
 	bool isRequestedWithdrawals;
@@ -22,6 +31,8 @@ contract GovernableFund is ERC20Votes {
 	mapping(address => WithdrawalRequestEntry) userWithdrawRequest;
 
 	uint256 MAX_BPS = 10000;
+	uint256 private fractionBase = 1e9;
+
 
 	//TODO: NEEDS TO BE A CHAINLINK ORACLE FOR BASE TOKEN?
 
@@ -106,7 +117,6 @@ contract GovernableFund is ERC20Votes {
 	}
 
 	struct NavUpdateEntry {
-		uint256 updateTime;
 		NavUpdateType entryType;
 		NAVLiquidUpdate[] liquid;
 		NAVIlliquidUpdate[] illiquid;
@@ -119,21 +129,91 @@ contract GovernableFund is ERC20Votes {
 		uint256 requestTime;
 	}
 
-	function updateSettings() external {}
+	function updateSettings() external {
+		//TODO: can be triggered by governance or fund manager if not already set?
+	}
 
 	function updateNav(NavUpdateEntry[] calldata navUpdateData) external {
 		//TODO: can be triggered by governance or fund manager
+		_navUpdateLatestIndex++;
+		_navUpdateLatestTime = block.timestamp;
+
+		navUpdatedTime[_navUpdateLatestIndex] = block.timestamp;
+
+		//process nav here, save to storage
+		_nav = processNav(navUpdateData);
+
+		//TODO: make sure enough for current withdraw queue
+		//TODO: sweep pending deposits to safe address
 	}
 
-	function computeLatestNav() public view returns (uint) {}
+	function processNav(NavUpdateEntry[] calldata navUpdateData) private returns (uint256) {
+		//TODO: call proper interface for each type, may need to happen over multiple transactions?
+		uint256 updateedNav = 0;
+		for(uint256 i=0; i< navUpdate[_navUpdateLatestIndex].length; i++) {
+			if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVLiquidUpdateType) {
+				//TODO
+				//updateedNav += INAVCalculator(_navCalculatorAddress);
+			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
+				//TODO
+				//updateedNav += INAVCalculator(_navCalculatorAddress);
+			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVNFTUpdateType) {
+				//TODO
+				//updateedNav += INAVCalculator(_navCalculatorAddress);
+			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVComposableUpdateType) {
+				//TODO
+				//updateedNav += INAVCalculator(_navCalculatorAddress);
+			}
+			navUpdate[_navUpdateLatestIndex].push(navUpdateData[i]);
+ 		}
+
+		return updateedNav;
+	}
+
+	function computeLatestNav() public view returns (uint256) {
+		//TODO: call proper interface for each type
+		uint256 updateedNav = 0;
+		for(uint256 i=0; i< navUpdate[_navUpdateLatestIndex].length; i++) {
+			if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVLiquidUpdateType) {
+				//pass
+				updateedNav += 0;
+			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
+				//pass
+				updateedNav += 0;
+			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVNFTUpdateType) {
+				//pass
+				updateedNav += 0;
+			} else if (navUpdate[_navUpdateLatestIndex][i].entryType == NavUpdateType.NAVComposableUpdateType) {
+				//pass
+				updateedNav += 0;
+			}
+ 		}
+
+		return updateedNav;
+	}
 
 	function computeNavAtIndex(uint256 navUpdateIndex) public view returns (uint) {}
 
 	function deposit(uint256  amount) external {
-		//TODO: still need to implement
-		_depositBal += amount; //TODO: gets de-incremented when deposits are swept into safe by fund manager during nav updates?
-		_totalDepositBal += amount;
-		_userDepositBal[msg.sender] += amount;
+
+		//TODO: need to send fee value somewhere
+		uint feeAmount = amount * FundSettings.depositFee / MAX_BPS;
+        uint discountedAmount = amount - feeAmount;
+
+		_depositBal += discountedAmount; //TODO: gets de-incremented when deposits are swept into safe by fund manager during nav updates?
+		_totalDepositBal += discountedAmount;
+		_userDepositBal[msg.sender] += discountedAmount;
+
+		uint b0 = _nav;
+		//transfer tokens to fund
+        IERC20(FundSettings.baseToken).safeTransferFrom(msg.sender, address(this), amount);
+        uint b1 = _nav + discountedAmount;
+        uint p = (b1 - b0) * (fractionBase / b1);
+        uint b = 1e3;
+        uint v = totalSupply() > 0 ? totalSupply() * p * b / (fractionBase - p) : b1 * b;
+        v = _round(v, b);
+
+        _mint(msg.sender, v);
 	}
 
 	function totalWithrawalBalance() public view returns (uint256) {
@@ -184,5 +264,10 @@ contract GovernableFund is ERC20Votes {
 
 	function valueOf(address ownr) public view returns (uint256) {
         return (_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)) * balanceOf(ownr) / totalSupply();
+    }
+
+    // rounds "v" considering a base "b"
+    function _round(uint v, uint b) internal pure returns (uint) {
+        return (v / b) + ((v % b) >= (b / 2) ? 1 : 0);
     }
 }
