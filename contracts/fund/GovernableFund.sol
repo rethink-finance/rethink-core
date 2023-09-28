@@ -1,6 +1,4 @@
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
-
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -9,6 +7,10 @@ import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/nav/INAVCalculator.sol";
 
 contract GovernableFund is IGovernableFund, ERC20Votes {
+	/*
+
+		TODO: management fees imp example: https://raw.githubusercontent.com/rethink-finance/rethink_modular/main/rethnink_protocol/contracts/alohomora.sol?token=GHSAT0AAAAAABYC57KUOHE2FSH4BSCLHH5CZIU32YQ
+	*/
 	constructor(string memory _name_, string memory _symbol_) ERC20(_name_, _symbol_)  ERC20Permit(_name_) {}
 
 	using SafeERC20 for IERC20;
@@ -22,7 +24,7 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 	address _navCalculatorAddress;
 	
 	mapping(address => uint256) allowedFundMannagers;
-	mapping(address => uint256) whitelistedDepositors;
+	mapping(address => bool) whitelistedDepositors;
 	mapping(address => uint256) _userDepositBal;//USED TO KEEP TRACK OF PERFORMANCE FROM DEPOSITS
 	mapping(uint256 => uint256) navUpdatedTime;
 	mapping(uint256 => NavUpdateEntry[]) navUpdate;//nav update index -> nav entries for update
@@ -71,7 +73,7 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
 				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdateData[i].nft, FundSettings.safe);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdateData[i].composable, FundSettings.safe) ;
+				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdateData[i].composable) ;
 			}
 			navUpdate[_navUpdateLatestIndex].push(navUpdateData[i]);
  		}
@@ -89,7 +91,7 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVNFTUpdateType) {
 				historicalNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdate[navUpdateIndex][i].nft, FundSettings.safe);
 			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				historicalNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdate[navUpdateIndex][i].composable, FundSettings.safe) ;
+				historicalNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdate[navUpdateIndex][i].composable) ;
 			}
  		}
 
@@ -98,6 +100,10 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 
 	function deposit(uint256  amount) external {
 
+		if (FundSettings.isWhitelistedDeposits == true) {
+			require(whitelistedDepositors[msg.sender] == true, "not allowed");
+		}
+		
 		//TODO: need to send fee value somewhere
 		uint feeAmount = amount * FundSettings.depositFee / MAX_BPS;
         uint discountedAmount = amount - feeAmount;
@@ -126,6 +132,10 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 		require(balanceOf(msg.sender) > 0, "nothing to withdraw");
 		isRequestedWithdrawals = true;
 
+		if (FundSettings.isWhitelistedDeposits == true) {
+			require(whitelistedDepositors[msg.sender] == true, "not allowed");
+		}
+
 		//TODO: check that withdraw request not already made
 		withdrawalQueue.push(msg.sender);
 		userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(amount, block.timestamp);
@@ -133,7 +143,7 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 	
 	function withdraw() external {
 		//TODO: need to check that nav update time is greate than withdrawl request time
-		//TODO: check that user is in witdrawal queue
+		//TODO: check that user is in witdrawal queue, maybe should just be map to avoid array usage?
 		//TODO: need to handle withdral fee, keep track of withdraw balance managers can withdraw?
 
         uint bal = balanceOf(msg.sender);
