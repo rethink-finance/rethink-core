@@ -17,6 +17,7 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 
 	uint256 _nav; //TODO: NEEDS TO BE IN BASE TOKEN?
 	uint256 _depositBal;
+	uint256 _withdrawalBal;
 	uint256 _totalDepositBal;
 	uint256 _navUpdateLatestIndex;
 	uint256 _navUpdateLatestTime;
@@ -58,14 +59,15 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 		//process nav here, save to storage
 		_nav = processNav(navUpdateData);
 
-		//TODO: make sure enough for current withdraw queue
-
+		//NOTE: could be some logic to better handle deposit/withdrawal flows
+		require(((_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe) - _depositBal) * _withdrawalBal / totalSupply()) <= IERC20(FundSettings.baseToken).balanceOf(this), 'not enough for withdrawals');
 		isRequestedWithdrawals = false;
-		//TODO: sweep pending deposits to safe address
+		IERC20(FundSettings.baseToken).transfer(safe, _depositBal);
+		_depositBal = 0;
 	}
 
 	function processNav(NavUpdateEntry[] calldata navUpdateData) private returns (uint256) {
-		//TODO: call proper interface for each type, may need to happen over multiple transactions?
+		//NOTE: may need to happen over multiple transactions?
 		uint256 updateedNav = 0;
 		for(uint256 i=0; i< navUpdateData.length; i++) {
 			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
@@ -110,7 +112,7 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 		uint feeAmount = amount * FundSettings.depositFee / MAX_BPS;
         uint discountedAmount = amount - feeAmount;
 
-		_depositBal += discountedAmount; //TODO: gets de-incremented when deposits are swept into safe by fund manager during nav updates?
+		_depositBal += discountedAmount;
 		_totalDepositBal += discountedAmount;
 		_userDepositBal[msg.sender] += discountedAmount;
 
@@ -142,15 +144,18 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 
 		withdrawalQueue.push(msg.sender);
 		userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(amount, block.timestamp);
+		_withdrawalBal += amount;
 	}
 	
 	function withdraw() external {
-		//TODO: need to check that nav update time is greater than withdrawl request time
-		//TODO: check that user is in witdrawal queue, maybe should just be map to avoid array usage?
+		//NOTE:  should just be map to avoid array usage?
 		//TODO: need to handle withdral fee, keep track of withdraw balance managers can withdraw?
 
         uint bal = balanceOf(msg.sender);
+        require(userWithdrawRequest[msg.sender].requestTime < navUpdatedTime[_navUpdateLatestIndex], "not allowed yet");
         require(bal >= userWithdrawRequest[msg.sender].amount, "low bal");
+        require(userWithdrawRequest[msg.sender].amount != 0 && userWithdrawRequest[msg.sender].requestTime != 0, "withdrawal not requested");
+
 
         uint val = valueOf(msg.sender) * userWithdrawRequest[msg.sender].amount / bal;
         uint feeVal = val * FundSettings.withdrawFee / MAX_BPS;
@@ -169,12 +174,12 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
         if (totalWithrawalBalance() > discountedValue) {
            IERC20(FundSettings.baseToken).transfer(msg.sender, discountedValue);
         }
-
-        Arrays.removeItem(withdrawalQueue, msg.sender);
-        userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(0, 0);
-
         
         _burn(msg.sender, userWithdrawRequest[msg.sender].amount);
+        Arrays.removeItem(withdrawalQueue, msg.sender);
+        _withdrawalBal -= userWithdrawRequest[msg.sender].amount;
+        userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(0, 0);
+
     }
 
 	function valueOf(address ownr) public view returns (uint256) {
