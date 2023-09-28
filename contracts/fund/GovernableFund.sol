@@ -59,6 +59,8 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 		_nav = processNav(navUpdateData);
 
 		//TODO: make sure enough for current withdraw queue
+
+		isRequestedWithdrawals = false;
 		//TODO: sweep pending deposits to safe address
 	}
 
@@ -136,13 +138,14 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 			require(whitelistedDepositors[msg.sender] == true, "not allowed");
 		}
 
-		//TODO: check that withdraw request not already made
+		require(userWithdrawRequest[msg.sender].amount == 0 && userWithdrawRequest[msg.sender].requestTime == 0, "already requested");
+
 		withdrawalQueue.push(msg.sender);
 		userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(amount, block.timestamp);
 	}
 	
 	function withdraw() external {
-		//TODO: need to check that nav update time is greate than withdrawl request time
+		//TODO: need to check that nav update time is greater than withdrawl request time
 		//TODO: check that user is in witdrawal queue, maybe should just be map to avoid array usage?
 		//TODO: need to handle withdral fee, keep track of withdraw balance managers can withdraw?
 
