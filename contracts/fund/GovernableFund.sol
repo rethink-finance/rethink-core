@@ -9,18 +9,17 @@ import "../interfaces/nav/INAVCalculator.sol";
 //import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
-	/*
-
-		TODO: management fees imp example: https://raw.githubusercontent.com/rethink-finance/rethink_modular/main/rethnink_protocol/contracts/alohomora.sol?token=GHSAT0AAAAAABYC57KUOHE2FSH4BSCLHH5CZIU32YQ
-	*/
 	using SafeERC20 for IERC20;
 
 	uint256 _nav; //TODO: NEEDS TO BE IN BASE TOKEN?
 	uint256 _depositBal;
 	uint256 _withdrawalBal;
+	uint256 _feeBal;
 	uint256 _totalDepositBal;
 	uint256 _navUpdateLatestIndex;
 	uint256 _navUpdateLatestTime;
+    uint256 _lastClaimedManagementFees;
+    uint256 _fundStartTime;
 
 	address _navCalculatorAddress;
 	
@@ -34,7 +33,6 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	Settings FundSettings;
 	address[] withdrawalQueue;
 	mapping(address => WithdrawalRequestEntry) userWithdrawRequest;
-
 	uint256 MAX_BPS = 10000;
 	uint256 private fractionBase = 1e9;
 
@@ -44,7 +42,9 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings) override external initializer {
 		__ERC20_init(_name_, _symbol_);
 		__ERC20Permit_init(_name_);
+		//TODO: need to do validation of imputs
 		FundSettings = _fundSettings;
+		_fundStartTime = block.timestamp;
 	}
 
 	function updateSettings(IGovernableFund.Settings calldata _fundSettings) external {
@@ -117,9 +117,9 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 			require(whitelistedDepositors[msg.sender] == true, "not allowed");
 		}
 		
-		//TODO: need to send fee value somewhere
 		uint feeAmount = amount * FundSettings.depositFee / MAX_BPS;
         uint discountedAmount = amount - feeAmount;
+        _feeBal += feeAmount;
 
 		_depositBal += discountedAmount;
 		_totalDepositBal += discountedAmount;
@@ -138,7 +138,11 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	}
 
 	function totalWithrawalBalance() public view returns (uint256) {
-		return IERC20(FundSettings.baseToken).balanceOf(address(this)) - _depositBal;
+		return IERC20(FundSettings.baseToken).balanceOf(address(this)) - _depositBal - _feeBal;
+	}
+
+	function flowFeesCollected() public view returns (uint256) {
+		return _feeBal;
 	}
 	
 	function requestWithdraw(uint256 amount) external {
@@ -158,7 +162,6 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	
 	function withdraw() external {
 		//NOTE:  should just be map to avoid array usage?
-		//TODO: need to handle withdral fee, keep track of withdraw balance managers can withdraw?
 
         uint bal = balanceOf(msg.sender);
         require(userWithdrawRequest[msg.sender].requestTime < navUpdatedTime[_navUpdateLatestIndex], "not allowed yet");
@@ -169,6 +172,7 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
         uint val = valueOf(msg.sender) * userWithdrawRequest[msg.sender].amount / bal;
         uint feeVal = val * FundSettings.withdrawFee / MAX_BPS;
         uint discountedValue = val - feeVal;
+        _feeBal += feeVal;
 
 
         if (_userDepositBal[msg.sender] >= val){
@@ -191,6 +195,36 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 
     }
 
+    function collectFees() external {
+    	onlyManagers();
+    	IERC20(FundSettings.baseToken).transfer(msg.sender, _feeBal);
+    	_feeBal = 0;
+    }
+
+    function getManagementFeesAccruingPeriod() internal view returns (uint256) {
+        uint256 startTime = (_lastClaimedManagementFees == 0) ? _fundStartTime: _lastClaimedManagementFees;
+        return (block.timestamp - startTime);
+    }
+
+    function calculateAccruedManagementFees() public view returns (uint256 accruedFees) {
+        //add require to only valid token
+        uint256 accruingPeriod = getManagementFeesAccruingPeriod();
+        uint256 managmentFeeLevel = FundSettings.managementFee;
+        uint256 feeBase = totalSupply();
+        uint256 feePerSecond = (feeBase * managmentFeeLevel) /
+            (365 * 86400 * 10000);
+        accruedFees = feePerSecond * accruingPeriod;
+    }
+
+    function claimManagementFees() public returns (bool) {
+        onlyManagers();
+
+        uint256 _accruedFees = calculateAccruedManagementFees();
+        _mint(msg.sender, _accruedFees);
+        _lastClaimedManagementFees = block.timestamp;
+        return true;
+    }
+
 	function valueOf(address ownr) public view returns (uint256) {
         return (_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)) * balanceOf(ownr) / totalSupply();
     }
@@ -200,7 +234,11 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
         return (v / b) + ((v % b) >= (b / 2) ? 1 : 0);
     }
 
-    function onlyGovernanceOrManagers() private {
+    function onlyGovernanceOrManagers() private view {
     	require(allowedFundMannagers[msg.sender] == true || msg.sender == FundSettings.governor, "not allowed");
+    }
+
+    function onlyManagers() private view {
+    	require(allowedFundMannagers[msg.sender] == true, "not allowed");
     }
 }
