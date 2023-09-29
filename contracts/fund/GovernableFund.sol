@@ -1,18 +1,18 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../utils/Arrays.sol";
 import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/nav/INAVCalculator.sol";
+//import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-contract GovernableFund is IGovernableFund, ERC20Votes {
+contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	/*
 
 		TODO: management fees imp example: https://raw.githubusercontent.com/rethink-finance/rethink_modular/main/rethnink_protocol/contracts/alohomora.sol?token=GHSAT0AAAAAABYC57KUOHE2FSH4BSCLHH5CZIU32YQ
 	*/
-	constructor(string memory _name_, string memory _symbol_) ERC20(_name_, _symbol_)  ERC20Permit(_name_) {}
-
 	using SafeERC20 for IERC20;
 
 	uint256 _nav; //TODO: NEEDS TO BE IN BASE TOKEN?
@@ -24,7 +24,7 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 
 	address _navCalculatorAddress;
 	
-	mapping(address => uint256) allowedFundMannagers;
+	mapping(address => bool) allowedFundMannagers;
 	mapping(address => bool) whitelistedDepositors;
 	mapping(address => uint256) _userDepositBal;//USED TO KEEP TRACK OF PERFORMANCE FROM DEPOSITS
 	mapping(uint256 => uint256) navUpdatedTime;
@@ -41,8 +41,16 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 
 	//TODO: NEEDS TO BE A CHAINLINK ORACLE FOR BASE TOKEN?
 
-	function updateSettings() external {
-		//TODO: can be triggered by governance or fund manager if not already set?
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings) override external initializer {
+		__ERC20_init(_name_, _symbol_);
+		__ERC20Permit_init(_name_);
+		FundSettings = _fundSettings;
+	}
+
+	function updateSettings(IGovernableFund.Settings calldata _fundSettings) external {
+		//TODO: only allow updates on changable settings
+		onlyGovernanceOrManagers();
+		FundSettings = _fundSettings;
 	}
 
 	function navUpdateLatestIndex() external view returns (uint256) {
@@ -50,7 +58,8 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
 	}
 
 	function updateNav(NavUpdateEntry[] calldata navUpdateData) external {
-		//TODO: can be triggered by governance or fund manager
+		onlyGovernanceOrManagers();
+		
 		_navUpdateLatestIndex++;
 		_navUpdateLatestTime = block.timestamp;
 
@@ -189,5 +198,9 @@ contract GovernableFund is IGovernableFund, ERC20Votes {
     // rounds "v" considering a base "b"
     function _round(uint v, uint b) internal pure returns (uint) {
         return (v / b) + ((v % b) >= (b / 2) ? 1 : 0);
+    }
+
+    function onlyGovernanceOrManagers() private {
+    	require(allowedFundMannagers[msg.sender] == true || msg.sender == FundSettings.governor, "not allowed");
     }
 }

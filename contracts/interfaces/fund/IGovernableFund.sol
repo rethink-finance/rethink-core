@@ -15,8 +15,10 @@ interface IGovernableFund {
 		bool isWhitelistedDeposits;
 		address[] allowedDepositAddrs;
 		address[] allowedManagers;
-		address governaceToken;
-
+		address governanceToken;
+		address governor;
+		string fundName;
+		string fundSymbol;
 	}
 
 	struct NAVLiquidUpdate {
@@ -87,4 +89,6 @@ interface IGovernableFund {
 		uint256 amount;
 		uint256 requestTime;
 	}
+
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings) external;
 }
