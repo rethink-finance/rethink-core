@@ -115,25 +115,34 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 
 		require(userDepositRequest[msg.sender].amount == 0 && userDepositRequest[msg.sender].requestTime == 0, "already requested");
 
-		//transfer tokens to fund
-        IERC20(FundSettings.baseToken).safeTransferFrom(msg.sender, address(this), amount);
+
 		userDepositRequest[msg.sender] = DepositRequestEntry(amount, block.timestamp);
 
-		uint feeAmount = amount * FundSettings.depositFee / MAX_BPS;
-        uint discountedAmount = amount - feeAmount;
-        _feeBal += feeAmount;
+		
 
-		_depositBal += discountedAmount;
-		_totalDepositBal += discountedAmount;
-		_userDepositBal[msg.sender] += discountedAmount;
+		_depositBal += amount;
+		_totalDepositBal += amount;
+		_userDepositBal[msg.sender] += amount;
 	}
 
 	function deposit() external {
+
+		uint bal = IERC20(FundSettings.baseToken).balanceOf(msg.sender);
+
+		require(bal >= userWithdrawRequest[msg.sender].amount, "low bal");
+
 		require(userDepositRequest[msg.sender].requestTime < navUpdatedTime[_navUpdateLatestIndex], "not allowed yet");
         require(userDepositRequest[msg.sender].amount != 0 && userDepositRequest[msg.sender].requestTime != 0, "deposit not requested");
 
-		uint b0 = _nav;		
-        uint b1 = _nav + userDepositRequest[msg.sender].amount;
+		uint b0 = _nav;
+		
+		//transfer tokens to fund
+        IERC20(FundSettings.baseToken).safeTransferFrom(msg.sender, address(this), userDepositRequest[msg.sender].amount);
+        uint feeAmount = userDepositRequest[msg.sender].amount * FundSettings.depositFee / MAX_BPS;
+        uint discountedAmount = userDepositRequest[msg.sender].amount - feeAmount;
+        _feeBal += feeAmount;
+
+        uint b1 = _nav + discountedAmount;
         uint p = (b1 - b0) * (fractionBase / b1);
         uint b = 1e3;
         uint v = totalSupply() > 0 ? totalSupply() * p * b / (fractionBase - p) : b1 * b;
@@ -142,7 +151,7 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
         _mint(msg.sender, v);
 
 
-        IERC20(FundSettings.baseToken).transfer(FundSettings.safe, userDepositRequest[msg.sender].amount);
+        IERC20(FundSettings.baseToken).transfer(FundSettings.safe, discountedAmount);
 		_depositBal -= userDepositRequest[msg.sender].amount;
 		_userDepositBal[msg.sender] = 0;
         userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
