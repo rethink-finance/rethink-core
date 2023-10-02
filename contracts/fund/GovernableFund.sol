@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../utils/Arrays.sol";
 import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/nav/INAVCalculator.sol";
 //import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
@@ -31,8 +30,8 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	bool isRequestedWithdrawals;
 
 	Settings FundSettings;
-	address[] withdrawalQueue;
 	mapping(address => WithdrawalRequestEntry) userWithdrawRequest;
+	mapping(address => DepositRequestEntry) userDepositRequest;
 	uint256 MAX_BPS = 10000;
 	uint256 private fractionBase = 1e9;
 
@@ -71,8 +70,6 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		//NOTE: could be some logic to better handle deposit/withdrawal flows
 		require(((_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe) - _depositBal) * _withdrawalBal / totalSupply()) <= IERC20(FundSettings.baseToken).balanceOf(address(this)), 'not enough for withdrawals');
 		isRequestedWithdrawals = false;
-		IERC20(FundSettings.baseToken).transfer(FundSettings.safe, _depositBal);
-		_depositBal = 0;
 	}
 
 	function processNav(NavUpdateEntry[] calldata navUpdateData) private returns (uint256) {
@@ -111,12 +108,17 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		return historicalNav;
 	}
 
-	function deposit(uint256  amount) external {
-
+	function requestDeposit(uint256 amount) external {
 		if (FundSettings.isWhitelistedDeposits == true) {
 			require(whitelistedDepositors[msg.sender] == true, "not allowed");
 		}
-		
+
+		require(userDepositRequest[msg.sender].amount == 0 && userDepositRequest[msg.sender].requestTime == 0, "already requested");
+
+		//transfer tokens to fund
+        IERC20(FundSettings.baseToken).safeTransferFrom(msg.sender, address(this), amount);
+		userDepositRequest[msg.sender] = DepositRequestEntry(amount, block.timestamp);
+
 		uint feeAmount = amount * FundSettings.depositFee / MAX_BPS;
         uint discountedAmount = amount - feeAmount;
         _feeBal += feeAmount;
@@ -124,17 +126,27 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		_depositBal += discountedAmount;
 		_totalDepositBal += discountedAmount;
 		_userDepositBal[msg.sender] += discountedAmount;
+	}
 
-		uint b0 = _nav;
-		//transfer tokens to fund
-        IERC20(FundSettings.baseToken).safeTransferFrom(msg.sender, address(this), amount);
-        uint b1 = _nav + discountedAmount;
+	function deposit() external {
+		require(userDepositRequest[msg.sender].requestTime < navUpdatedTime[_navUpdateLatestIndex], "not allowed yet");
+        require(userDepositRequest[msg.sender].amount != 0 && userDepositRequest[msg.sender].requestTime != 0, "deposit not requested");
+
+		uint b0 = _nav;		
+        uint b1 = _nav + userDepositRequest[msg.sender].amount;
         uint p = (b1 - b0) * (fractionBase / b1);
         uint b = 1e3;
         uint v = totalSupply() > 0 ? totalSupply() * p * b / (fractionBase - p) : b1 * b;
         v = _round(v, b);
 
         _mint(msg.sender, v);
+
+
+        IERC20(FundSettings.baseToken).transfer(FundSettings.safe, userDepositRequest[msg.sender].amount);
+		_depositBal -= userDepositRequest[msg.sender].amount;
+		_userDepositBal[msg.sender] = 0;
+        userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
+
 	}
 
 	function totalWithrawalBalance() public view returns (uint256) {
@@ -155,7 +167,6 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 
 		require(userWithdrawRequest[msg.sender].amount == 0 && userWithdrawRequest[msg.sender].requestTime == 0, "already requested");
 
-		withdrawalQueue.push(msg.sender);
 		userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(amount, block.timestamp);
 		_withdrawalBal += amount;
 	}
@@ -189,7 +200,6 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
         }
         
         _burn(msg.sender, userWithdrawRequest[msg.sender].amount);
-        Arrays.removeItem(withdrawalQueue, msg.sender);
         _withdrawalBal -= userWithdrawRequest[msg.sender].amount;
         userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(0, 0);
 

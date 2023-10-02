@@ -90,5 +90,10 @@ interface IGovernableFund {
 		uint256 requestTime;
 	}
 
+	struct DepositRequestEntry {
+		uint256 amount;
+		uint256 requestTime;
+	}
+
 	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings) external;
 }
