@@ -1,3 +1,8 @@
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+const Web3 = require('web3');
+
+require('dotenv').config();
+
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -57,46 +62,157 @@ module.exports = {
    * $ truffle test --network <network-name>
    */
 
-  networks: {
-    // Useful for testing. The `development` name is special - truffle uses it by default
-    // if it's defined here and no other network is specified at the command line.
-    // You should run a client (like ganache, geth, or parity) in a separate terminal
-    // tab if you use this network and you must also set the `host`, `port` and `network_id`
-    // options below to some value.
-    //
-    // development: {
-    //  host: "127.0.0.1",     // Localhost (default: none)
-    //  port: 8545,            // Standard Ethereum port (default: none)
-    //  network_id: "*",       // Any network (default: none)
-    // },
-    //
-    // An additional network, but with some advanced options…
-    // advanced: {
-    //   port: 8777,             // Custom port
-    //   network_id: 1342,       // Custom network
-    //   gas: 8500000,           // Gas sent with each transaction (default: ~6700000)
-    //   gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
-    //   from: <address>,        // Account to send transactions from (default: accounts[0])
-    //   websocket: true         // Enable EventEmitter interface for web3 (default: false)
-    // },
-    //
-    // Useful for deploying to a public network.
-    // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
-    // goerli: {
-    //   provider: () => new HDWalletProvider(MNEMONIC, `https://goerli.infura.io/v3/${PROJECT_ID}`),
-    //   network_id: 5,       // Goerli's id
-    //   confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
-    //   timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    // },
-    //
-    // Useful for private networks
-    // private: {
-    //   provider: () => new HDWalletProvider(MNEMONIC, `https://network.io`),
-    //   network_id: 2111,   // This network is yours, in the cloud.
-    //   production: true    // Treats this network as if it was a public net. (default: false)
-    // }
+    networks: {
+    
+    kovan: {
+      provider: function() {
+        return new HDWalletProvider(
+          process.env.MNENOMIC,
+          "wss://kovan.infura.io/ws/v3/" + process.env.INFURA_API_KEY
+        )
+      },
+      network_id: 42,
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
+      gasPrice: 1e9 // 1 gewi
+    },
+
+    //for eth
+    /*development: {
+      host: "127.0.0.1",     // Localhost (default: none)
+      port: 7545,            // Standard Ethereum port (default: none)
+      network_id: "*",       // Any network (default: none)
+      gas: 8000000,
+    }*/
+
+    development: {
+      provider: () => new Web3.providers.HttpProvider('http://127.0.0.1:9545/ext/bc/C/rpc'),
+      network_id: "*",
+      gas: 8000000,
+      gasPrice: 25000000000 // 25 nAVAX for now
+    },
+  
+    matic: {
+      provider: function() {
+        return new HDWalletProvider(
+          process.env.MNENOMIC,
+          "https://polygon-mainnet.infura.io/v3/" + process.env.INFURA_API_KEY
+        )
+      },
+      network_id: 137,
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
+      gasPrice: 50e9 // 50 gewi
+    },
+
+    mumbai: {
+      
+      provider: function() {
+        return new HDWalletProvider({
+            privateKeys: [process.env.MUMBAI_PRIVATE_KEY], 
+            providerOrUrl: "https://rpc.ankr.com/polygon_mumbai",
+            //providerOrUrl: "https://polygon-testnet.blastapi.io/4d2d0ede-b1cd-43fa-a3b0-db1fefae4322",
+            pollingInterval: 8000,
+        })
+        //return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, "https://matic-mumbai.chainstacklabs.com/")
+      },
+      deploymentPollingInterval: 16000,
+      gas: 8000000,
+      network_id: 80001,
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
+      from: "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6",
+      gasPrice: 31e8, // 301e8, //30.1 gewi
+      disableConfirmationListener: true
+    },
+    fuji: {
+      provider: function() {
+        return new HDWalletProvider({
+            privateKeys: [process.env.MUMBAI_PRIVATE_KEY], 
+            providerOrUrl: "https://api.avax-test.network/ext/bc/C/rpc",
+            pollingInterval: 1000,
+        })
+        //return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, "https://matic-mumbai.chainstacklabs.com/")
+      },
+      deploymentPollingInterval: 2000,
+      network_id: "*",
+      gas: 8000000,
+      gasPrice: 25000000000,
+      //gas: 8000000,
+      //gasLimit: 80000000,
+      //network_id: 43113,
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
+      from: "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6",
+      //gasPrice: 25, // 301e8, //30.1 gewi
+      disableConfirmationListener: true
+    },
+    arbgoerli: {
+      provider: function() {
+        return new HDWalletProvider({
+            privateKeys: [process.env.MUMBAI_PRIVATE_KEY], 
+            providerOrUrl: "https://goerli-rollup.arbitrum.io/rpc",
+            pollingInterval: 16000,
+        })
+        //return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, "https://matic-mumbai.chainstacklabs.com/")
+      },
+      deploymentPollingInterval: 32000,
+      network_id: 421613,
+      //gasLimit: 80000000,
+      //network_id: 43113,
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
+      from: "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6",
+      //gas: 5377410000000,
+      //gasPrice: 160276, // 301e8, //30.1 gewi
+      disableConfirmationListener: true
+    },
+    goerli: {
+      provider: function() {
+        return new HDWalletProvider({
+            privateKeys: [process.env.MUMBAI_PRIVATE_KEY], 
+            providerOrUrl: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+            pollingInterval: 8000,
+        })
+        //return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, "https://matic-mumbai.chainstacklabs.com/")
+      },
+      deploymentPollingInterval: 16000,
+      network_id: 5,
+      gas: 8000000,
+      gasPrice: 10e8,
+      //gas: 8000000,
+      //gasLimit: 80000000,
+      //network_id: 43113,
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
+      from: "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6",
+      //gasPrice: 25, // 301e8, //30.1 gewi
+      disableConfirmationListener: true
+    },
+    fcanto: {
+      provider: function() {
+        return new HDWalletProvider({
+            privateKeys: [process.env.MUMBAI_PRIVATE_KEY], 
+            providerOrUrl: "https://canto-testnet.plexnode.wtf",
+            pollingInterval: 10000,
+        })
+        //return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, "https://matic-mumbai.chainstacklabs.com/")
+      },
+      deploymentPollingInterval: 20000,
+      network_id: 7701,
+      //gas: 8000000,
+      //gasPrice: 31e8,
+      //gas: 8000000,
+      //gasLimit: 80000000,
+      //network_id: 43113,
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
+      from: "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6",
+      //gasPrice: 25, // 301e8, //30.1 gewi
+      disableConfirmationListener: true
+    }
   },
+
 
   // Set default mocha options here, use special reporters, etc.
   mocha: {

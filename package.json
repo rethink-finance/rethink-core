@@ -9,6 +9,10 @@
     "truffle": "^5.11.5"
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.7.1"
+    "@chainlink/contracts": "^0.7.1",
+    "@openzeppelin/contracts": "^4.9.3",
+    "@openzeppelin/contracts-upgradeable": "^4.9.3",
+    "@truffle/hdwallet-provider": "^2.1.15",
+    "dotenv": "^16.3.1"
   }
 }

@@ -8,7 +8,7 @@ import "../interfaces/external/safe/ISafeProxyFactory.sol";
 import "../external/safe/SafeProxy.sol";
 
 
-contract UnderlyingCreditProviderFactory {
+contract GovernableFundFactory {
 	address _governer;
 	address _fund;
 	address _safeProxyFactory;
