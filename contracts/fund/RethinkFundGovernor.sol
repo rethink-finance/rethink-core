@@ -1,8 +1,9 @@
 pragma solidity ^0.8.0;
 
+//import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/governance/compatibility/GovernorCompatibilityBravoUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorPreventLateQuorumUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol";
@@ -10,17 +11,21 @@ import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelo
 
 contract RethinkFundGovernor is 
 	GovernorUpgradeable,
-	GovernorCompatibilityBravoUpgradeable,
+	GovernorCountingSimpleUpgradeable,
 	GovernorVotesUpgradeable,
 	GovernorVotesQuorumFractionUpgradeable,
 	GovernorPreventLateQuorumUpgradeable,
 	GovernorTimelockControlUpgradeable
 {
-
-	function initialize(address _token, string calldata _govName) external initializer {
-		__GovernorVotes_init(IVotesUpgradeable(_token));
+	/// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+	function initialize(IVotesUpgradeable _token, string calldata _govName) external initializer {
+		__GovernorVotes_init(_token);
 		__Governor_init(_govName);
-		__GovernorVotesQuorumFraction_init(10);//% percent quorum
+		__GovernorVotesQuorumFraction_init(10);//10 percent quoru
 		__GovernorPreventLateQuorum_init(86400); //1 day in seconds
 	}
 
@@ -29,11 +34,11 @@ contract RethinkFundGovernor is
 	}
 
 	function votingDelay() public pure override returns (uint256) {
-        return 86400; // 1 day
+        return 7200; // 1 day
     }
 
     function votingPeriod() public pure override returns (uint256) {
-        return 86400; // 1 day
+        return 50400; // 1 week
     }
 
     // The functions below are overrides required by Solidity.
@@ -54,7 +59,7 @@ contract RethinkFundGovernor is
 
     function state(
         uint256 proposalId
-    ) public view override(GovernorUpgradeable, IGovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (ProposalState) {
+    ) public view override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (ProposalState) {
         return super.state(proposalId);
     }
 
@@ -63,7 +68,7 @@ contract RethinkFundGovernor is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public override(GovernorUpgradeable, GovernorCompatibilityBravoUpgradeable, IGovernorUpgradeable) returns (uint256) {
+    ) public override(GovernorUpgradeable, IGovernorUpgradeable) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -72,7 +77,7 @@ contract RethinkFundGovernor is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public override(GovernorUpgradeable, GovernorCompatibilityBravoUpgradeable, IGovernorUpgradeable) returns (uint256) {
+    ) public override(GovernorUpgradeable, IGovernorUpgradeable) returns (uint256) {
         return super.cancel(targets, values, calldatas, descriptionHash);
     }
 
@@ -101,7 +106,7 @@ contract RethinkFundGovernor is
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(GovernorTimelockControlUpgradeable, GovernorUpgradeable, IERC165Upgradeable) returns (bool) {
+    ) public view override(GovernorTimelockControlUpgradeable, GovernorUpgradeable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

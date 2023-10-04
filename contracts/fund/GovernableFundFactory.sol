@@ -1,29 +1,32 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/fund/IRethinkFundGoverner.sol";
-import "../token/WrappedToken.sol";
+import "../interfaces/token/IWrappedTokenFactory.sol";
 import "../interfaces/external/safe/ISafeProxyFactory.sol";
-import "../external/safe/SafeProxy.sol";
 
-
-contract GovernableFundFactory {
+contract GovernableFundFactory is Initializable {
 	address _governer;
 	address _fund;
 	address _safeProxyFactory;
 	address _safeSingleton;
 	address _safeFallbackHandler;
+	address _wrappedTokenFactory;
+	address _navCalculatorAddress;
 
 	// keccak256(toUtf8Bytes('Safe Account Abstraction'))
 	uint256 PREDETERMINED_SALT_NONCE = 0xb1073742015cbcf5a3a4d9d1ae33ecf619439710b89475f92e2abd2117e90f90;
 
-	constructor(address governer, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler) {
+	function initialize(address governer, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress) external initializer {
 		_governer = governer;
 		_fund = fund;
 		_safeProxyFactory = safeProxyFactory;
 		_safeSingleton = safeSingleton;
 		_safeFallbackHandler = safeFallbackHandler;
+		_wrappedTokenFactory = wrappedTokenFactory;
+		_navCalculatorAddress = navCalculatorAddress;
 	}
 
     function createFund(IGovernableFund.Settings memory fundSettings) external returns (address) {
@@ -57,7 +60,7 @@ contract GovernableFundFactory {
             	//compatable, can use address directly in RethinkFundGoverner
 	        } catch (bytes memory /*lowLevelData*/) {
             	//not compatable, can not use address directly in RethinkFundGoverner, create wrapper
-            	address govToken = address(new WrappedToken(fundSettings.governanceToken));
+            	address govToken = IWrappedTokenFactory(_wrappedTokenFactory).createWrappedToken(fundSettings.governanceToken);
             	fundSettings.governanceToken = govToken;
 	        }
 	    }
@@ -92,6 +95,7 @@ contract GovernableFundFactory {
 	    IRethinkFundGoverner(govContractAddr).initialize(fundSettings.governanceToken, fundSettings.fundName);
 	    
 	    //initialize fund proxy
-	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings);
+	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress);
+	    return fundContractAddr;
     }
 }

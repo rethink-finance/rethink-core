@@ -95,5 +95,5 @@ interface IGovernableFund {
 		uint256 requestTime;
 	}
 
-	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings) external;
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address _navCalculatorAddress) external;
 }
