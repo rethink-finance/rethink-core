@@ -33,6 +33,11 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	Settings FundSettings;
 	//TODO: NEEDS TO BE A CHAINLINK ORACLE FOR BASE TOKEN?
 
+	/// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
 	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address navCalculatorAddress) override external initializer {
 		__ERC20_init(_name_, _symbol_);
 		__ERC20Permit_init(_name_);
