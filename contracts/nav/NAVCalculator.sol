@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
 import "./NAVLiquid.sol";
@@ -9,6 +10,7 @@ contract NAVCalculator is NAVLiquid, NAVIlliquid, NAVComposable, NAVNft {
 	mapping(address => mapping(uint256 => uint256[])) liquidCache;
 	mapping(address => mapping(uint256 => int256[])) composableCache;
 	mapping(address => mapping(uint256 => int256[])) NFTCache;
+	
 	function cacheLiquidCalculation(uint256[] memory data, address fund, uint256 navEntryIndex) internal {
 		liquidCache[fund][navEntryIndex] = data;
 	}
@@ -19,5 +21,17 @@ contract NAVCalculator is NAVLiquid, NAVIlliquid, NAVComposable, NAVNft {
 
 	function cacheNFTCalculation(int256[] memory data, address fund, uint256 navEntryIndex) internal {
 		NFTCache[fund][navEntryIndex] = data;
+	}
+
+	function getNAVLiquidCache(address fund, uint256 navEntryIndex) external view returns (uint256[] memory) {
+		return liquidCache[fund][navEntryIndex];
+	}
+
+	function getNAVComposableCache(address fund, uint256 navEntryIndex) external view returns (int256[] memory) {
+		return composableCache[fund][navEntryIndex];
+	}
+
+	function getNAVNFTCache(address fund, uint256 navEntryIndex) external view returns (int256[] memory) {
+		return NFTCache[fund][navEntryIndex];
 	}
 }

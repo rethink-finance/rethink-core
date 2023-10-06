@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
 import "../fund/IGovernableFund.sol";
@@ -8,4 +9,7 @@ interface INAVCalculator {
 	function composableCalculation(IGovernableFund.NAVComposableUpdate[] calldata composable, address fund, uint256 navEntryIndex) external view returns (uint256);
 	function nftCalculation(IGovernableFund.NAVNFTUpdate[] calldata nft, address safe, address fund, uint256 navEntryIndex) external view returns (uint256);
 	function illiquidCalculation(IGovernableFund.NAVIlliquidUpdate[] calldata illiquid, address safe) external view returns (uint256);
+	function getNAVLiquidCache(address fund, uint256 navEntryIndex) external view returns (uint256[] calldata);
+	function getNAVComposableCache(address fund, uint256 navEntryIndex) external view returns (int256[]  calldata);
+	function getNAVNFTCache(address fund, uint256 navEntryIndex) external view returns (int256[] calldata);
 }

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^0.7.1",
+    "@gnosis.pm/zodiac": "^3.3.10",
     "@openzeppelin/contracts": "^4.9.3",
     "@openzeppelin/contracts-upgradeable": "^4.9.3",
     "@truffle/hdwallet-provider": "^2.1.15",

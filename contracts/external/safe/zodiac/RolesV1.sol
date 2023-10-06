@@ -4,7 +4,7 @@ pragma solidity >=0.7.0 <0.9.0;
 import "@gnosis.pm/zodiac/contracts/core/Modifier.sol";
 import "./Permissions.sol";
 
-contract Roles is Modifier {
+contract RolesV1 is Modifier {
     address public multisend;
 
     mapping(address => uint16) public defaultRoles;
@@ -55,11 +55,6 @@ contract Roles is Modifier {
         setupModules();
 
         emit RolesModSetup(msg.sender, _owner, _avatar, _target);
-    }
-
-    function setupModules() internal {
-        assert(modules[SENTINEL_MODULES] == address(0));
-        modules[SENTINEL_MODULES] = SENTINEL_MODULES;
     }
 
     /// @dev Set the address of the expected multisend library

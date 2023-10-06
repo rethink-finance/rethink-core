@@ -3,6 +3,7 @@ const GovernableFundFactory = artifacts.require("GovernableFundFactory");
 const RethinkFundGoverner = artifacts.require("RethinkFundGovernor");
 const WrappedTokenFactory = artifacts.require("WrappedTokenFactory");
 const NAVCalculator = artifacts.require("NAVCalculator");
+const ZodiacRolesV1Modifier = artifacts.require("RolesV1");
 const TransparentUpgradeableProxy = artifacts.require("TransparentUpgradeableProxy");
 
 //import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
@@ -46,4 +47,12 @@ module.exports = async function (deployer) {
   let gfprox = await deployer.deploy(TransparentUpgradeableProxy, gf.address, owner, execData);
   setTimeout(function(){},delay);
   console.log("GovernableFundTransparentUpgradeableProxy singleton is at: "+ gfprox.address);
+
+  let zrv1 = await deployer.deploy(ZodiacRolesV1Modifier);
+  setTimeout(function(){},delay);
+  console.log("ZodiacRolesV1Modifier singleton is at: "+ zrv1.address);
+
+  let zrv1prox = await deployer.deploy(TransparentUpgradeableProxy, zrv1.address, owner, execData);
+  setTimeout(function(){},delay);
+  console.log("ZodiacRolesV1ModifierTransparentUpgradeableProxy singleton is at: "+ zrv1prox.address);
 };

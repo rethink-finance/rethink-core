@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
@@ -100,9 +101,12 @@ contract GovernableFundFactory is Initializable {
 	    	NOTE: enabling zodiac role modifire enable modules from data field, but can be and external contract that can run any priveleged functions on safe state.because this is doing a delegatecall
 	    */
 
+	    //create proxy around zodiac roles modifier
+	    address rolesModifier = address(new ERC1967Proxy(_zodiacRolesModifierModule, ""));
+
 	    bytes memory enableZodiacModule = abi.encodeWithSelector(
             bytes4(keccak256("enableModule(address)")),
-            _zodiacRolesModifierModule
+            rolesModifier
         );
 
 	    bytes memory initializer = abi.encodeWithSelector(
