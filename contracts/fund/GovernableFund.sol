@@ -78,13 +78,13 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		uint256 updateedNav = 0;
 		for(uint256 i=0; i< navUpdateData.length; i++) {
 			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(navUpdateData[i].liquid, FundSettings.safe);
+				updateedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(navUpdateData[i].liquid, FundSettings.safe, address(this), i);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
 				updateedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(navUpdateData[i].illiquid, FundSettings.safe);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdateData[i].nft, FundSettings.safe);
+				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdateData[i].nft, FundSettings.safe, address(this), i);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdateData[i].composable) ;
+				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdateData[i].composable, address(this), i) ;
 			}
 			navUpdate[_navUpdateLatestIndex].push(navUpdateData[i]);
  		}
@@ -96,13 +96,13 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		uint256 historicalNav = 0;
 		for(uint256 i=0; i< navUpdate[navUpdateIndex].length; i++) {
 			if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				historicalNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(navUpdate[navUpdateIndex][i].liquid, FundSettings.safe);
+				historicalNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(navUpdate[navUpdateIndex][i].liquid, FundSettings.safe, address(this), i);
 			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
 				historicalNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(navUpdate[navUpdateIndex][i].illiquid, FundSettings.safe);
 			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				historicalNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdate[navUpdateIndex][i].nft, FundSettings.safe);
+				historicalNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdate[navUpdateIndex][i].nft, FundSettings.safe, address(this), i);
 			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				historicalNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdate[navUpdateIndex][i].composable) ;
+				historicalNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdate[navUpdateIndex][i].composable, address(this), i) ;
 			}
  		}
 
