@@ -110,18 +110,26 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		return historicalNav;
 	}
 
+	function revokeDepositWithrawal(bool isDeposit) external {
+		if (isDeposit == true) {
+	        require(userDepositRequest[msg.sender].amount != 0 && userDepositRequest[msg.sender].requestTime != 0, "deposit not requested");
+	        _depositBal -= userDepositRequest[msg.sender].amount;
+			_userDepositBal[msg.sender] = 0;
+        	userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
+		} else {
+			require(userWithdrawRequest[msg.sender].amount != 0 && userWithdrawRequest[msg.sender].requestTime != 0, "withdrawal not requested");
+			_withdrawalBal -= userWithdrawRequest[msg.sender].amount;
+        	userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(0, 0);
+		}
+	}
+
 	function requestDeposit(uint256 amount) external {
 		if (FundSettings.isWhitelistedDeposits == true) {
 			require(whitelistedDepositors[msg.sender] == true, "not allowed");
 		}
 
 		require(userDepositRequest[msg.sender].amount == 0 && userDepositRequest[msg.sender].requestTime == 0, "already requested");
-
-
 		userDepositRequest[msg.sender] = DepositRequestEntry(amount, block.timestamp);
-
-		
-
 		_depositBal += amount;
 		_totalDepositBal += amount;
 		_userDepositBal[msg.sender] += amount;
