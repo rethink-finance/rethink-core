@@ -8,7 +8,7 @@ const TransparentUpgradeableProxy = artifacts.require("TransparentUpgradeablePro
 //import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 const delay = 10000;
-const owner = "0x0000000080000000000000000000000000000000";
+const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
 const execData = "0x";
 module.exports = async function (deployer) {
   let wtf = await deployer.deploy(WrappedTokenFactory);
