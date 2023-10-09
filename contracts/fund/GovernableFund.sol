@@ -93,7 +93,7 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		return updateedNav;
 	}
 
-	function computeNavAtIndex(uint256 navUpdateIndex) external view returns (uint) {
+	function computeNavAtIndex(uint256 navUpdateIndex) external view returns (uint256) {
 		uint256 historicalNav = 0;
 		for(uint256 i=0; i< navUpdate[navUpdateIndex].length; i++) {
 			if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVLiquidUpdateType) {
@@ -169,7 +169,7 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	}
 
 	function totalWithrawalBalance() public view returns (uint256) {
-		return IERC20(FundSettings.baseToken).balanceOf(address(this)) - _depositBal - _feeBal;
+		return IERC20(FundSettings.baseToken).balanceOf(address(this)) - _feeBal;
 	}
 
 	function flowFeesCollected() public view returns (uint256) {
@@ -228,14 +228,10 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
     	_feeBal = 0;
     }
 
-    function getManagementFeesAccruingPeriod() internal view returns (uint256) {
-        uint256 startTime = (_lastClaimedManagementFees == 0) ? _fundStartTime: _lastClaimedManagementFees;
-        return (block.timestamp - startTime);
-    }
-
     function calculateAccruedManagementFees() public view returns (uint256 accruedFees) {
         //add require to only valid token
-        uint256 accruingPeriod = getManagementFeesAccruingPeriod();
+        uint256 startTime = (_lastClaimedManagementFees == 0) ? _fundStartTime: _lastClaimedManagementFees;
+        uint256 accruingPeriod = (block.timestamp - startTime);
         uint256 managmentFeeLevel = FundSettings.managementFee;
         uint256 feeBase = totalSupply();
         uint256 feePerSecond = (feeBase * managmentFeeLevel) /
