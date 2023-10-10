@@ -55,4 +55,13 @@ module.exports = async function (deployer) {
   let zrv1prox = await deployer.deploy(TransparentUpgradeableProxy, zrv1.address, owner, execData);
   setTimeout(function(){},delay);
   console.log("ZodiacRolesV1ModifierTransparentUpgradeableProxy singleton is at: "+ zrv1prox.address);
+
+  let gfflow = await deployer.deploy(GovernableFundFlows);
+  setTimeout(function(){},delay);
+  console.log("GovernableFundFlows singleton is at: "+ gfflow.address);
+
+  let gfflowprox = await deployer.deploy(TransparentUpgradeableProxy, gfflow.address, owner, execData);
+  setTimeout(function(){},delay);
+  console.log("GovernableFundFlowsTransparentUpgradeableProxy singleton is at: "+ gfflowprox.address);
+
 };

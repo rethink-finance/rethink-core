@@ -7,19 +7,23 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 
 abstract contract NAVIlliquid {
-	function illiquidCalculation(IGovernableFund.NAVIlliquidUpdate[] calldata illiquid, address safe) external view returns (uint256) {
+	function illiquidCalculation(IGovernableFund.NAVIlliquidUpdate[] calldata illiquid, address safe, bool isPastNAVUpdate, IGovernableFund.NAVIlliquidUpdate[] calldata pastIlliquid) external view returns (uint256) {
 		//TODO: need to handle decimals and conversion to base currency
 		uint256 illiquidSum = 0;
 		for(uint i=0;i<illiquid.length;i++) {
+			IGovernableFund.NAVIlliquidUpdate memory illiquidVal = illiquid[i];
 
-			if (illiquid[i].isNFT == true) {
-				if (illiquid[i].nftType == IGovernableFund.NAVNFTType.ERC1155){
-		        	illiquidSum += illiquid[i].baseCurrencySpent * IERC721(illiquid[i].tokenAddress).balanceOf(safe);
-		        } else if (illiquid[i].nftType == IGovernableFund.NAVNFTType.ERC721){
-		        	illiquidSum += illiquid[i].baseCurrencySpent * IERC1155(illiquid[i].tokenAddress).balanceOf(safe, illiquid[i].nftIndex);
+			if (isPastNAVUpdate == true){
+				illiquidVal  = pastIlliquid[illiquid[i].pastNAVUpdateIndex];
+			}
+			if (illiquidVal.isNFT == true) {
+				if (illiquidVal.nftType == IGovernableFund.NAVNFTType.ERC1155){
+		        	illiquidSum += illiquidVal.baseCurrencySpent * IERC721(illiquidVal.tokenAddress).balanceOf(safe);
+		        } else if (illiquidVal.nftType == IGovernableFund.NAVNFTType.ERC721){
+		        	illiquidSum += illiquidVal.baseCurrencySpent * IERC1155(illiquidVal.tokenAddress).balanceOf(safe,illiquidVal.nftIndex);
 		        }
 			} else {
-				illiquidSum += illiquid[i].baseCurrencySpent * IERC20(illiquid[i].tokenAddress).balanceOf(safe);
+				illiquidSum += illiquidVal.baseCurrencySpent * IERC20(illiquidVal.tokenAddress).balanceOf(safe);
 			}
 		}
 

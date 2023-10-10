@@ -17,6 +17,7 @@ interface IGovernableFund {
 		address[] allowedDepositAddrs;
 		address[] allowedManagers;
 		address governanceToken;
+		address fundAddress;//TODO: this may not be needed if delegatecall has balance refs to callee addr
 		address governor;
 		string fundName;
 		string fundSymbol;
@@ -31,6 +32,7 @@ interface IGovernableFund {
 		bool isReturnArray;
 		uint256 returnLength;
 		uint256 returnIndex;
+		uint256 pastNAVUpdateIndex;
 	}
 
 	struct NAVIlliquidUpdate {
@@ -41,6 +43,7 @@ interface IGovernableFund {
 		string[] otcTxHashes;
 		NAVNFTType nftType;
 		uint256 nftIndex;
+		uint256 pastNAVUpdateIndex;
 	}
 
 	enum NAVNFTType {
@@ -53,6 +56,7 @@ interface IGovernableFund {
 		address nftAddress;
 		NAVNFTType nftType;
 		uint256 nftIndex;
+		uint256 pastNAVUpdateIndex;
 	}
 
 	enum NAVComposableUpdateReturnType {
@@ -69,6 +73,7 @@ interface IGovernableFund {
 		uint256 returnValIndex;
 		uint256 returnArraySize;
 		NAVComposableUpdateReturnType returnValType;
+		uint256 pastNAVUpdateIndex;
 	}
 
 	enum NavUpdateType {
@@ -84,6 +89,9 @@ interface IGovernableFund {
 		NAVIlliquidUpdate[] illiquid;
 		NAVNFTUpdate[] nft;
 		NAVComposableUpdate[] composable;
+		bool isPastNAVUpdate;
+		uint256 pastNAVUpdateIndex;
+		uint256 pastNAVUpdateEntryIndex;
 	}
 
 	struct WithdrawalRequestEntry {
@@ -96,5 +104,5 @@ interface IGovernableFund {
 		uint256 requestTime;
 	}
 
-	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address _navCalculatorAddress) external;
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address _navCalculatorAddress, address _fundDelgateCallFlowAddr) external;
 }

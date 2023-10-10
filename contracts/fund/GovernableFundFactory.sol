@@ -19,7 +19,10 @@ contract GovernableFundFactory is Initializable {
 	address _wrappedTokenFactory;
 	address _navCalculatorAddress;
 	address _zodiacRolesModifierModule;//TODO: do we need to deploy our own roles contract? https://github.com/gnosis/zodiac-modifier-roles-v1/raw/main/packages/evm/contracts/Roles.sol
+	address _fundDelgateCallFlowSingletonAddress;
 	address[] _registeredFunds;
+
+	mapping(address => address) baseTokenOracleMapping;//TODO: NOT IMP FOR STORAGE
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -35,7 +38,7 @@ contract GovernableFundFactory is Initializable {
 		safeSingleton -> https://goerli.etherscan.io/address/0x3E5c63644E683549055b9Be8653de26E0B4CD36E#code
 
 	*/
-	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule) external initializer {
+	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress) external initializer {
 		_governor = governor;
 		_fund = fund;
 		_safeProxyFactory = safeProxyFactory;
@@ -44,6 +47,7 @@ contract GovernableFundFactory is Initializable {
 		_wrappedTokenFactory = wrappedTokenFactory;
 		_navCalculatorAddress = navCalculatorAddress;
 		_zodiacRolesModifierModule = zodiacRolesModifierModule;
+		_fundDelgateCallFlowSingletonAddress = fundDelgateCallFlowSingletonAddress;
 	}
 
 	function registeredFundsLength() public view returns (uint256) {
@@ -108,12 +112,17 @@ contract GovernableFundFactory is Initializable {
 	    if (fundSettings.governanceToken == address(0)){
 	    	fundSettings.governanceToken = fundContractAddr;
 	    }
+	    fundSettings.fundAddress = fundContractAddr;
 
 	    //initialize governor w/ gov token
 	    IRethinkFundGovernor(govContractAddr).initialize(fundSettings.governanceToken, fundSettings.fundName);
-	    
+
+	    //create fund proxy flow
+	    address _fundDelgateCallFlowAddr = address(new ERC1967Proxy(_fundDelgateCallFlowSingletonAddress, ""));
+
+
 	    //initialize fund proxy
-	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress);
+	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowAddr);
 	    return fundContractAddr;
     }
 }

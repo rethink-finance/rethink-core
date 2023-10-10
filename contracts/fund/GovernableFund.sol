@@ -2,50 +2,28 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/nav/INAVCalculator.sol";
+import "./GovernableFundStorage.sol";
 
-contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
+contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 	using SafeERC20 for IERC20;
 
-	uint256 _nav; //TODO: NEEDS TO BE IN BASE TOKEN?
-	uint256 public _feeBal;
-	uint256 _depositBal;
-	uint256 _withdrawalBal;
-    uint256 _fundStartTime;
-    uint256 MAX_BPS = 10000;
-	uint256 _totalDepositBal;
-	uint256 public _navUpdateLatestTime;
-	uint256 public _navUpdateLatestIndex;
-    uint256 _lastClaimedManagementFees;
-	uint256 private fractionBase = 1e9;
-
-	address _navCalculatorAddress;
-	
-	mapping(address => bool) allowedFundMannagers;
-	mapping(address => bool) whitelistedDepositors;
-	mapping(address => uint256) _userDepositBal;//USED TO KEEP TRACK OF PERFORMANCE FROM DEPOSITS
-	mapping(uint256 => uint256) navUpdatedTime;
-	mapping(uint256 => NavUpdateEntry[]) navUpdate;//nav update index -> nav entries for update
-	bool isRequestedWithdrawals;
-	mapping(address => DepositRequestEntry) userDepositRequest;
-	mapping(address => WithdrawalRequestEntry) userWithdrawRequest;	
-	Settings public FundSettings;
-	//TODO: NEEDS TO BE A CHAINLINK ORACLE FOR BASE TOKEN?
+	//TODO: NEEDS TO BE A ORACLE FOR BASE TOKEN
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address navCalculatorAddress) override external initializer {
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address navCalculatorAddress, address fundDelgateCallFlowAddress) override external initializer {
 		__ERC20_init(_name_, _symbol_);
 		__ERC20Permit_init(_name_);
 		//TODO: need to do validation of imputs
 		FundSettings = _fundSettings;
 		_fundStartTime = block.timestamp;
 		_navCalculatorAddress = navCalculatorAddress;
+		_fundDelgateCallFlowAddress = fundDelgateCallFlowAddress;
 	}
 
 	function updateSettings(IGovernableFund.Settings calldata _fundSettings) external {
@@ -57,9 +35,7 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	function updateNav(NavUpdateEntry[] calldata navUpdateData) external {
 		onlyGovernance();
 		
-		_navUpdateLatestIndex++;
 		_navUpdateLatestTime = block.timestamp;
-
 		navUpdatedTime[_navUpdateLatestIndex] = block.timestamp;
 
 		//process nav here, save to storage
@@ -68,6 +44,7 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		//NOTE: could be some logic to better handle deposit/withdrawal flows
 		require(((_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe) - _depositBal) * _withdrawalBal / totalSupply()) <= IERC20(FundSettings.baseToken).balanceOf(address(this)), 'not enough for withdrawals');
 		isRequestedWithdrawals = false;
+		_navUpdateLatestIndex++;
 	}
 
 	function processNav(NavUpdateEntry[] calldata navUpdateData) private returns (uint256) {
@@ -75,94 +52,69 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		uint256 updateedNav = 0;
 		for(uint256 i=0; i< navUpdateData.length; i++) {
 			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(navUpdateData[i].liquid, FundSettings.safe, address(this), i);
+				updateedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(
+					navUpdateData[i].liquid,
+					FundSettings.safe,
+					address(this),
+					i,
+					navUpdateData[i].isPastNAVUpdate,
+					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].liquid
+				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(navUpdateData[i].illiquid, FundSettings.safe);
+				updateedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(
+					navUpdateData[i].illiquid,
+					FundSettings.safe,
+					navUpdateData[i].isPastNAVUpdate,
+					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].illiquid
+				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdateData[i].nft, FundSettings.safe, address(this), i);
+				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(
+					navUpdateData[i].nft,
+					FundSettings.safe,
+					address(this),
+					i,
+					navUpdateData[i].isPastNAVUpdate,
+					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].nft
+				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdateData[i].composable, address(this), i) ;
+				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(
+					navUpdateData[i].composable,
+					address(this),
+					i,
+					navUpdateData[i].isPastNAVUpdate,
+					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].composable
+				);
 			}
-			navUpdate[_navUpdateLatestIndex].push(navUpdateData[i]);
+
+			if (navUpdateData[i].isPastNAVUpdate == true){
+				navUpdate[_navUpdateLatestIndex].push(navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex]);
+			} else {
+				navUpdate[_navUpdateLatestIndex].push(navUpdateData[i]);
+			}
  		}
 
 		return updateedNav;
 	}
 
-	function computeNavAtIndex(uint256 navUpdateIndex) external view returns (uint256) {
-		uint256 historicalNav = 0;
-		for(uint256 i=0; i< navUpdate[navUpdateIndex].length; i++) {
-			if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				historicalNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(navUpdate[navUpdateIndex][i].liquid, FundSettings.safe, address(this), i);
-			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
-				historicalNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(navUpdate[navUpdateIndex][i].illiquid, FundSettings.safe);
-			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				historicalNav += INAVCalculator(_navCalculatorAddress).nftCalculation(navUpdate[navUpdateIndex][i].nft, FundSettings.safe, address(this), i);
-			} else if (navUpdate[navUpdateIndex][i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				historicalNav += INAVCalculator(_navCalculatorAddress).composableCalculation(navUpdate[navUpdateIndex][i].composable, address(this), i) ;
-			}
- 		}
-
-		return historicalNav;
-	}
-
 	function revokeDepositWithrawal(bool isDeposit) external {
-		if (isDeposit == true) {
-	        require(userDepositRequest[msg.sender].amount != 0 && userDepositRequest[msg.sender].requestTime != 0, "deposit not requested");
-	        _depositBal -= userDepositRequest[msg.sender].amount;
-	        _totalDepositBal -= userDepositRequest[msg.sender].amount;
-			_userDepositBal[msg.sender] = 0;
-        	userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
-		} else {
-			require(userWithdrawRequest[msg.sender].amount != 0 && userWithdrawRequest[msg.sender].requestTime != 0, "withdrawal not requested");
-			_withdrawalBal -= userWithdrawRequest[msg.sender].amount;
-        	userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(0, 0);
-		}
+		(bool success,) = address(this).delegatecall(
+			abi.encodeWithSignature("revokeDepositWithrawal(bool)", isDeposit)
+		);
+		require(success == true, "failed revoke");
 	}
 
 	function requestDeposit(uint256 amount) external {
-		if (FundSettings.isWhitelistedDeposits == true) {
-			require(whitelistedDepositors[msg.sender] == true, "not allowed");
-		}
-
-		require(userDepositRequest[msg.sender].amount == 0 && userDepositRequest[msg.sender].requestTime == 0, "already requested");
-		userDepositRequest[msg.sender] = DepositRequestEntry(amount, block.timestamp);
-		_depositBal += amount;
-		_totalDepositBal += amount;
-		_userDepositBal[msg.sender] += amount;
+		(bool success, ) = address(this).delegatecall(
+			abi.encodeWithSignature("requestDeposit(uint256)", amount)
+		);
+		require(success == true, "failed withrawal request");
 	}
 
 	function deposit() external {
-
-		uint bal = IERC20(FundSettings.baseToken).balanceOf(msg.sender);
-
-		require(bal >= userWithdrawRequest[msg.sender].amount, "low bal");
-
-		require(userDepositRequest[msg.sender].requestTime < navUpdatedTime[_navUpdateLatestIndex], "not allowed yet");
-        require(userDepositRequest[msg.sender].amount != 0 && userDepositRequest[msg.sender].requestTime != 0, "deposit not requested");
-
-		uint b0 = _nav;
-
-		//transfer tokens to fund
-        IERC20(FundSettings.baseToken).safeTransferFrom(msg.sender, address(this), userDepositRequest[msg.sender].amount);
-        uint feeAmount = userDepositRequest[msg.sender].amount * FundSettings.depositFee / MAX_BPS;
-        uint discountedAmount = userDepositRequest[msg.sender].amount - feeAmount;
-        _feeBal += feeAmount;
-
-        uint b1 = _nav + discountedAmount;
-        uint p = (b1 - b0) * (fractionBase / b1);
-        uint b = 1e3;
-        uint v = totalSupply() > 0 ? totalSupply() * p * b / (fractionBase - p) : b1 * b;
-        v = _round(v, b);
-
-        _mint(msg.sender, v);
-
-
-        IERC20(FundSettings.baseToken).transfer(FundSettings.safe, discountedAmount);
-		_depositBal -= userDepositRequest[msg.sender].amount;
-		_userDepositBal[msg.sender] = 0;
-        userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
-
+		(bool success,) = address(this).delegatecall(
+			abi.encodeWithSignature("deposit()")
+		);
+		require(success == true, "failed deposit");
 	}
 
 	function totalWithrawalBalance() public view returns (uint256) {
@@ -170,49 +122,17 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	}
 
 	function requestWithdraw(uint256 amount) external {
-		require(balanceOf(msg.sender) > 0, "nothing to withdraw");
-		isRequestedWithdrawals = true;
-
-		if (FundSettings.isWhitelistedDeposits == true) {
-			require(whitelistedDepositors[msg.sender] == true, "not allowed");
-		}
-
-		require(userWithdrawRequest[msg.sender].amount == 0 && userWithdrawRequest[msg.sender].requestTime == 0, "already requested");
-
-		userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(amount, block.timestamp);
-		_withdrawalBal += amount;
+		(bool success,) = address(this).delegatecall(
+			abi.encodeWithSignature("requestWithdraw(uint256)", amount)
+		);
+		require(success == true, "failed withrawal request");
 	}
 	
 	function withdraw() external {
-        uint bal = balanceOf(msg.sender);
-        require(userWithdrawRequest[msg.sender].requestTime < navUpdatedTime[_navUpdateLatestIndex], "not allowed yet");
-        require(bal >= userWithdrawRequest[msg.sender].amount, "low bal");
-        require(userWithdrawRequest[msg.sender].amount != 0 && userWithdrawRequest[msg.sender].requestTime != 0, "withdrawal not requested");
-
-
-        uint val = valueOf(msg.sender) * userWithdrawRequest[msg.sender].amount / bal;
-        uint feeVal = val * FundSettings.withdrawFee / MAX_BPS;
-        uint discountedValue = val - feeVal;
-        _feeBal += feeVal;
-
-
-        if (_userDepositBal[msg.sender] >= val){
-        	_userDepositBal[msg.sender] -= val;
-        	_totalDepositBal -= val;
-        } else {
-        	_totalDepositBal -= _userDepositBal[msg.sender];
-        	_userDepositBal[msg.sender] = 0;
-        }
-
-
-        if (totalWithrawalBalance() > discountedValue) {
-           IERC20(FundSettings.baseToken).transfer(msg.sender, discountedValue);
-        }
-        
-        _burn(msg.sender, userWithdrawRequest[msg.sender].amount);
-        _withdrawalBal -= userWithdrawRequest[msg.sender].amount;
-        userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(0, 0);
-
+		(bool success, ) = address(this).delegatecall(
+			abi.encodeWithSignature("withdraw()")
+		);
+		require(success == true, "failed withrawal");
     }
 
     function collectFees() external {
