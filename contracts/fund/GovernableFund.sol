@@ -10,14 +10,14 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	using SafeERC20 for IERC20;
 
 	uint256 _nav; //TODO: NEEDS TO BE IN BASE TOKEN?
-	uint256 _feeBal;
+	uint256 public _feeBal;
 	uint256 _depositBal;
 	uint256 _withdrawalBal;
     uint256 _fundStartTime;
     uint256 MAX_BPS = 10000;
 	uint256 _totalDepositBal;
-	uint256 _navUpdateLatestTime;
-	uint256 _navUpdateLatestIndex;
+	uint256 public _navUpdateLatestTime;
+	uint256 public _navUpdateLatestIndex;
     uint256 _lastClaimedManagementFees;
 	uint256 private fractionBase = 1e9;
 
@@ -31,7 +31,7 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 	bool isRequestedWithdrawals;
 	mapping(address => DepositRequestEntry) userDepositRequest;
 	mapping(address => WithdrawalRequestEntry) userWithdrawRequest;	
-	Settings FundSettings;
+	Settings public FundSettings;
 	//TODO: NEEDS TO BE A CHAINLINK ORACLE FOR BASE TOKEN?
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
@@ -52,10 +52,6 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		//TODO: only allow updates on changable settings
 		onlyGovernance();
 		FundSettings = _fundSettings;
-	}
-
-	function navUpdateLatestIndex() external view returns (uint256) {
-		return _navUpdateLatestIndex;
 	}
 
 	function updateNav(NavUpdateEntry[] calldata navUpdateData) external {
@@ -114,6 +110,7 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		if (isDeposit == true) {
 	        require(userDepositRequest[msg.sender].amount != 0 && userDepositRequest[msg.sender].requestTime != 0, "deposit not requested");
 	        _depositBal -= userDepositRequest[msg.sender].amount;
+	        _totalDepositBal -= userDepositRequest[msg.sender].amount;
 			_userDepositBal[msg.sender] = 0;
         	userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
 		} else {
@@ -172,10 +169,6 @@ contract GovernableFund is IGovernableFund, ERC20VotesUpgradeable {
 		return IERC20(FundSettings.baseToken).balanceOf(address(this)) - _feeBal;
 	}
 
-	function flowFeesCollected() public view returns (uint256) {
-		return _feeBal;
-	}
-	
 	function requestWithdraw(uint256 amount) external {
 		require(balanceOf(msg.sender) > 0, "nothing to withdraw");
 		isRequestedWithdrawals = true;

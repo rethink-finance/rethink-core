@@ -59,30 +59,6 @@ contract GovernableFundFactory is Initializable {
 	}
 
     function createFund(IGovernableFund.Settings memory fundSettings) external returns (address) {
-    	/*
-    	TODO: 
-	    	initialize fund proxy
-
-
-	    struct Settings {
-			uint256 depositFee;
-			uint256 withdrawFee;
-			uint256 performanceFee;
-			uint256 managementFee;
-			uint256 performaceHurdleRateBps;
-			address baseToken;
-			address safe; //TODO: needs to be set after safe creation
-			bool isExternalGovTokenInUse;
-			bool isWhitelistedDeposits;
-			address[] allowedDepositAddrs;
-			address[] allowedManagers;
-			address governanceToken;
-			address governor;
-			string fundName;
-			string fundSymbol;
-		}
-	    */
-
 	    //create erc20 wrapper if needed
 	    if ((fundSettings.isExternalGovTokenInUse == true) && (fundSettings.governanceToken != address(0))) {
 	    	try IVotes(fundSettings.governanceToken).getVotes(msg.sender) returns (uint256) {
