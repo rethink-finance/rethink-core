@@ -172,11 +172,11 @@ module.exports = {
         return new HDWalletProvider({
             privateKeys: [process.env.MUMBAI_PRIVATE_KEY], 
             providerOrUrl: "https://rpc.ankr.com/eth_goerli",
-            pollingInterval: 32000,
+            pollingInterval: 5000,
         })
         //return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, "https://matic-mumbai.chainstacklabs.com/")
       },
-      deploymentPollingInterval: 64000,
+      deploymentPollingInterval: 10000,
       network_id: 5,
       gas: 8000000,
       gasPrice: 10e8,
@@ -184,7 +184,7 @@ module.exports = {
       //gasLimit: 80000000,
       //network_id: 43113,
       networkCheckTimeout: 10000000,
-      timeoutBlocks: 2000,
+      timeoutBlocks: 200,
       from: "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6",
       //gasPrice: 25, // 301e8, //30.1 gewi
       disableConfirmationListener: true

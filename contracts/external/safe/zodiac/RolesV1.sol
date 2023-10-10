@@ -29,14 +29,14 @@ contract RolesV1 is Modifier {
     /// @param _owner Address of the owner
     /// @param _avatar Address of the avatar (e.g. a Gnosis Safe)
     /// @param _target Address of the contract that will call exec function
-    constructor(
+    /*constructor(
         address _owner,
         address _avatar,
         address _target
     ) {
         bytes memory initParams = abi.encode(_owner, _avatar, _target);
         setUp(initParams);
-    }
+    }*/
 
     /// @dev There is no zero address check as solidty will check for
     /// missing arguments and the space of invalid addresses is too large
