@@ -4,10 +4,8 @@ const RethinkFundGoverner = artifacts.require("RethinkFundGovernor");
 const WrappedTokenFactory = artifacts.require("WrappedTokenFactory");
 const NAVCalculator = artifacts.require("NAVCalculator");
 const ZodiacRolesV1Modifier = artifacts.require("RolesV1");
-const TransparentUpgradeableProxy = artifacts.require("TransparentUpgradeableProxy");
-const ITransparentUpgradeableProxy = artifacts.require("ITransparentUpgradeableProxy");
-
-//import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+const UpgradeableBeacon = artifacts.require("UpgradeableBeacon");
+const BeaconProxy = artifacts.require("BeaconProxy");
 
 const delay = 10000;
 const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
@@ -21,7 +19,7 @@ module.exports = async function (deployer) {
 	setTimeout(function(){},delay);
 	console.log("NAVCalculator singleton is at: "+ NAVCalculator.address);
 
-	let p = await ITransparentUpgradeableProxy.at(proxy);
+	let p = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
 	p.upgradeTo(NAVCalculator.address);
 	//console.log(p);

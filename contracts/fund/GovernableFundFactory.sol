@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/fund/IRethinkFundGovernor.sol";
@@ -36,7 +36,6 @@ contract GovernableFundFactory is Initializable {
 	Goerli:
 		safeProxyFactory -> https://goerli.etherscan.io/address/0xa6b71e26c5e0845f74c812102ca7114b6a896ab2#code
 		safeSingleton -> https://goerli.etherscan.io/address/0x3E5c63644E683549055b9Be8653de26E0B4CD36E#code
-
 	*/
 	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress) external initializer {
 		_governor = governor;
@@ -75,14 +74,14 @@ contract GovernableFundFactory is Initializable {
 	    }
 
 	    //create proxy around governor
-	    address govContractAddr = address(new ERC1967Proxy(_governor, ""));
+	    address govContractAddr = address(new BeaconProxy(_governor, ""));
 
 	    /*
 	    	NOTE: enabling zodiac role modifire enable modules from data field, but can be and external contract that can run any priveleged functions on safe state.because this is doing a delegatecall
 	    */
 
 	    //create proxy around zodiac roles modifier
-	    address rolesModifier = address(new ERC1967Proxy(_zodiacRolesModifierModule, ""));
+	    address rolesModifier = address(new BeaconProxy(_zodiacRolesModifierModule, ""));
 
 	    bytes memory enableZodiacModule = abi.encodeWithSelector(
             bytes4(keccak256("enableModule(address)")),
@@ -106,7 +105,7 @@ contract GovernableFundFactory is Initializable {
 	    fundSettings.safe = safeProxyAddr;
 
 	    //create proxy around fund
-	    address fundContractAddr = address(new ERC1967Proxy(_fund, ""));
+	    address fundContractAddr = address(new BeaconProxy(_fund, ""));
 	    _registeredFunds.push(fundContractAddr);
 
 	    if (fundSettings.governanceToken == address(0)){
@@ -118,7 +117,7 @@ contract GovernableFundFactory is Initializable {
 	    IRethinkFundGovernor(govContractAddr).initialize(fundSettings.governanceToken, fundSettings.fundName);
 
 	    //create fund proxy flow
-	    address _fundDelgateCallFlowAddr = address(new ERC1967Proxy(_fundDelgateCallFlowSingletonAddress, ""));
+	    address _fundDelgateCallFlowAddr = address(new BeaconProxy(_fundDelgateCallFlowSingletonAddress, ""));
 
 
 	    //initialize fund proxy

@@ -4,8 +4,8 @@ const RethinkFundGoverner = artifacts.require("RethinkFundGovernor");
 const WrappedTokenFactory = artifacts.require("WrappedTokenFactory");
 const NAVCalculator = artifacts.require("NAVCalculator");
 const ZodiacRolesV1Modifier = artifacts.require("RolesV1");
-const TransparentUpgradeableProxy = artifacts.require("TransparentUpgradeableProxy");
-const ITransparentUpgradeableProxy = artifacts.require("ITransparentUpgradeableProxy");
+const UpgradeableBeacon = artifacts.require("UpgradeableBeacon");
+const BeaconProxy = artifacts.require("BeaconProxy");
 
 //import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
@@ -19,7 +19,7 @@ module.exports = async function (deployer) {
 	setTimeout(function(){},delay);
 	console.log("GovernableFund singleton is at: "+ GovernableFund.address);
 
-	let p = await ITransparentUpgradeableProxy.at(proxy);
+	let p = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
 	p.upgradeTo(GovernableFund.address);
 }

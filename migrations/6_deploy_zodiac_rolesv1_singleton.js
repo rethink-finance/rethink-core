@@ -5,10 +5,8 @@ const WrappedTokenFactory = artifacts.require("WrappedTokenFactory");
 const NAVCalculator = artifacts.require("NAVCalculator");
 const ZodiacRolesV1Modifier = artifacts.require("RolesV1");
 const Permissions = artifacts.require("Permissions");
-const TransparentUpgradeableProxy = artifacts.require("TransparentUpgradeableProxy");
-const ITransparentUpgradeableProxy = artifacts.require("ITransparentUpgradeableProxy");
-
-//import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+const UpgradeableBeacon = artifacts.require("UpgradeableBeacon");
+const BeaconProxy = artifacts.require("BeaconProxy");
 
 const delay = 10000;
 const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
@@ -24,13 +22,9 @@ module.exports = async function (deployer) {
 	  await deployer.link(perms, ZodiacRolesV1Modifier);
 	  let zrv1 = await deployer.deploy(ZodiacRolesV1Modifier);//, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000");
 	  setTimeout(function(){},delay);
-	  console.log("ZodiacRolesV1Modifier singleton is at: "+ zrv1.address);
+	  console.log("ZodiacRolesV1Modifier singleton is at: "+ ZodiacRolesV1Modifier.address);
 
-	  let zrv1prox = await deployer.deploy(TransparentUpgradeableProxy, zrv1.address, owner, execData);
+	  let p = await UpgradeableBeacon.at(proxy);
 	  setTimeout(function(){},delay);
-	  console.log("ZodiacRolesV1ModifierTransparentUpgradeableProxy singleton is at: "+ zrv1prox.address);
-
-	  //let p = await ITransparentUpgradeableProxy.at(proxy);
-	  //setTimeout(function(){},delay);
-	  //p.upgradeTo();
+	  p.upgradeTo(ZodiacRolesV1Modifier.address);
 }
