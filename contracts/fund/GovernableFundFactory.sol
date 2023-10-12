@@ -7,6 +7,7 @@ import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/fund/IRethinkFundGovernor.sol";
 import "../interfaces/token/IWrappedTokenFactory.sol";
 import "../interfaces/external/safe/ISafeProxyFactory.sol";
+import "./InitSafeRolesModule.sol";
 
 //https://wizard.openzeppelin.com/#governor
 
@@ -36,6 +37,7 @@ contract GovernableFundFactory is Initializable {
 	Goerli:
 		safeProxyFactory -> https://goerli.etherscan.io/address/0xa6b71e26c5e0845f74c812102ca7114b6a896ab2#code
 		safeSingleton -> https://goerli.etherscan.io/address/0x3E5c63644E683549055b9Be8653de26E0B4CD36E#code
+		safeFallbackHandler -> "https://goerli.etherscan.io/address/0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4"
 	*/
 	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress) external initializer {
 		_governor = governor;
@@ -77,35 +79,45 @@ contract GovernableFundFactory is Initializable {
 	    address govContractAddr = address(new BeaconProxy(_governor, ""));
 
 	    /*
-	    	NOTE: enabling zodiac role modifire enable modules from data field, but can be and external contract that can run any priveleged functions on safe state.because this is doing a delegatecall
+	    	NOTE: enabling zodiac role modifier enable modules from data field, but can be and external contract that can run any priveleged functions on safe state.because this is doing a delegatecall
 	    */
 
-	    //create proxy around zodiac roles modifier
+	    //create proxy around zodiac roles modifier making governance contract owner of role
 	    address rolesModifier = address(new BeaconProxy(_zodiacRolesModifierModule, ""));
+	    address rolesModuleInitializer = address(new InitSafeRolesModule(govContractAddr, rolesModifier));
 
 	    bytes memory enableZodiacModule = abi.encodeWithSelector(
-            bytes4(keccak256("enableModule(address)")),
-            rolesModifier
+            bytes4(keccak256("enableRoleMod"))
         );
+
+        address[] memory safeOwners = new address[](1);
+        safeOwners[0] = govContractAddr;
 
 	    bytes memory initializer = abi.encodeWithSelector(
 	    	bytes4(keccak256("setup(address[],uint256,address,bytes,address,address,uint256,address)")),
-	    	[govContractAddr],
+	    	safeOwners,
 	    	1,
-	    	_safeSingleton,//to
-	    	enableZodiacModule,//data
-	    	_safeFallbackHandler,
+	    	rolesModuleInitializer,//to for setupModules, otherwise, should be null if data is null
+	    	enableZodiacModule,//data setupModules
+	    	address(0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4),//_safeFallbackHandler,
 	    	address(0),
 	    	0,
 	    	address(0)
 	    );
-	    
+
+	    /*
+	    	TODO: ISSUE DURING SAFE createProxyWithNonce
+	    	https://goerli.etherscan.io/tx/0xa90f01f2d2442a924ea06cd2ebb9141f5d4dab6ad2915ebdb46438da1fe97220#internal(non null _safeFallbackHandler)
+
+	    */
 	    //create safe proxy w/ gov token + govener
 	    address safeProxyAddr = address(ISafeProxyFactory(_safeProxyFactory).createProxyWithNonce(_safeSingleton, initializer, PREDETERMINED_SALT_NONCE));
 	    fundSettings.safe = safeProxyAddr;
 
+	    
 	    //create proxy around fund
 	    address fundContractAddr = address(new BeaconProxy(_fund, ""));
+
 	    _registeredFunds.push(fundContractAddr);
 
 	    if (fundSettings.governanceToken == address(0)){
@@ -116,12 +128,15 @@ contract GovernableFundFactory is Initializable {
 	    //initialize governor w/ gov token
 	    IRethinkFundGovernor(govContractAddr).initialize(fundSettings.governanceToken, fundSettings.fundName);
 
-	    //create fund proxy flow
-	    address _fundDelgateCallFlowAddr = address(new BeaconProxy(_fundDelgateCallFlowSingletonAddress, ""));
 
+	    /*
+	    	TODO: ISSUE DURING create fund proxy flow
+
+	    	https://goerli.etherscan.io/tx/0x39b2e12d9e049fcfb0042586c045c761721c6108f9239993841494ba04768177 (needs null enableZodiacModule)
+	    */
 
 	    //initialize fund proxy
-	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowAddr);
+	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress);
 	    return fundContractAddr;
     }
 }
