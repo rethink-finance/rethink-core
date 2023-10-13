@@ -25,4 +25,8 @@ abstract contract GovernableFundStorage is IGovernableFund {
 	mapping(address => DepositRequestEntry) userDepositRequest;
 	mapping(address => WithdrawalRequestEntry) userWithdrawRequest;	
 	Settings public FundSettings;
+
+	function getFundSettings() external view returns (Settings memory) {
+		return FundSettings;
+	}
 }

@@ -63,6 +63,17 @@ contract GovernableFundFactory is Initializable {
 		return subRegisterdFunds;
 	}
 
+	function registeredFundsData(uint256 start, uint256 end) public view returns (address[] memory, IGovernableFund.Settings[] memory) {
+		address[] memory subRegisterdFunds = new address[](end-start);
+		IGovernableFund.Settings[] memory settings = new IGovernableFund.Settings[](end-start);
+
+		for(uint i=start; i<end;i++) {
+			subRegisterdFunds[i-start] = _registeredFunds[i];
+			settings[i-start] = IGovernableFund(_registeredFunds[i]).getFundSettings();
+		}
+		return (subRegisterdFunds, settings);
+	}
+
     function createFund(IGovernableFund.Settings memory fundSettings) external returns (address) {
 	    //create erc20 wrapper if needed
 	    if ((fundSettings.isExternalGovTokenInUse == true) && (fundSettings.governanceToken != address(0))) {
@@ -87,7 +98,7 @@ contract GovernableFundFactory is Initializable {
 	    address rolesModuleInitializer = address(new InitSafeRolesModule(govContractAddr, rolesModifier));
 
 	    bytes memory enableZodiacModule = abi.encodeWithSelector(
-            bytes4(keccak256("enableRoleMod"))
+            bytes4(keccak256("enableRoleMod()"))
         );
 
         address[] memory safeOwners = new address[](1);
@@ -105,14 +116,17 @@ contract GovernableFundFactory is Initializable {
 	    	address(0)
 	    );
 
-	    /*
-	    	TODO: ISSUE DURING SAFE createProxyWithNonce
-	    	https://goerli.etherscan.io/tx/0xa90f01f2d2442a924ea06cd2ebb9141f5d4dab6ad2915ebdb46438da1fe97220#internal(non null _safeFallbackHandler)
-
-	    */
 	    //create safe proxy w/ gov token + govener
 	    address safeProxyAddr = address(ISafeProxyFactory(_safeProxyFactory).createProxyWithNonce(_safeSingleton, initializer, PREDETERMINED_SALT_NONCE));
 	    fundSettings.safe = safeProxyAddr;
+
+	    /*
+
+	    TODO: need to figure out how to setup roles mod contract after everything is done
+	    bytes memory initParams = abi.encode(govContractAddr, safeProxyAddr, address(0));
+        IRolesV1(rolesModifier).setUp(initParams);
+
+        */
 
 	    
 	    //create proxy around fund
@@ -127,13 +141,6 @@ contract GovernableFundFactory is Initializable {
 
 	    //initialize governor w/ gov token
 	    IRethinkFundGovernor(govContractAddr).initialize(fundSettings.governanceToken, fundSettings.fundName);
-
-
-	    /*
-	    	TODO: ISSUE DURING create fund proxy flow
-
-	    	https://goerli.etherscan.io/tx/0x39b2e12d9e049fcfb0042586c045c761721c6108f9239993841494ba04768177 (needs null enableZodiacModule)
-	    */
 
 	    //initialize fund proxy
 	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress);
