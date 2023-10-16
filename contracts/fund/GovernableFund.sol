@@ -165,11 +165,6 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         return (_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)) * balanceOf(ownr) / totalSupply();
     }
 
-    // rounds "v" considering a base "b"
-    function _round(uint v, uint b) internal pure returns (uint) {
-        return (v / b) + ((v % b) >= (b / 2) ? 1 : 0);
-    }
-
     function onlyGovernance() private view {
     	require(msg.sender == FundSettings.governor, "only gov");
     }

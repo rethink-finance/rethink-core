@@ -138,6 +138,7 @@ contract GovernableFundFactory is Initializable {
 	    	fundSettings.governanceToken = fundContractAddr;
 	    }
 	    fundSettings.fundAddress = fundContractAddr;
+	    fundSettings.governor = govContractAddr;
 
 	    //initialize governor w/ gov token
 	    IRethinkFundGovernor(govContractAddr).initialize(fundSettings.governanceToken, fundSettings.fundName);

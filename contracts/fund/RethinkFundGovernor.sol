@@ -25,7 +25,7 @@ contract RethinkFundGovernor is
     
 	function initialize(IVotesUpgradeable _token, string calldata _govName) external initializer {
 		__GovernorVotes_init(_token);
-		__Governor_init(_govName);
+		__Governor_init(string(abi.encodePacked("Rethink Governor: ", _govName)));
 		__GovernorVotesQuorumFraction_init(10);//10 percent quoru
 		__GovernorPreventLateQuorum_init(86400); //1 day in seconds
 	}
