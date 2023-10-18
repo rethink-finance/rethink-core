@@ -5,6 +5,7 @@ const WrappedTokenFactory = artifacts.require("WrappedTokenFactory");
 const NAVCalculator = artifacts.require("NAVCalculator");
 const ZodiacRolesV1Modifier = artifacts.require("RolesV1");
 const GovernableFundFlows = artifacts.require("GovernableFundFlows");
+const GovernableFundNav = artifacts.require("GovernableFundNav");
 const UpgradeableBeacon = artifacts.require("UpgradeableBeacon");
 const BeaconProxy = artifacts.require("BeaconProxy");
 
@@ -12,10 +13,12 @@ const delay = 10000;
 const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
 const execData = "0x";
 module.exports = async function (deployer) {
+
   /*
   let wtf = await deployer.deploy(WrappedTokenFactory);
   setTimeout(function(){},delay);
   console.log("WrappedTokenFactory is at: "+ WrappedTokenFactory.address);
+  */
 
 
 
@@ -31,7 +34,7 @@ module.exports = async function (deployer) {
   setTimeout(function(){},delay);
   console.log("GovernableFundFactoryBeaconProxy is at: "+ gffbprox.address);
 
-
+/*
 
   let nc = await deployer.deploy(NAVCalculator);
   setTimeout(function(){},delay);
@@ -55,6 +58,8 @@ module.exports = async function (deployer) {
   setTimeout(function(){},delay);
   console.log("RethinkFundGovernerUpgradeableBeacon is at: "+ rtfgub.address);
 
+  */
+
   
 
   let gf = await deployer.deploy(GovernableFund);
@@ -66,7 +71,7 @@ module.exports = async function (deployer) {
   console.log("GovernableFundUpgradeableBeacon is at: "+ gfub.address);
 
   
-
+  /*
   let zrv1 = await deployer.deploy(ZodiacRolesV1Modifier);
   setTimeout(function(){},delay);
   console.log("ZodiacRolesV1Modifier singleton is at: "+ ZodiacRolesV1Modifier.address);
@@ -74,9 +79,8 @@ module.exports = async function (deployer) {
   let zrv1ub = await deployer.deploy(UpgradeableBeacon, ZodiacRolesV1Modifier.address);
   setTimeout(function(){},delay);
   console.log("ZodiacRolesV1ModifierUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
-
   */
-  
+
 
   let gfflow = await deployer.deploy(GovernableFundFlows);
   setTimeout(function(){},delay);
@@ -89,4 +93,16 @@ module.exports = async function (deployer) {
   let gfflowbprox = await deployer.deploy(BeaconProxy, UpgradeableBeacon.address, execData);
   setTimeout(function(){},delay);
   console.log("GovernableFundFlowsBeaconProxy is at: "+ BeaconProxy.address);
+
+  let gfnav = await deployer.deploy(GovernableFundNav);
+  setTimeout(function(){},delay);
+  console.log("GovernableFundNav singleton is at: "+ GovernableFundNav.address);
+
+  let gfnavub = await deployer.deploy(UpgradeableBeacon, GovernableFundNav.address);
+  setTimeout(function(){},delay);
+  console.log("GovernableFundNavUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
+
+  let gfnavbprox = await deployer.deploy(BeaconProxy, UpgradeableBeacon.address, execData);
+  setTimeout(function(){},delay);
+  console.log("GovernableFundNavBeaconProxy is at: "+ BeaconProxy.address);
 };

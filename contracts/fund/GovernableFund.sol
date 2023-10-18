@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
 import "../interfaces/fund/IGovernableFund.sol";
-import "../interfaces/nav/INAVCalculator.sol";
 import "./GovernableFundStorage.sol";
 
 contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
@@ -16,7 +15,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         _disableInitializers();
     }
 
-	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address navCalculatorAddress, address fundDelgateCallFlowAddress) override external initializer {
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address navCalculatorAddress, address fundDelgateCallFlowAddress, address fundDelgateCallNavAddress) override external initializer {
 		__ERC20_init(_name_, _symbol_);
 		__ERC20Permit_init(_name_);
 		//TODO: need to do validation of imputs
@@ -24,6 +23,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		_fundStartTime = block.timestamp;
 		_navCalculatorAddress = navCalculatorAddress;
 		_fundDelgateCallFlowAddress = fundDelgateCallFlowAddress;
+		_fundDelgateCallNavAddress = fundDelgateCallNavAddress;
 	}
 
 	function updateSettings(IGovernableFund.Settings calldata _fundSettings) external {
@@ -39,7 +39,13 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		navUpdatedTime[_navUpdateLatestIndex] = block.timestamp;
 
 		//process nav here, save to storage
-		_nav = processNav(navUpdateData);
+		(bool success, bytes memory navBytes) = _fundDelgateCallNavAddress.delegatecall(
+			abi.encodeWithSignature("processNav(NavUpdateEntry[])", navUpdateData)
+		);
+		require(success == true, "failed processNav");
+
+		_nav = abi.decode(navBytes, (uint256));
+		//_nav = processNav(navUpdateData);
 
 		//NOTE: could be some logic to better handle deposit/withdrawal flows
 		require(((_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe) - _depositBal) * _withdrawalBal / totalSupply()) <= IERC20(FundSettings.baseToken).balanceOf(address(this)), 'not enough for withdrawals');
@@ -47,71 +53,22 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		_navUpdateLatestIndex++;
 	}
 
-	function processNav(NavUpdateEntry[] calldata navUpdateData) private returns (uint256) {
-		//NOTE: may need to happen over multiple transactions?
-		uint256 updateedNav = 0;
-		for(uint256 i=0; i< navUpdateData.length; i++) {
-			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(
-					navUpdateData[i].liquid,
-					FundSettings.safe,
-					address(this),
-					i,
-					navUpdateData[i].isPastNAVUpdate,
-					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].liquid
-				);
-			} else if (navUpdateData[i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(
-					navUpdateData[i].illiquid,
-					FundSettings.safe,
-					navUpdateData[i].isPastNAVUpdate,
-					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].illiquid
-				);
-			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(
-					navUpdateData[i].nft,
-					FundSettings.safe,
-					address(this),
-					i,
-					navUpdateData[i].isPastNAVUpdate,
-					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].nft
-				);
-			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(
-					navUpdateData[i].composable,
-					address(this),
-					i,
-					navUpdateData[i].isPastNAVUpdate,
-					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].composable
-				);
-			}
-
-			if (navUpdateData[i].isPastNAVUpdate == true){
-				navUpdate[_navUpdateLatestIndex].push(navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex]);
-			} else {
-				navUpdate[_navUpdateLatestIndex].push(navUpdateData[i]);
-			}
- 		}
-
-		return updateedNav;
-	}
-
 	function revokeDepositWithrawal(bool isDeposit) external {
-		(bool success,) = address(this).delegatecall(
+		(bool success,) = _fundDelgateCallFlowAddress.delegatecall(
 			abi.encodeWithSignature("revokeDepositWithrawal(bool)", isDeposit)
 		);
 		require(success == true, "failed revoke");
 	}
 
 	function requestDeposit(uint256 amount) external {
-		(bool success, ) = address(this).delegatecall(
+		(bool success, ) = _fundDelgateCallFlowAddress.delegatecall(
 			abi.encodeWithSignature("requestDeposit(uint256)", amount)
 		);
 		require(success == true, "failed withrawal request");
 	}
 
 	function deposit() external {
-		(bool success,) = address(this).delegatecall(
+		(bool success,) = _fundDelgateCallFlowAddress.delegatecall(
 			abi.encodeWithSignature("deposit()")
 		);
 		require(success == true, "failed deposit");
@@ -122,14 +79,14 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 	}
 
 	function requestWithdraw(uint256 amount) external {
-		(bool success,) = address(this).delegatecall(
+		(bool success,) = _fundDelgateCallFlowAddress.delegatecall(
 			abi.encodeWithSignature("requestWithdraw(uint256)", amount)
 		);
 		require(success == true, "failed withrawal request");
 	}
 	
 	function withdraw() external {
-		(bool success, ) = address(this).delegatecall(
+		(bool success, ) = _fundDelgateCallFlowAddress.delegatecall(
 			abi.encodeWithSignature("withdraw()")
 		);
 		require(success == true, "failed withrawal");

@@ -10,7 +10,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 	uint256 private fractionBase = 1e9; //NOTE: assumes lp token is 18 decimals
 	//TODO: NEEDS TO BE A ORACLE FOR BASE TOKEN
 
-	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address _navCalculatorAddress, address _fundDelgateCallFlowAddres) external {}
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address _navCalculatorAddress, address _fundDelgateCallFlowAddres, address fundDelgateCallNavAddress) external {}
 
 	function revokeDepositWithrawal(bool isDeposit) external {
 		if (isDeposit == true) {

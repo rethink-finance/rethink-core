@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only
-pragma solidity >=0.7.0 <0.9.0;
+//https://raw.githubusercontent.com/gnosis/zodiac-modifier-roles-v1/454be9d3c26f90221ca717518df002d1eca1845f/contracts/Roles.sol, Jan 21st 2022
+//core: https://github.com/gnosis/zodiac/tree/8a77e7b224af8004bd9f2ff4e2919642e93ffd85
+pragma solidity ^0.8.6;
 
 import "@gnosis.pm/zodiac/contracts/core/Modifier.sol";
 import "./Permissions.sol";
@@ -20,8 +22,14 @@ contract RolesV1 is Modifier {
     );
     event SetDefaultRole(address module, uint16 defaultRole);
 
+    /// `setUpModules` has already been called
+    error SetUpModulesAlreadyCalled();
+
     /// Arrays must be the same length
     error ArraysDifferentLength();
+
+    /// Sender is not a member of the role
+    error NoMembership();
 
     /// Sender is allowed to make this call, but the internal transaction failed
     error ModuleTransactionFailed();
@@ -29,18 +37,15 @@ contract RolesV1 is Modifier {
     /// @param _owner Address of the owner
     /// @param _avatar Address of the avatar (e.g. a Gnosis Safe)
     /// @param _target Address of the contract that will call exec function
-    /*constructor(
+    constructor(
         address _owner,
         address _avatar,
         address _target
     ) {
         bytes memory initParams = abi.encode(_owner, _avatar, _target);
         setUp(initParams);
-    }*/
+    }
 
-    /// @dev There is no zero address check as solidty will check for
-    /// missing arguments and the space of invalid addresses is too large
-    /// to check. Invalid avatar or target address can be reset by owner.
     function setUp(bytes memory initParams) public override {
         (address _owner, address _avatar, address _target) = abi.decode(
             initParams,
@@ -51,11 +56,18 @@ contract RolesV1 is Modifier {
         avatar = _avatar;
         target = _target;
 
-        transferOwnership(_owner);
+        //transferOwnership(_owner);
         setupModules();
 
         emit RolesModSetup(msg.sender, _owner, _avatar, _target);
     }
+
+    /*function setupModules() internal {
+        if (modules[SENTINEL_MODULES] != address(0)) {
+            revert SetUpModulesAlreadyCalled();
+        }
+        modules[SENTINEL_MODULES] = SENTINEL_MODULES;
+    }*/
 
     /// @dev Set the address of the expected multisend library
     /// @notice Only callable by owner.

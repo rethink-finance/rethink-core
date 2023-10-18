@@ -21,6 +21,7 @@ contract GovernableFundFactory is Initializable {
 	address _navCalculatorAddress;
 	address _zodiacRolesModifierModule;//TODO: do we need to deploy our own roles contract? https://github.com/gnosis/zodiac-modifier-roles-v1/raw/main/packages/evm/contracts/Roles.sol
 	address _fundDelgateCallFlowSingletonAddress;
+	address _fundDelgateCallNavSingletonAddress;
 	address[] _registeredFunds;
 
 	mapping(address => address) baseTokenOracleMapping;//TODO: NOT IMP FOR STORAGE
@@ -39,7 +40,7 @@ contract GovernableFundFactory is Initializable {
 		safeSingleton -> https://goerli.etherscan.io/address/0x3E5c63644E683549055b9Be8653de26E0B4CD36E#code
 		safeFallbackHandler -> "https://goerli.etherscan.io/address/0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4"
 	*/
-	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress) external initializer {
+	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress) external initializer {
 		_governor = governor;
 		_fund = fund;
 		_safeProxyFactory = safeProxyFactory;
@@ -49,6 +50,7 @@ contract GovernableFundFactory is Initializable {
 		_navCalculatorAddress = navCalculatorAddress;
 		_zodiacRolesModifierModule = zodiacRolesModifierModule;
 		_fundDelgateCallFlowSingletonAddress = fundDelgateCallFlowSingletonAddress;
+		_fundDelgateCallNavSingletonAddress = fundDelgateCallNavSingletonAddress;
 	}
 
 	function registeredFundsLength() public view returns (uint256) {
@@ -95,6 +97,8 @@ contract GovernableFundFactory is Initializable {
 
 	    //create proxy around zodiac roles modifier making governance contract owner of role
 	    address rolesModifier = address(new BeaconProxy(_zodiacRolesModifierModule, ""));
+
+
 	    address rolesModuleInitializer = address(new InitSafeRolesModule(govContractAddr, rolesModifier));
 
 	    bytes memory enableZodiacModule = abi.encodeWithSelector(
@@ -120,14 +124,6 @@ contract GovernableFundFactory is Initializable {
 	    address safeProxyAddr = address(ISafeProxyFactory(_safeProxyFactory).createProxyWithNonce(_safeSingleton, initializer, PREDETERMINED_SALT_NONCE));
 	    fundSettings.safe = safeProxyAddr;
 
-	    /*
-
-	    TODO: need to figure out how to setup roles mod contract after everything is done
-	    bytes memory initParams = abi.encode(govContractAddr, safeProxyAddr, address(0));
-        IRolesV1(rolesModifier).setUp(initParams);
-
-        */
-
 	    
 	    //create proxy around fund
 	    address fundContractAddr = address(new BeaconProxy(_fund, ""));
@@ -144,7 +140,20 @@ contract GovernableFundFactory is Initializable {
 	    IRethinkFundGovernor(govContractAddr).initialize(fundSettings.governanceToken, fundSettings.fundName);
 
 	    //initialize fund proxy
-	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress);
+	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress, _fundDelgateCallNavSingletonAddress);
+
+	    //setup roles modifier
+	    /* TODO: 
+	    	need to figure out how to setup roles mod contract after everything is done 
+	    bytes memory rolesModifierInitParams = abi.encode(govContractAddr, safeProxyAddr, address(0));
+	    bytes memory rolesModifierSetup = abi.encodeWithSelector(
+            bytes4(keccak256("setUp(bytes)")),
+            rolesModifierInitParams
+        );
+	    (bool success,) = rolesModifier.call(rolesModifierSetup);
+	    require(success == true, "fail roles mod setup");
+	    */
+
 	    return fundContractAddr;
     }
 }

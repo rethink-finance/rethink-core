@@ -7,7 +7,7 @@ const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
 const execData = "0x";
 const proxy = "";
 
-//time truffle migrate --reset -f 8 --to 8 --skip-dry-run --network=goerli
+//time truffle migrate --reset -f 9 --to 9 --skip-dry-run --network=goerli
 
 module.exports = async function (deployer) {
 	  let gff = await GovernableFundFactory.at("0x12890733c4Daebb6D3bC99E5d1370dB6acEcC659");
@@ -23,6 +23,7 @@ module.exports = async function (deployer) {
 	  	address navCalculatorAddress,//bp
 	  	address zodiacRolesModifierModule,//b
 	  	address fundDelgateCallFlowSingletonAddress //bp
+	  	address fundDelgateCallNavSingletonAddress //bp
 	  )
 
 	  */
@@ -35,6 +36,7 @@ module.exports = async function (deployer) {
 	  	"0xe6EAa086198EDBd2E3b8F736256F9871A9f60511",
 	  	"0x26d70661664Fc2b4a1519Fa5766ccFF7E384a12F",
 	  	"0xb3aec0e144e46ee4290ad93cc05609c160413087", 
-	  	"0xD183169c80d0Fc8823b5661ca125F3F0E42EA827"
+	  	"0xD183169c80d0Fc8823b5661ca125F3F0E42EA827",
+	  	""
 	  );
 }

@@ -1,5 +1,5 @@
 const ERC20 = artifacts.require("ERC20Mock");
-//time truffle migrate --reset -f 9 --to 9 --skip-dry-run --network=goerli
+//time truffle migrate --reset -f 10 --to 10 --skip-dry-run --network=goerli
 const delay = 10000;
 
 module.exports = async function (deployer) {

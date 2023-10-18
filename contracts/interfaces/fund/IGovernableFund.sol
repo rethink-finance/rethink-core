@@ -104,7 +104,7 @@ interface IGovernableFund {
 		uint256 requestTime;
 	}
 
-	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address _navCalculatorAddress, address _fundDelgateCallFlowAddr) external;
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address _navCalculatorAddress, address _fundDelgateCallFlowAddr, address fundDelgateCallNavAddress) external;
 
 	function getFundSettings() external view returns (Settings memory);
 }

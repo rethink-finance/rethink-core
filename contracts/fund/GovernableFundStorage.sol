@@ -16,6 +16,7 @@ abstract contract GovernableFundStorage is IGovernableFund {
     uint256 _lastClaimedManagementFees;
 	address _navCalculatorAddress;
 	address _fundDelgateCallFlowAddress;
+	address	_fundDelgateCallNavAddress;
 	mapping(address => bool) allowedFundMannagers;
 	mapping(address => bool) whitelistedDepositors;
 	mapping(address => uint256) _userDepositBal;//USED TO KEEP TRACK OF PERFORMANCE FROM DEPOSITS
@@ -28,5 +29,9 @@ abstract contract GovernableFundStorage is IGovernableFund {
 
 	function getFundSettings() external view returns (Settings memory) {
 		return FundSettings;
+	}
+
+	function getNavEntry(uint256 index) external view returns (NavUpdateEntry[] memory) {
+		return navUpdate[index];
 	}
 }
