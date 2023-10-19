@@ -172,11 +172,11 @@ module.exports = {
         return new HDWalletProvider({
             privateKeys: [process.env.MUMBAI_PRIVATE_KEY], 
             providerOrUrl: "https://rpc.ankr.com/eth_goerli",
-            pollingInterval: 5000,
+            pollingInterval: 10000,
         })
         //return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, "https://matic-mumbai.chainstacklabs.com/")
       },
-      deploymentPollingInterval: 10000,
+      deploymentPollingInterval: 20000,
       network_id: 5,
       gas: 8000000,
       gasPrice: 10e8,
