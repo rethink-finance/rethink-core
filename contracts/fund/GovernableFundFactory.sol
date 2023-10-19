@@ -143,8 +143,6 @@ contract GovernableFundFactory is Initializable {
 	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress, _fundDelgateCallNavSingletonAddress);
 
 	    //setup roles modifier
-	    /* TODO: 
-	    	need to figure out how to setup roles mod contract after everything is done 
 	    bytes memory rolesModifierInitParams = abi.encode(govContractAddr, safeProxyAddr, address(0));
 	    bytes memory rolesModifierSetup = abi.encodeWithSelector(
             bytes4(keccak256("setUp(bytes)")),
@@ -152,7 +150,6 @@ contract GovernableFundFactory is Initializable {
         );
 	    (bool success,) = rolesModifier.call(rolesModifierSetup);
 	    require(success == true, "fail roles mod setup");
-	    */
 
 	    return fundContractAddr;
     }
