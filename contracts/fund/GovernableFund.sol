@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
-import "../interfaces/fund/IGovernableFund.sol";
 import "./GovernableFundStorage.sol";
 
 contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
@@ -15,7 +14,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         _disableInitializers();
     }
 
-	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address navCalculatorAddress, address fundDelgateCallFlowAddress, address fundDelgateCallNavAddress) override external initializer {
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFundStorage.Settings calldata _fundSettings, address navCalculatorAddress, address fundDelgateCallFlowAddress, address fundDelgateCallNavAddress) external initializer {
 		__ERC20_init(_name_, _symbol_);
 		__ERC20Permit_init(_name_);
 		//TODO: need to do validation of imputs
@@ -26,7 +25,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		_fundDelgateCallNavAddress = fundDelgateCallNavAddress;
 	}
 
-	function updateSettings(IGovernableFund.Settings calldata _fundSettings) external {
+	function updateSettings(IGovernableFundStorage.Settings calldata _fundSettings) external {
 		//TODO: only allow updates on changable settings
 		onlyGovernance();
 		FundSettings = _fundSettings;

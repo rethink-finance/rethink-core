@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../interfaces/fund/IGovernableFund.sol";
+import "../interfaces/fund/IGovernableFundStorage.sol";
 
 abstract contract NAVLiquid {
-	function liquidCalculation(IGovernableFund.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, IGovernableFund.NAVLiquidUpdate[] calldata pastLiquid) external returns (uint256) {
+	function liquidCalculation(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, IGovernableFundStorage.NAVLiquidUpdate[] calldata pastLiquid) external returns (uint256) {
 		//TODO: need to make sure it returns in nav base token denomination
 		//TODO: need to make sure this can support the popular dex/aggregators abis
 		uint256 liquidSum = 0;
 		uint256[] memory cachedIndexValue = new uint256[](liquid.length);
 		for(uint i=0;i<liquid.length;i++) {
 
-			IGovernableFund.NAVLiquidUpdate memory liquidVal = liquid[i];
+			IGovernableFundStorage.NAVLiquidUpdate memory liquidVal = liquid[i];
 			if (isPastNAVUpdate == true){
 				liquidVal  = pastLiquid[liquid[i].pastNAVUpdateIndex];
 			}
@@ -33,7 +33,7 @@ abstract contract NAVLiquid {
 		return liquidSum;
 	}
 
-	function querySwapPriceData(IGovernableFund.NAVLiquidUpdate memory liquidVal) private view returns (uint256 price) {
+	function querySwapPriceData(IGovernableFundStorage.NAVLiquidUpdate memory liquidVal) private view returns (uint256 price) {
 		//querying swap price;
 		bytes memory swapPriceData;
 		bool success;

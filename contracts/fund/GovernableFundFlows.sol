@@ -2,15 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
-import "../interfaces/fund/IGovernableFund.sol";
 import "./GovernableFundStorage.sol";
 
 contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 	using SafeERC20 for IERC20;
 	uint256 private fractionBase = 1e9; //NOTE: assumes lp token is 18 decimals
 	//TODO: NEEDS TO BE A ORACLE FOR BASE TOKEN
-
-	function initialize(string memory _name_, string memory _symbol_, IGovernableFund.Settings calldata _fundSettings, address _navCalculatorAddress, address _fundDelgateCallFlowAddres, address fundDelgateCallNavAddress) external {}
 
 	function revokeDepositWithrawal(bool isDeposit) external {
 		if (isDeposit == true) {

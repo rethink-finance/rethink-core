@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "../external/OpenZeppelin/GovernableFundBeaconProxy.sol";
 import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/fund/IRethinkFundGovernor.sol";
 import "../interfaces/token/IWrappedTokenFactory.sol";
@@ -65,9 +66,9 @@ contract GovernableFundFactory is Initializable {
 		return subRegisterdFunds;
 	}
 
-	function registeredFundsData(uint256 start, uint256 end) public view returns (address[] memory, IGovernableFund.Settings[] memory) {
+	function registeredFundsData(uint256 start, uint256 end) public view returns (address[] memory, IGovernableFundStorage.Settings[] memory) {
 		address[] memory subRegisterdFunds = new address[](end-start);
-		IGovernableFund.Settings[] memory settings = new IGovernableFund.Settings[](end-start);
+		IGovernableFundStorage.Settings[] memory settings = new IGovernableFundStorage.Settings[](end-start);
 
 		for(uint i=start; i<end;i++) {
 			subRegisterdFunds[i-start] = _registeredFunds[i];
@@ -76,7 +77,7 @@ contract GovernableFundFactory is Initializable {
 		return (subRegisterdFunds, settings);
 	}
 
-    function createFund(IGovernableFund.Settings memory fundSettings) external returns (address) {
+    function createFund(IGovernableFundStorage.Settings memory fundSettings) external returns (address) {
 	    //create erc20 wrapper if needed
 	    if ((fundSettings.isExternalGovTokenInUse == true) && (fundSettings.governanceToken != address(0))) {
 	    	try IVotes(fundSettings.governanceToken).getVotes(msg.sender) returns (uint256) {
@@ -126,7 +127,7 @@ contract GovernableFundFactory is Initializable {
 
 	    
 	    //create proxy around fund
-	    address fundContractAddr = address(new BeaconProxy(_fund, ""));
+	    address fundContractAddr = address(new GovernableFundBeaconProxy(_fund, ""));
 
 	    _registeredFunds.push(fundContractAddr);
 
