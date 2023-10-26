@@ -6,7 +6,6 @@ import "./GovernableFundStorage.sol";
 
 contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 	using SafeERC20 for IERC20;
-	uint256 private fractionBase = 1e9; //NOTE: assumes lp token is 18 decimals
 	//TODO: NEEDS TO BE A ORACLE FOR BASE TOKEN
 
 	function revokeDepositWithrawal(bool isDeposit) external {
@@ -24,6 +23,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 	}
 
 	function requestDeposit(uint256 amount) external {
+		/**/
 		if (FundSettings.isWhitelistedDeposits == true) {
 			require(whitelistedDepositors[msg.sender] == true, "not allowed");
 		}
@@ -33,6 +33,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 		_depositBal += amount;
 		_totalDepositBal += amount;
 		_userDepositBal[msg.sender] += amount;
+		/**/
 	}
 
 	function deposit() external {

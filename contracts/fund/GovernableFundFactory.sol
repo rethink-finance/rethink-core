@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+//import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "../external/OpenZeppelin/GovernableFundBeaconProxy.sol";
 import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/fund/IRethinkFundGovernor.sol";
@@ -41,7 +41,7 @@ contract GovernableFundFactory is Initializable {
 		safeSingleton -> https://goerli.etherscan.io/address/0x3E5c63644E683549055b9Be8653de26E0B4CD36E#code
 		safeFallbackHandler -> "https://goerli.etherscan.io/address/0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4"
 	*/
-	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress) external initializer {
+	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress) external {
 		_governor = governor;
 		_fund = fund;
 		_safeProxyFactory = safeProxyFactory;
@@ -56,14 +56,6 @@ contract GovernableFundFactory is Initializable {
 
 	function registeredFundsLength() public view returns (uint256) {
 		return _registeredFunds.length;
-	}
-
-	function registeredFunds(uint256 start, uint256 end) public view returns (address[] memory) {
-		address[] memory subRegisterdFunds = new address[](end-start);
-		for(uint i=start; i<end;i++) {
-			subRegisterdFunds[i-start] = _registeredFunds[i];
-		}
-		return subRegisterdFunds;
 	}
 
 	function registeredFundsData(uint256 start, uint256 end) public view returns (address[] memory, IGovernableFundStorage.Settings[] memory) {
@@ -142,6 +134,10 @@ contract GovernableFundFactory is Initializable {
 
 	    //initialize fund proxy
 	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress, _fundDelgateCallNavSingletonAddress);
+
+	    IGovernableFundStorage.Settings memory settings = IGovernableFund(fundContractAddr).getFundSettings();
+	    require(settings.governor != address(0), "fail fund init");
+
 
 	    //setup roles modifier
 	    bytes memory rolesModifierInitParams = abi.encode(govContractAddr, safeProxyAddr, address(0));

@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/beacon/IBeacon.sol";
 import "@openzeppelin/contracts/proxy/Proxy.sol";
 import "./GovernableFundERC1967Upgrade.sol";
@@ -15,7 +16,8 @@ import "./GovernableFundERC1967Upgrade.sol";
  *
  * _Available since v3.4._
  */
-contract GovernableFundBeaconProxy is Proxy, GovernableFundERC1967Upgrade {
+contract GovernableFundBeaconProxy is Proxy, ERC20VotesUpgradeable, GovernableFundERC1967Upgrade {
+    using SafeERC20 for IERC20;
     /**
      * @dev Initializes the proxy with `beacon`.
      *

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
+import "@openzeppelin/contracts/proxy/beacon/IBeacon.sol";
 import "./GovernableFundStorage.sol";
 
 contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
@@ -38,7 +39,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		navUpdatedTime[_navUpdateLatestIndex] = block.timestamp;
 
 		//process nav here, save to storage
-		(bool success, bytes memory navBytes) = _fundDelgateCallNavAddress.delegatecall(
+		(bool success, bytes memory navBytes) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
 			abi.encodeWithSignature("processNav(NavUpdateEntry[])", navUpdateData)
 		);
 		require(success == true, "failed processNav");
@@ -53,21 +54,21 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 	}
 
 	function revokeDepositWithrawal(bool isDeposit) external {
-		(bool success,) = _fundDelgateCallFlowAddress.delegatecall(
+		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("revokeDepositWithrawal(bool)", isDeposit)
 		);
 		require(success == true, "failed revoke");
 	}
 
 	function requestDeposit(uint256 amount) external {
-		(bool success, ) = _fundDelgateCallFlowAddress.delegatecall(
+		(bool success, ) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("requestDeposit(uint256)", amount)
 		);
-		require(success == true, "failed withrawal request");
+		require(success == true, "failed deposit request");
 	}
 
 	function deposit() external {
-		(bool success,) = _fundDelgateCallFlowAddress.delegatecall(
+		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("deposit()")
 		);
 		require(success == true, "failed deposit");
@@ -78,14 +79,14 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 	}
 
 	function requestWithdraw(uint256 amount) external {
-		(bool success,) = _fundDelgateCallFlowAddress.delegatecall(
+		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("requestWithdraw(uint256)", amount)
 		);
 		require(success == true, "failed withrawal request");
 	}
 	
 	function withdraw() external {
-		(bool success, ) = _fundDelgateCallFlowAddress.delegatecall(
+		(bool success, ) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("withdraw()")
 		);
 		require(success == true, "failed withrawal");

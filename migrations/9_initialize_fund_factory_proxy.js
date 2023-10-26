@@ -14,7 +14,7 @@ module.exports = async function (deployer) {
 
 	  /*
 	  function initialize(
-	  	address governor, bp
+	  	address governor//b
 	  	address fund,//b
 	  	address safeProxyFactory,
 	  	address safeSingleton,
@@ -22,8 +22,8 @@ module.exports = async function (deployer) {
 	  	address wrappedTokenFactory,
 	  	address navCalculatorAddress,//bp
 	  	address zodiacRolesModifierModule,//b
-	  	address fundDelgateCallFlowSingletonAddress //bp
-	  	address fundDelgateCallNavSingletonAddress //bp
+	  	address fundDelgateCallFlowSingletonAddress //b
+	  	address fundDelgateCallNavSingletonAddress //b
 	  )
 
 	  */
@@ -36,7 +36,7 @@ module.exports = async function (deployer) {
 	  	"0xe6EAa086198EDBd2E3b8F736256F9871A9f60511",
 	  	"0x26d70661664Fc2b4a1519Fa5766ccFF7E384a12F",
 	  	"0xb3aec0e144e46ee4290ad93cc05609c160413087", 
-	  	"0x2C22E878Fd7aD631FFf5369C2ef239237926cDaF",
-	  	"0x81b504b3b20a6B0fDDA0d990E68cf20C526Ae699"
+	  	"0xa052A48F26ba43E8A3d111298471319a8d5E7496",
+	  	"0x6cb326b573ad0CeFC742d35bC713f8766fb5e027"
 	  );
 }
