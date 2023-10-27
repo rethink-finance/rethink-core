@@ -42,7 +42,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 
 		require(bal >= userWithdrawRequest[msg.sender].amount, "low bal");
 
-		require(userDepositRequest[msg.sender].requestTime < navUpdatedTime[_navUpdateLatestIndex], "not allowed yet");
+		require((userDepositRequest[msg.sender].requestTime < navUpdatedTime[_navUpdateLatestIndex]) || (navUpdatedTime[_navUpdateLatestIndex] == 0), "not allowed yet");
         require(userDepositRequest[msg.sender].amount != 0 && userDepositRequest[msg.sender].requestTime != 0, "deposit not requested");
 
 		uint b0 = _nav;
