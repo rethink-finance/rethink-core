@@ -17,24 +17,33 @@ contract RethinkFundGovernor is
 	GovernorPreventLateQuorumUpgradeable,
 	GovernorTimelockControlUpgradeable
 {
+    uint256 _votingDelay;
+    uint256 _votingPeriod;
 	/// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
     
-	function initialize(IVotesUpgradeable _token, string calldata _govName) external initializer {
+    function initialize(IVotesUpgradeable _token, string calldata _govName, uint256 quorumFraction, uint256 lateQuorum, uint256 vDelay, uint256 vPeriod) external initializer {
+    //function initialize(IVotesUpgradeable _token, string calldata _govName) external initializer {
 		__GovernorVotes_init(_token);
 		__Governor_init(string(abi.encodePacked("Rethink Governor: ", _govName)));
-		__GovernorVotesQuorumFraction_init(10);//10 percent quorum
-		__GovernorPreventLateQuorum_init(86400); //1 day in seconds
+        //__GovernorVotesQuorumFraction_init(10);//10 percent quorum
+        __GovernorVotesQuorumFraction_init(quorumFraction);//10 percent quorum
+        //__GovernorPreventLateQuorum_init(86400); //1 day in seconds
+        __GovernorPreventLateQuorum_init(uint64(lateQuorum)); //1 day in seconds
+        _votingDelay = vDelay;
+        _votingPeriod = vPeriod;
 	}
 
-	function votingDelay() public pure override returns (uint256) {
-        return 7200; // 1 day
+	function votingDelay() public view override returns (uint256) {
+        //return 60;//1 min 7200; // 1 day
+        return _votingDelay; //seconds
     }
 
-    function votingPeriod() public pure override returns (uint256) {
-        return 50400; // 1 week
+    function votingPeriod() public view override returns (uint256) {
+        //return 60*30;// 30 min 50400; // 1 week
+        return _votingPeriod; //seconds
     }
 
     // The functions below are overrides required by Solidity.

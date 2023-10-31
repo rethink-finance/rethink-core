@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/proxy/beacon/IBeacon.sol";
-//import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "../external/OpenZeppelin/GovernableFundBeaconProxy.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/fund/IRethinkFundGovernor.sol";
+import "../interfaces/fund/IGovernableContractFactory.sol";
 import "../interfaces/token/IWrappedTokenFactory.sol";
 import "../interfaces/external/safe/ISafeProxyFactory.sol";
 import "./InitSafeRolesModule.sol";
@@ -27,6 +27,14 @@ contract GovernableFundFactory is Initializable {
 	address[] _registeredFunds;
 
 	mapping(address => address) baseTokenOracleMapping;//TODO: NOT IMP FOR STORAGE
+	address _governableContractFactory;
+
+	struct GovernorParams {
+		uint256 quorumFraction;
+		uint256 lateQuorum;
+		uint256 votingDelay;
+		uint256 votingPeriod;
+	}
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -43,9 +51,9 @@ contract GovernableFundFactory is Initializable {
 		safeFallbackHandler -> "https://goerli.etherscan.io/address/0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4"
 	*/
 	
-	//function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress) external initializer {
+	//function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, governableContractFactorySingletonAddress) external initializer {
 
-	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress) external {
+	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external {
 		_governor = governor;
 		_fund = fund;
 		_safeProxyFactory = safeProxyFactory;
@@ -56,6 +64,7 @@ contract GovernableFundFactory is Initializable {
 		_zodiacRolesModifierModule = zodiacRolesModifierModule;
 		_fundDelgateCallFlowSingletonAddress = fundDelgateCallFlowSingletonAddress;
 		_fundDelgateCallNavSingletonAddress = fundDelgateCallNavSingletonAddress;
+		_governableContractFactory = governableContractFactorySingletonAddress;
 	}
 
 	function registeredFundsLength() public view returns (uint256) {
@@ -73,7 +82,7 @@ contract GovernableFundFactory is Initializable {
 		return (subRegisterdFunds, settings);
 	}
 
-    function createFund(IGovernableFundStorage.Settings memory fundSettings) external returns (address) {
+    function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings) external returns (address) {
 	    //create erc20 wrapper if needed
 	    if ((fundSettings.isExternalGovTokenInUse == true) && (fundSettings.governanceToken != address(0))) {
 	    	try IVotes(fundSettings.governanceToken).getVotes(msg.sender) returns (uint256) {
@@ -98,7 +107,9 @@ contract GovernableFundFactory is Initializable {
 	    address rolesModifier = address(new BeaconProxy(_zodiacRolesModifierModule, ""));
 
 
-	    address rolesModuleInitializer = address(new InitSafeRolesModule(govContractAddr, rolesModifier));
+	    address rolesModuleInitializer = IGovernableContractFactory(
+	    	IBeacon(_governableContractFactory).implementation()
+	    ).createRolesMod(govContractAddr, rolesModifier);
 
 	    bytes memory enableZodiacModule = abi.encodeWithSelector(
             bytes4(keccak256("enableRoleMod()"))
@@ -122,10 +133,11 @@ contract GovernableFundFactory is Initializable {
 	    //create safe proxy w/ gov token + govener
 	    address safeProxyAddr = address(ISafeProxyFactory(_safeProxyFactory).createProxyWithNonce(_safeSingleton, initializer, PREDETERMINED_SALT_NONCE));
 	    fundSettings.safe = safeProxyAddr;
-
 	    
 	    //create proxy around fund
-	    address fundContractAddr = address(new GovernableFundBeaconProxy(_fund, ""));
+	    address fundContractAddr = IGovernableContractFactory(
+	    	IBeacon(_governableContractFactory).implementation()
+	    ).createFundBeaconProxy(_fund);
 
 	    _registeredFunds.push(fundContractAddr);
 
@@ -136,7 +148,7 @@ contract GovernableFundFactory is Initializable {
 	    fundSettings.governor = govContractAddr;
 
 	    //initialize governor w/ gov token
-	    IRethinkFundGovernor(govContractAddr).initialize(fundSettings.governanceToken, fundSettings.fundName);
+	    initGovernor(govContractAddr, fundSettings, governorSettings);
 
 	    //initialize fund proxy
 	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress, _fundDelgateCallNavSingletonAddress);
@@ -155,5 +167,16 @@ contract GovernableFundFactory is Initializable {
 	    require(success == true, "fail roles mod setup");
 
 	    return fundContractAddr;
+    }
+
+    function initGovernor(address govContractAddr, IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings) internal {
+    	IRethinkFundGovernor(govContractAddr).initialize(
+	    	fundSettings.governanceToken,
+	    	fundSettings.fundName,
+	    	governorSettings.quorumFraction,
+	    	governorSettings.lateQuorum,
+	    	governorSettings.votingDelay,
+	    	governorSettings.votingPeriod
+	    );
     }
 }

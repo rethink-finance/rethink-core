@@ -24,6 +24,7 @@ module.exports = async function (deployer) {
 	  	address zodiacRolesModifierModule,//b
 	  	address fundDelgateCallFlowSingletonAddress //b
 	  	address fundDelgateCallNavSingletonAddress //b
+	  	address governableContractFactorySingletonAddress //b
 	  )
 
 	  */
@@ -37,6 +38,7 @@ module.exports = async function (deployer) {
 	  	"0x26d70661664Fc2b4a1519Fa5766ccFF7E384a12F",
 	  	"0xb3aec0e144e46ee4290ad93cc05609c160413087", 
 	  	"0xa052A48F26ba43E8A3d111298471319a8d5E7496",
-	  	"0x6cb326b573ad0CeFC742d35bC713f8766fb5e027"
+	  	"0x6cb326b573ad0CeFC742d35bC713f8766fb5e027",
+	  	""
 	  );
 }
