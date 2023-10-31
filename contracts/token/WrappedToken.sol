@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -15,6 +16,16 @@ contract WrappedToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
 
     function decimals() public pure override(ERC20, ERC20Wrapper) returns (uint8) {
         return 18;
+    }
+
+    // Overrides IERC6372 functions to make the token & governor timestamp-based
+    function clock() public view override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public pure override returns (string memory) {
+        return "mode=timestamp";
     }
 
     function _afterTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {

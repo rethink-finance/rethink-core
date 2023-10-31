@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+import "@openzeppelin/contracts/proxy/beacon/IBeacon.sol";
 //import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "../external/OpenZeppelin/GovernableFundBeaconProxy.sol";
 import "../interfaces/fund/IGovernableFund.sol";
@@ -41,6 +42,9 @@ contract GovernableFundFactory is Initializable {
 		safeSingleton -> https://goerli.etherscan.io/address/0x3E5c63644E683549055b9Be8653de26E0B4CD36E#code
 		safeFallbackHandler -> "https://goerli.etherscan.io/address/0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4"
 	*/
+	
+	//function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress) external initializer {
+
 	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress) external {
 		_governor = governor;
 		_fund = fund;
@@ -76,7 +80,9 @@ contract GovernableFundFactory is Initializable {
             	//compatable, can use address directly in RethinkFundGovernor
 	        } catch (bytes memory /*lowLevelData*/) {
             	//not compatable, can not use address directly in RethinkFundGovernor, create wrapper
-            	address govToken = IWrappedTokenFactory(_wrappedTokenFactory).createWrappedToken(fundSettings.governanceToken);
+            	address govToken = IWrappedTokenFactory(
+            		IBeacon(_wrappedTokenFactory).implementation()
+            		).createWrappedToken(fundSettings.governanceToken);
             	fundSettings.governanceToken = govToken;
 	        }
 	    }

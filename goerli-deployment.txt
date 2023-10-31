@@ -24,21 +24,45 @@
 2_deploy_core_contracts.js
 ==========================
 
+   12_deploy_wrapped_token_factory_singleton.js
+============================================
+
    Replacing 'WrappedTokenFactory'
    -------------------------------
-   > transaction hash:    0xa8479cc8b1b84de54e297ca32c274bb3a118318582bb5bba687314b200192a82
+   > transaction hash:    0x729991d64004c2c6d1e166de057b316ccb068b3b0aa619395010eb3c029a3a56
    > Blocks: 0            Seconds: 0
-   > contract address:    0xe6EAa086198EDBd2E3b8F736256F9871A9f60511
-   > block number:        9845712
-   > block timestamp:     1696992924
+   > contract address:    0x22C2a9EA13287C3f48d8354Ee1954fFC31aef29C
+   > block number:        9963526
+   > block timestamp:     1698768804
    > account:             0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6
-   > balance:             4.954331389365343209
-   > gas used:            5194229 (0x4f41f5)
+   > balance:             4.479042697359434582
+   > gas used:            2649206 (0x286c76)
    > gas price:           1 gwei
    > value sent:          0 ETH
-   > total cost:          0.005194229 ETH
+   > total cost:          0.002649206 ETH
 
-WrappedTokenFactory is at: 0xe6EAa086198EDBd2E3b8F736256F9871A9f60511
+WrappedTokenFactory singleton is at: 0x22C2a9EA13287C3f48d8354Ee1954fFC31aef29C
+
+   Replacing 'UpgradeableBeacon'
+   -----------------------------
+   > transaction hash:    0x20d11be0251684d73a8bdfbdee17d4d822e4e1fd1f02ab4ea498a8fc9e87bb9a
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x4132F5D58a2F7F73c95Fa7B1D100F24969E6c78b
+   > block number:        9963527
+   > block timestamp:     1698768816
+   > account:             0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6
+   > balance:             4.478750504359434582
+   > gas used:            292193 (0x47561)
+   > gas price:           1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.000292193 ETH
+
+WrappedTokenFactoryUpgradeableBeacon is at: 0x4132F5D58a2F7F73c95Fa7B1D100F24969E6c78b
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:         0.002941399 ETH
+
 
    Replacing 'GovernableFundFactory'
    ---------------------------------

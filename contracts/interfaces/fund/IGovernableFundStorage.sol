@@ -48,7 +48,8 @@ interface IGovernableFundStorage {
 
 	enum NAVNFTType {
 		ERC1155,
-		ERC721
+		ERC721,
+		NONE
 	}
 
 	struct NAVNFTUpdate {

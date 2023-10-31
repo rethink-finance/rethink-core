@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 //import "@openzeppelin/contracts/governance/Governor.sol";
-import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol";
@@ -26,12 +25,8 @@ contract RethinkFundGovernor is
 	function initialize(IVotesUpgradeable _token, string calldata _govName) external initializer {
 		__GovernorVotes_init(_token);
 		__Governor_init(string(abi.encodePacked("Rethink Governor: ", _govName)));
-		__GovernorVotesQuorumFraction_init(10);//10 percent quoru
+		__GovernorVotesQuorumFraction_init(10);//10 percent quorum
 		__GovernorPreventLateQuorum_init(86400); //1 day in seconds
-	}
-
-	function clock() public view override(GovernorVotesUpgradeable, IGovernorUpgradeable) returns (uint48) {
-		return SafeCast.toUint48(block.timestamp);
 	}
 
 	function votingDelay() public pure override returns (uint256) {
@@ -62,24 +57,6 @@ contract RethinkFundGovernor is
         uint256 proposalId
     ) public view override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (ProposalState) {
         return super.state(proposalId);
-    }
-
-    function propose(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        string memory description
-    ) public override(GovernorUpgradeable, IGovernorUpgradeable) returns (uint256) {
-        return super.propose(targets, values, calldatas, description);
-    }
-
-    function cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public override(GovernorUpgradeable, IGovernorUpgradeable) returns (uint256) {
-        return super.cancel(targets, values, calldatas, descriptionHash);
     }
 
     function _execute(

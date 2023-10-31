@@ -12,26 +12,21 @@ const BeaconProxy = artifacts.require("BeaconProxy");
 const delay = 10000;
 const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
 const execData = "0x";
-const proxy = "0xB227079f5c5b700E99afC1715A799DD008fCDD22";
-//time truffle migrate --reset -f 4 --to 4 --skip-dry-run --network=goerli
+const proxy = "";
+//time truffle migrate --reset -f 12 --to 12 --skip-dry-run --network=goerli
 module.exports = async function (deployer) {
-	let gff = await deployer.deploy(GovernableFundFactory);
+	let gff = await deployer.deploy(WrappedTokenFactory);
 	setTimeout(function(){},delay);
-	console.log("GovernableFundFactory singleton is at: "+ GovernableFundFactory.address);
+	console.log("WrappedTokenFactory singleton is at: "+ WrappedTokenFactory.address);
 
-	
+	/*
 	let ub = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
 	ub.upgradeTo(GovernableFundFactory.address);
-	//ub.upgradeTo("0x4fd04f9a76e71debe1cff38436b9d5b742060248");
-
-	/*
-  	let gffub = await deployer.deploy(UpgradeableBeacon, GovernableFundFactory.address);
+	
+	*/
+  	let gffub = await deployer.deploy(UpgradeableBeacon, WrappedTokenFactory.address);
   	setTimeout(function(){},delay);
-  	console.log("GovernableFundFactoryUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
-
-  	let gffubprox = await deployer.deploy(BeaconProxy, UpgradeableBeacon.address, execData);
-  	setTimeout(function(){},delay);
-  	console.log("GovernableFundFactoryBeaconProxy is at: "+ BeaconProxy.address);
-  	*/
+  	console.log("WrappedTokenFactoryUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
+  	/**/
 }
