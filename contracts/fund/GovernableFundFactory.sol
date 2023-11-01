@@ -84,9 +84,10 @@ contract GovernableFundFactory is Initializable {
 
     function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings) external returns (address) {
 	    //create erc20 wrapper if needed
-	    if ((fundSettings.isExternalGovTokenInUse == true) && (fundSettings.governanceToken != address(0))) {
+	    if (fundSettings.governanceToken != address(0)) {
 	    	try IVotes(fundSettings.governanceToken).getVotes(msg.sender) returns (uint256) {
             	//compatable, can use address directly in RethinkFundGovernor
+            	fundSettings.isExternalGovTokenInUse = true;
 	        } catch (bytes memory /*lowLevelData*/) {
             	//not compatable, can not use address directly in RethinkFundGovernor, create wrapper
             	address govToken = IWrappedTokenFactory(
@@ -150,7 +151,12 @@ contract GovernableFundFactory is Initializable {
 	    //initialize governor w/ gov token
 	    initGovernor(govContractAddr, fundSettings, governorSettings);
 
+	    if (fundSettings.allowedDepositAddrs.length > 0) {
+	    	fundSettings.isWhitelistedDeposits = true;
+	    }
+
 	    //initialize fund proxy
+
 	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress, _fundDelgateCallNavSingletonAddress);
 
 	    IGovernableFundStorage.Settings memory settings = IGovernableFund(fundContractAddr).getFundSettings();

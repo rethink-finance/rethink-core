@@ -39,13 +39,14 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 	function deposit() external {
 
 		uint bal = IERC20(FundSettings.baseToken).balanceOf(msg.sender);
+		uint safeBal = IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe);
 
 		require(bal >= userWithdrawRequest[msg.sender].amount, "low bal");
 
 		require((userDepositRequest[msg.sender].requestTime < navUpdatedTime[_navUpdateLatestIndex]) || (navUpdatedTime[_navUpdateLatestIndex] == 0), "not allowed yet");
         require(userDepositRequest[msg.sender].amount != 0 && userDepositRequest[msg.sender].requestTime != 0, "deposit not requested");
 
-		uint b0 = _nav;
+		uint b0 = safeBal+_nav;
 
 		//transfer tokens to fund
         IERC20(FundSettings.baseToken).safeTransferFrom(msg.sender, FundSettings.fundAddress, userDepositRequest[msg.sender].amount);
@@ -53,10 +54,10 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         uint discountedAmount = userDepositRequest[msg.sender].amount - feeAmount;
         _feeBal += feeAmount;
 
-        uint b1 = _nav + discountedAmount;
+        uint b1 = safeBal +_nav + discountedAmount;
         uint p = (b1 - b0) * (fractionBase / b1);
         uint b = 1e3;
-        uint v = totalSupply() > 0 ? totalSupply() * p * b / (fractionBase - p) : b1 * b;
+        uint v = totalSupply() > 0 ? (totalSupply() * p * b) / (fractionBase - p) : b1 * b;
         v = _round(v, b);
 
         _mint(msg.sender, v);

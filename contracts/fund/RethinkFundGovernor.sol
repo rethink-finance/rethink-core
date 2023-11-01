@@ -23,9 +23,10 @@ contract RethinkFundGovernor is
     constructor() {
         _disableInitializers();
     }
+
+    //function initialize(IVotesUpgradeable _token, string calldata _govName) external initializer {
     
     function initialize(IVotesUpgradeable _token, string calldata _govName, uint256 quorumFraction, uint256 lateQuorum, uint256 vDelay, uint256 vPeriod) external initializer {
-    //function initialize(IVotesUpgradeable _token, string calldata _govName) external initializer {
 		__GovernorVotes_init(_token);
 		__Governor_init(string(abi.encodePacked("Rethink Governor: ", _govName)));
         //__GovernorVotesQuorumFraction_init(10);//10 percent quorum
