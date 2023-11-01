@@ -350,3 +350,22 @@ GovernableFundNavBeaconProxy is at: 0xC6401C5CE9239b6A1723c7DB9B0965f104c4CB62
    -------------------------------------
    > Total cost:         0.000289399 ETH
 
+
+13_deploy_gov_contract_factory_singleton.js
+===========================================
+
+   Replacing 'UpgradeableBeacon'
+   -----------------------------
+   > transaction hash:    0x645a50cd70f95f95e216e4467a88feb63bf349e0a50e781a620c39f2212a7c19
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xcd1e65B55cd73860FC80778C8398ae2f4C9222e8
+   > block number:        9966472
+   > block timestamp:     1698813540
+   > account:             0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6
+   > balance:             4.464593617358352296
+   > gas used:            292193 (0x47561)
+   > gas price:           1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.000292193 ETH
+
+GovernableContractFactoryUpgradeableBeacon is at: 0xcd1e65B55cd73860FC80778C8398ae2f4C9222e8

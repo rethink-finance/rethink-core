@@ -39,6 +39,6 @@ module.exports = async function (deployer) {
 	  	"0xb3aec0e144e46ee4290ad93cc05609c160413087", 
 	  	"0xa052A48F26ba43E8A3d111298471319a8d5E7496",
 	  	"0x6cb326b573ad0CeFC742d35bC713f8766fb5e027",
-	  	""
+	  	"0xcd1e65B55cd73860FC80778C8398ae2f4C9222e8"
 	  );
 }

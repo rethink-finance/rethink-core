@@ -7,6 +7,7 @@ const GovernableFundFlows = artifacts.require("GovernableFundFlows");
 const GovernableFundNav = artifacts.require("GovernableFundNav");
 const UpgradeableBeacon = artifacts.require("UpgradeableBeacon");
 const BeaconProxy = artifacts.require("BeaconProxy");
+const GovernableContractFactory = artifacts.require("GovernableContractFactory");
 
 const delay = 10000;
 const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
@@ -17,6 +18,10 @@ module.exports = async function (deployer) {
   let wtf = await deployer.deploy(WrappedTokenFactory);
   setTimeout(function(){},delay);
   console.log("WrappedTokenFactory is at: "+ WrappedTokenFactory.address);
+
+  let wtfub = await deployer.deploy(UpgradeableBeacon, WrappedTokenFactory.address);
+  setTimeout(function(){},delay);
+  console.log("WrappedTokenFactoryUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
 
 
 
@@ -88,5 +93,13 @@ module.exports = async function (deployer) {
   let gfnavub = await deployer.deploy(UpgradeableBeacon, GovernableFundNav.address);
   setTimeout(function(){},delay);
   console.log("GovernableFundNavUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
+
+  let gcf = await deployer.deploy(GovernableContractFactory);
+  setTimeout(function(){},delay);
+  console.log("GovernableContractFactory singleton is at: "+ GovernableContractFactory.address);
+  
+  let gcfub = await deployer.deploy(UpgradeableBeacon, GovernableContractFactory.address);
+  setTimeout(function(){},delay);
+  console.log("GovernableContractFactoryUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
   */
 };
