@@ -87,7 +87,6 @@ contract GovernableFundFactory is Initializable {
 	    if (fundSettings.governanceToken != address(0)) {
 	    	try IVotes(fundSettings.governanceToken).getVotes(msg.sender) returns (uint256) {
             	//compatable, can use address directly in RethinkFundGovernor
-            	fundSettings.isExternalGovTokenInUse = true;
 	        } catch (bytes memory /*lowLevelData*/) {
             	//not compatable, can not use address directly in RethinkFundGovernor, create wrapper
             	address govToken = IWrappedTokenFactory(
@@ -95,6 +94,7 @@ contract GovernableFundFactory is Initializable {
             		).createWrappedToken(fundSettings.governanceToken);
             	fundSettings.governanceToken = govToken;
 	        }
+            fundSettings.isExternalGovTokenInUse = true;
 	    }
 
 	    //create proxy around governor

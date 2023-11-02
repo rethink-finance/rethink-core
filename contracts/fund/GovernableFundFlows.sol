@@ -55,7 +55,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         _feeBal += feeAmount;
 
         uint b1 = safeBal +_nav + discountedAmount;
-        uint p = (b1 - b0) * (fractionBase / b1);
+        uint p = ((b1 - b0) * fractionBase) / b1;
         uint b = 1e3;
         uint v = totalSupply() > 0 ? (totalSupply() * p * b) / (fractionBase - p) : b1 * b;
         v = _round(v, b);
