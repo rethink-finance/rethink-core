@@ -28,6 +28,7 @@ contract GovernableFundFactory is Initializable {
 
 	mapping(address => address) baseTokenOracleMapping;//TODO: NOT IMP FOR STORAGE
 	address _governableContractFactory;
+	address _safeMultisendAddress;
 
 	struct GovernorParams {
 		uint256 quorumFraction;
@@ -53,12 +54,13 @@ contract GovernableFundFactory is Initializable {
 	
 	//function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, governableContractFactorySingletonAddress) external initializer {
 
-	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external {
+	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address safeMultisendAddress, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external {
 		_governor = governor;
 		_fund = fund;
 		_safeProxyFactory = safeProxyFactory;
 		_safeSingleton = safeSingleton;
 		_safeFallbackHandler = safeFallbackHandler;
+		_safeMultisendAddress = safeMultisendAddress;
 		_wrappedTokenFactory = wrappedTokenFactory;
 		_navCalculatorAddress = navCalculatorAddress;
 		_zodiacRolesModifierModule = zodiacRolesModifierModule;
@@ -162,15 +164,8 @@ contract GovernableFundFactory is Initializable {
 	    IGovernableFundStorage.Settings memory settings = IGovernableFund(fundContractAddr).getFundSettings();
 	    require(settings.governor != address(0), "fail fund init");
 
-
-	    //setup roles modifier
-	    bytes memory rolesModifierInitParams = abi.encode(govContractAddr, safeProxyAddr, address(0));
-	    bytes memory rolesModifierSetup = abi.encodeWithSelector(
-            bytes4(keccak256("setUp(bytes)")),
-            rolesModifierInitParams
-        );
-	    (bool success,) = rolesModifier.call(rolesModifierSetup);
-	    require(success == true, "fail roles mod setup");
+	    //init role mod
+	    initRoleMod(safeProxyAddr, rolesModifier, govContractAddr);
 
 	    return fundContractAddr;
     }
@@ -184,5 +179,34 @@ contract GovernableFundFactory is Initializable {
 	    	governorSettings.votingDelay,
 	    	governorSettings.votingPeriod
 	    );
+    }
+
+    function initRoleMod(address safeProxyAddr, address rolesModifier, address govContractAddr) internal {
+    	bool success;
+	    //setup roles modifier with init owner of fund contract
+	    bytes memory rolesModifierInitParams = abi.encode(address(this), safeProxyAddr, address(0));
+	    bytes memory rolesModifierSetup = abi.encodeWithSelector(
+            bytes4(keccak256("setUp(bytes)")),
+            rolesModifierInitParams
+        );
+	    (success,) = rolesModifier.call(rolesModifierSetup);
+	    require(success == true, "fail roles mod setup");
+
+	    //set multisend addr on roles modifier
+	    bytes memory rolesSetMultisend = abi.encodeWithSelector(
+            bytes4(keccak256("setMultisend(address)")),
+            _safeMultisendAddress
+        );
+        (success,) = rolesModifier.call(rolesSetMultisend);
+	    require(success == true, "fail roles mod setMultisend");
+
+
+	    //transfer ownership on roles modifier to govenor
+	    bytes memory rolesTransferOwnership = abi.encodeWithSelector(
+            bytes4(keccak256("transferOwnership(address)")),
+            govContractAddr
+        );
+        (success,) = rolesModifier.call(rolesTransferOwnership);
+	    require(success == true, "fail roles mod transferOwnership");
     }
 }

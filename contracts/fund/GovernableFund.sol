@@ -24,6 +24,17 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		_navCalculatorAddress = navCalculatorAddress;
 		_fundDelgateCallFlowAddress = fundDelgateCallFlowAddress;
 		_fundDelgateCallNavAddress = fundDelgateCallNavAddress;
+
+		_fundSettings.allowedDepositAddrs;
+		_fundSettings.allowedManagers;
+
+		uint i;
+		for (i=0; i<_fundSettings.allowedManagers.length; i++){
+			allowedFundMannagers[_fundSettings.allowedManagers[i]] = true;
+		}
+		for (i=0; i<_fundSettings.allowedDepositAddrs.length; i++){
+			whitelistedDepositors[_fundSettings.allowedDepositAddrs[i]] = true;
+		}
 	}
 
 	// Overrides IERC6372 functions to make the token & governor timestamp-based
@@ -40,6 +51,14 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		//TODO: only allow updates on changable settings
 		onlyGovernance();
 		FundSettings = _fundSettings;
+
+		uint i;
+		for (i=0; i<_fundSettings.allowedManagers.length; i++){
+			allowedFundMannagers[_fundSettings.allowedManagers[i]] = true;
+		}
+		for (i=0; i<_fundSettings.allowedDepositAddrs.length; i++){
+			whitelistedDepositors[_fundSettings.allowedDepositAddrs[i]] = true;
+		}
 	}
 
 	function updateNav(NavUpdateEntry[] calldata navUpdateData) external {
