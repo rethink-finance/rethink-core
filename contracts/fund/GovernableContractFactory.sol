@@ -7,15 +7,15 @@ import "./InitSafeRolesModule.sol";
 
 contract GovernableContractFactory {
 	/// @custom:oz-upgrades-unsafe-allow constructor
-	
+
 	function createFundBeaconProxy(address _fund)  external returns (address) {
 		//create proxy around fund
 	    address fundContractAddr = address(new GovernableFundBeaconProxy(_fund, ""));
 	    return fundContractAddr;
 	}
 
-	function createRolesMod(address govContractAddr, address rolesModifier)  external returns (address) {
-		address rolesModuleInitializer = address(new InitSafeRolesModule(govContractAddr, rolesModifier));
+	function createRolesMod(address govContractAddr, address rolesModifier, address rolesModifier1)  external returns (address) {
+		address rolesModuleInitializer = address(new InitSafeRolesModule(govContractAddr, rolesModifier, rolesModifier1));
 		return rolesModuleInitializer;
 	}
 }

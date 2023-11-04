@@ -109,10 +109,14 @@ contract GovernableFundFactory is Initializable {
 	    //create proxy around zodiac roles modifier making governance contract owner of role
 	    address rolesModifier = address(new BeaconProxy(_zodiacRolesModifierModule, ""));
 
+	    //create proxy around fund
+	    address fundContractAddr = IGovernableContractFactory(
+	    	IBeacon(_governableContractFactory).implementation()
+	    ).createFundBeaconProxy(_fund);
 
 	    address rolesModuleInitializer = IGovernableContractFactory(
 	    	IBeacon(_governableContractFactory).implementation()
-	    ).createRolesMod(govContractAddr, rolesModifier);
+	    ).createRolesMod(govContractAddr, rolesModifier, fundContractAddr);
 
 	    bytes memory enableZodiacModule = abi.encodeWithSelector(
             bytes4(keccak256("enableRoleMod()"))
@@ -137,11 +141,6 @@ contract GovernableFundFactory is Initializable {
 	    address safeProxyAddr = address(ISafeProxyFactory(_safeProxyFactory).createProxyWithNonce(_safeSingleton, initializer, PREDETERMINED_SALT_NONCE));
 	    fundSettings.safe = safeProxyAddr;
 	    
-	    //create proxy around fund
-	    address fundContractAddr = IGovernableContractFactory(
-	    	IBeacon(_governableContractFactory).implementation()
-	    ).createFundBeaconProxy(_fund);
-
 	    _registeredFunds.push(fundContractAddr);
 
 	    if (fundSettings.governanceToken == address(0)){
@@ -158,7 +157,6 @@ contract GovernableFundFactory is Initializable {
 	    }
 
 	    //initialize fund proxy
-
 	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress, _fundDelgateCallNavSingletonAddress);
 
 	    IGovernableFundStorage.Settings memory settings = IGovernableFund(fundContractAddr).getFundSettings();

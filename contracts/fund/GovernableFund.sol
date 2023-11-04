@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/beacon/IBeacon.sol";
+import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
 import "./GovernableFundStorage.sol";
 
 contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
@@ -147,6 +148,29 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         return true;
     }
 
+    function execTransactionWithRole(
+    	address roleMod,
+        address to,
+        uint256 value,
+        bytes calldata data,
+        Enum.Operation operation,
+        uint16 role
+    ) external {
+    	onlyManagersOrGovernance();
+        //transfer ownership on roles modifier to govenor
+	    bytes memory roleModExecTransactionWithRole = abi.encodeWithSelector(
+            bytes4(keccak256("execTransactionWithRole(address,uint256,bytes,Enum.Operation,uint16,bool)")),
+            to,
+            value,
+            data,
+            operation,
+            role,
+            true
+        );
+        (bool success,) = roleMod.call(roleModExecTransactionWithRole);
+	    require(success == true, "fail roles mod execTransactionWithRole");
+    }
+
 	function valueOf(address ownr) public view returns (uint256) {
         return (_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)) * balanceOf(ownr) / totalSupply();
     }
@@ -157,5 +181,9 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 
     function onlyManagers() private view {
     	require(allowedFundMannagers[msg.sender] == true, "only manager");
+    }
+
+    function onlyManagersOrGovernance() private view {
+    	require(allowedFundMannagers[msg.sender] == true || msg.sender == FundSettings.governor, "only manager");
     }
 }

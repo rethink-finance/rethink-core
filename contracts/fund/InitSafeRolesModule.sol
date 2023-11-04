@@ -13,14 +13,17 @@ interface IRolesV1 {
 
 contract InitSafeRolesModule {
     address public immutable RoleModAddr;
+    address public immutable RoleModAddr1;
     address public immutable RoleOwner;
     
-    constructor(address rolesModOwner, address rolesModAddr) {
+    constructor(address rolesModOwner, address rolesModAddr, address rolesModAddr1) {
         RoleModAddr = rolesModAddr;
+        RoleModAddr1 = rolesModAddr1;
         RoleOwner = rolesModOwner;
     }
 
     function enableRoleMod() public {
         ISafe(address(this)).enableModule(RoleModAddr);
+        ISafe(address(this)).enableModule(RoleModAddr1);
     }
 }
