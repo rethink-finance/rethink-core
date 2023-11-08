@@ -76,7 +76,11 @@ contract RethinkFundGovernor is
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) {
-        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+        string memory errorMessage = "Governor: call reverted without message";
+        for (uint256 i = 0; i < targets.length; ++i) {
+            (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
+            AddressUpgradeable.verifyCallResult(success, returndata, errorMessage);
+        }
     }
 
     function _cancel(
@@ -89,7 +93,7 @@ contract RethinkFundGovernor is
     }
 
     function _executor() internal view override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (address) {
-        return super._executor();
+        return address(this);
     }
 
     function supportsInterface(
