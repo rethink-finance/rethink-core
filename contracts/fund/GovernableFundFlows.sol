@@ -117,7 +117,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
     }
 
     function valueOf(address ownr) public view returns (uint256) {
-        return (_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)) * balanceOf(ownr) / totalSupply();
+        return (_nav + IERC20(FundSettings.baseToken).balanceOf(address(this)) + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)  - _feeBal) * balanceOf(ownr) / totalSupply();
     }
 
     // rounds "v" considering a base "b"

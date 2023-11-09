@@ -148,6 +148,9 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         return true;
     }
 
+    /*
+    TODO: issues with nested delegate calls
+
     function execTransactionWithRole(
     	address roleMod,
         address to,
@@ -156,7 +159,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         Enum.Operation operation,
         uint16 role
     ) external {
-    	onlyManagersOrGovernance();
+    	require(allowedFundMannagers[msg.sender] == true || msg.sender == FundSettings.governor, "only manager");
         //transfer ownership on roles modifier to govenor
 	    bytes memory roleModExecTransactionWithRole = abi.encodeWithSelector(
             bytes4(keccak256("execTransactionWithRole(address,uint256,bytes,Enum.Operation,uint16,bool)")),
@@ -171,8 +174,10 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 	    require(success == true, "fail roles mod execTransactionWithRole");
     }
 
+    */
+
 	function valueOf(address ownr) public view returns (uint256) {
-        return (_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)) * balanceOf(ownr) / totalSupply();
+        return (_nav + IERC20(FundSettings.baseToken).balanceOf(address(this)) + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)  - _feeBal) * balanceOf(ownr) / totalSupply();
     }
 
     function onlyGovernance() private view {
@@ -181,9 +186,5 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 
     function onlyManagers() private view {
     	require(allowedFundMannagers[msg.sender] == true, "only manager");
-    }
-
-    function onlyManagersOrGovernance() private view {
-    	require(allowedFundMannagers[msg.sender] == true || msg.sender == FundSettings.governor, "only manager");
     }
 }
