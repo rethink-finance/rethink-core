@@ -182,7 +182,7 @@ contract GovernableFundFactory is Initializable {
     function initRoleMod(address safeProxyAddr, address rolesModifier, address govContractAddr) internal {
     	bool success;
 	    //setup roles modifier with init owner of fund contract
-	    bytes memory rolesModifierInitParams = abi.encode(address(this), safeProxyAddr, address(0));
+	    bytes memory rolesModifierInitParams = abi.encode(address(this), safeProxyAddr, safeProxyAddr);
 	    bytes memory rolesModifierSetup = abi.encodeWithSelector(
             bytes4(keccak256("setUp(bytes)")),
             rolesModifierInitParams

@@ -38,6 +38,8 @@ module.exports = async function (deployer, network, accounts) {
 	  console.log("ZodiacRolesV1Modifier singleton is at: "+ RolesV1Addr);
 	  setTimeout(function(){},delay);
 
+	  //let oldAddr = "0xD8DfC1d938D7D163C5231688341e9635E9011889";
+
 	  let p = await UpgradeableBeacon.at(proxy);
 	  setTimeout(function(){},delay);
 	  p.upgradeTo(RolesV1Addr);
