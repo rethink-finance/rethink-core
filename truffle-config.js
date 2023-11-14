@@ -94,15 +94,17 @@ module.exports = {
   
     matic: {
       provider: function() {
-        return new HDWalletProvider(
-          process.env.MNENOMIC,
-          "https://polygon-mainnet.infura.io/v3/" + process.env.INFURA_API_KEY
-        )
+        return new HDWalletProvider({
+            privateKeys: [process.env.MAINNET_RETHINK_PRIVATE_KEY], 
+            providerOrUrl: "https://polygon-bor.publicnode.com",
+            //providerOrUrl: "https://polygon-testnet.blastapi.io/4d2d0ede-b1cd-43fa-a3b0-db1fefae4322",
+            pollingInterval: 8000,
+        })
       },
       network_id: 137,
       networkCheckTimeout: 1000000,
       timeoutBlocks: 200,
-      gasPrice: 50e9 // 50 gewi
+      gasPrice: 80e9 // 50 gewi
     },
 
     mumbai: {

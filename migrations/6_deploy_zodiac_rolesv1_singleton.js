@@ -5,6 +5,7 @@ const WrappedTokenFactory = artifacts.require("WrappedTokenFactory");
 const NAVCalculator = artifacts.require("NAVCalculator");
 const ZodiacRolesV1Modifier = artifacts.require("RolesV1");
 const Permissions = artifacts.require("Permissions");
+const Arrays = artifacts.require("Arrays");
 const UpgradeableBeacon = artifacts.require("UpgradeableBeacon");
 const BeaconProxy = artifacts.require("BeaconProxy");
 
@@ -19,13 +20,19 @@ const rolesInitCode = "0x60806040523480156200001157600080fd5b5060405162006aa7380
 //time truffle migrate --reset -f 6 --to 6 --skip-dry-run --network=goerli
 //https://raw.githubusercontent.com/gnosis/zodiac/master/sdk/initData/Roles.ts
 module.exports = async function (deployer, network, accounts) {
-	  //await deployer.deploy(Permissions);
-	  //setTimeout(function(){},delay);
+	/*
+	  await deployer.deploy(Permissions);
+	  setTimeout(function(){},delay);
+	  await deployer.deploy(Permissions);
+	  setTimeout(function(){},delay);
+	*/
 
 	//https://raw.githubusercontent.com/gnosis/zodiac/master/sdk/initData/Roles.ts with rolesv1 with init code
 	  /*
 	  let perms = await Permissions.at("0x73f6018958118b17645f1641a20dc339777923e0");
+	  let arrays = await Arrays.at("0x73f6018958118b17645f1641a20dc339777923e0");
 	  await deployer.link(perms, ZodiacRolesV1Modifier);
+	  await deployer.link(arrays, ZodiacRolesV1Modifier);
 	  let zrv1 = await deployer.deploy(ZodiacRolesV1Modifier, oneAddr, oneAddr, oneAddr);
 	  setTimeout(function(){},delay);
 	  */
