@@ -20,7 +20,7 @@ if (isTest == true){
   owner ="0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337"
 }
 const execData = "0x";
-module.exports = async function (deployer) {
+module.exports = async function (deployer, network, accounts) {
 
   let wtf = await deployer.deploy(WrappedTokenFactory);
   setTimeout(function(){},delay);
@@ -37,7 +37,7 @@ module.exports = async function (deployer) {
   setTimeout(function(){},delay);
   console.log("GovernableFundFactory singleton is at: "+ gff.address);
 
-  let gffub = await deployer.deploy(UpgradeableBeacon, "0xA2bD864fd4B7f9c245a014cDCCFFBb142432725A");
+  let gffub = await deployer.deploy(UpgradeableBeacon, gff.address);
   setTimeout(function(){},delay);
   console.log("GovernableFundFactoryUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
 

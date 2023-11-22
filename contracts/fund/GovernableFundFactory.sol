@@ -46,10 +46,17 @@ contract GovernableFundFactory is Initializable {
 	uint256 PREDETERMINED_SALT_NONCE = 0xb1073742015cbcf5a3a4d9d1ae33ecf619439710b89475f92e2abd2117e90f90;
 
 	/*
+	https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/
 	Goerli:
 		safeProxyFactory -> https://goerli.etherscan.io/address/0xa6b71e26c5e0845f74c812102ca7114b6a896ab2#code
 		safeSingleton -> https://goerli.etherscan.io/address/0x3E5c63644E683549055b9Be8653de26E0B4CD36E#code
 		safeFallbackHandler -> "https://goerli.etherscan.io/address/0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4"
+		_safeMultisendAddress -> "https://goerli.etherscan.io/address/0x40A2aCCbd92BCA938b02010E17A5b8929b49130D"
+	Polygon:
+		safeProxyFactory -> https://polygonscan.com/address/0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2
+		safeSingleton -> https://polygonscan.com/address/0x3E5c63644E683549055b9Be8653de26E0B4CD36E#code
+		safeFallbackHandler -> "https://polygonscan.com/address/0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4"
+		safeMultisendAddress -> "https://polygonscan.com/address/0x40A2aCCbd92BCA938b02010E17A5b8929b49130D"
 	*/
 	
 	//function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, governableContractFactorySingletonAddress) external initializer {

@@ -101,10 +101,11 @@ module.exports = {
             pollingInterval: 8000,
         })
       },
+      deploymentPollingInterval: 16000,
       network_id: 137,
       networkCheckTimeout: 1000000,
       timeoutBlocks: 200,
-      gasPrice: 80e9 // 50 gewi
+      gasPrice: 801e8 // 80.1 gewi
     },
 
     mumbai: {
@@ -173,7 +174,7 @@ module.exports = {
       provider: function() {
         return new HDWalletProvider({
             privateKeys: [process.env.MUMBAI_PRIVATE_KEY], 
-            providerOrUrl: "https://rpc.ankr.com/eth_goerli",
+            providerOrUrl: "https://ethereum-goerli.publicnode.com",
             pollingInterval: 10000,
         })
         //return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, "https://matic-mumbai.chainstacklabs.com/")
