@@ -98,6 +98,7 @@ module.exports = {
             privateKeys: [process.env.MAINNET_RETHINK_PRIVATE_KEY], 
             providerOrUrl: "https://polygon-bor.publicnode.com",
             //providerOrUrl: "https://polygon-testnet.blastapi.io/4d2d0ede-b1cd-43fa-a3b0-db1fefae4322",
+            retryTimeout: 8000,
             pollingInterval: 8000,
         })
       },
@@ -105,7 +106,7 @@ module.exports = {
       network_id: 137,
       networkCheckTimeout: 1000000,
       timeoutBlocks: 200,
-      gasPrice: 801e8 // 80.1 gewi
+      gasPrice: 601e8 // 60.1 gewi
     },
 
     mumbai: {
@@ -174,20 +175,22 @@ module.exports = {
       provider: function() {
         return new HDWalletProvider({
             privateKeys: [process.env.MUMBAI_PRIVATE_KEY], 
-            providerOrUrl: "https://ethereum-goerli.publicnode.com",
-            pollingInterval: 10000,
+            providerOrUrl: "https://rpc.ankr.com/eth_goerli",
+            retryTimeout: 20000,
+            pollingInterval: 40000,
         })
         //return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, "https://matic-mumbai.chainstacklabs.com/")
       },
-      deploymentPollingInterval: 20000,
+      deploymentPollingInterval: 40000,
       network_id: 5,
       gas: 8000000,
+      retryTimeout: 20000,
       gasPrice: 10e8,
       //gas: 8000000,
       //gasLimit: 80000000,
       //network_id: 43113,
-      networkCheckTimeout: 10000000,
-      timeoutBlocks: 200,
+      networkCheckTimeout: 100000000,
+      timeoutBlocks: 2000,
       from: "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6",
       //gasPrice: 25, // 301e8, //30.1 gewi
       disableConfirmationListener: true

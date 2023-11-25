@@ -41,14 +41,11 @@ abstract contract NAVComposable {
 			cachedIndexValue[i] = normedRetVal;
 			composableSum += normedRetVal;
 		}
-		bytes memory cacheComposableCache = abi.encodeWithSelector(
-            bytes4(keccak256("cacheComposableCache(int256[],address,uint256)")),
-            cachedIndexValue,
-            fund,
-            navEntryIndex
-        );
-        (bool passed,) = address(this).delegatecall(cacheComposableCache);
-        require(passed == true, "failed nav cache");
+
+		cacheComposableCache(cachedIndexValue,fund,navEntryIndex);
 		return composableSum;
 	}
+
+	function cacheComposableCache(int256[] memory data, address fund, uint256 navEntryIndex) virtual internal;
+
 }

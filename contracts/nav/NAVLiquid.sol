@@ -23,14 +23,7 @@ abstract contract NAVLiquid {
 			liquidSum += normedRetVal;
 			cachedIndexValue[i] = normedRetVal;
 		}
-		bytes memory cacheLiquidCalculation = abi.encodeWithSelector(
-            bytes4(keccak256("cacheLiquidCalculation(uint256[],address,uint256)")),
-            cachedIndexValue,
-            fund,
-            navEntryIndex
-        );
-        (bool passed,) = address(this).delegatecall(cacheLiquidCalculation);
-        require(passed == true, "failed nav cache");
+        cacheLiquidCalculation(cachedIndexValue, fund, navEntryIndex);
 		return liquidSum;
 	}
 
@@ -60,4 +53,6 @@ abstract contract NAVLiquid {
 			price = priceDataDecoded[liquidVal.returnIndex];
 		}
 	}
+
+	function cacheLiquidCalculation(uint256[] memory data, address fund, uint256 navEntryIndex) virtual internal;
 }

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
+import "@openzeppelin/contracts/proxy/beacon/IBeacon.sol";
 import "../interfaces/fund/IGovernableFundStorage.sol";
 import "../interfaces/nav/INAVCalculator.sol";
 import "./GovernableFundStorage.sol";
@@ -16,7 +17,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 		uint256 updateedNav = 0;
 		for(uint256 i=0; i< navUpdateData.length; i++) {
 			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(
+				updateedNav += INAVCalculator(IBeacon(_navCalculatorAddress).implementation()).liquidCalculation(
 					navUpdateData[i].liquid,
 					FundSettings.safe,
 					address(this),
@@ -25,14 +26,14 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].liquid
 				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(
+				updateedNav += INAVCalculator(IBeacon(_navCalculatorAddress).implementation()).illiquidCalculation(
 					navUpdateData[i].illiquid,
 					FundSettings.safe,
 					navUpdateData[i].isPastNAVUpdate,
 					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].illiquid
 				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(
+				updateedNav += INAVCalculator(IBeacon(_navCalculatorAddress).implementation()).nftCalculation(
 					navUpdateData[i].nft,
 					FundSettings.safe,
 					address(this),
@@ -41,7 +42,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].nft
 				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(
+				updateedNav += INAVCalculator(IBeacon(_navCalculatorAddress).implementation()).composableCalculation(
 					navUpdateData[i].composable,
 					address(this),
 					i,

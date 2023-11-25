@@ -40,14 +40,9 @@ abstract contract NAVNft {
 	        }
 			cachedIndexValue[i] = normedRetVal;
 	    }
-	    bytes memory cacheNFTCalculation = abi.encodeWithSelector(
-            bytes4(keccak256("cacheNFTCalculation(int256[],address,uint256)")),
-            cachedIndexValue,
-            fund,
-            navEntryIndex
-        );
-        (bool passed,) = address(this).delegatecall(cacheNFTCalculation);
-        require(passed == true, "failed nav cache");
+	    cacheNFTCalculation(cachedIndexValue,fund,navEntryIndex);
 	    return nftSum;
 	}
+
+	function cacheNFTCalculation(int256[] memory data, address fund, uint256 navEntryIndex) virtual internal;
 }
