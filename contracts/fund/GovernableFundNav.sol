@@ -15,6 +15,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 		//NOTE: may need to happen over multiple transactions?
 		uint256 updateedNav = 0;
 
+
 		for(uint256 i=0; i< navUpdateData.length; i++) {
 			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
 				updateedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(
@@ -23,14 +24,17 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					address(this),
 					i,
 					navUpdateData[i].isPastNAVUpdate,
-					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].liquid
+					navUpdateData[i].pastNAVUpdateIndex,
+					navUpdateData[i].pastNAVUpdateEntryIndex
 				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
 				updateedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(
 					navUpdateData[i].illiquid,
 					FundSettings.safe,
+					address(this),
 					navUpdateData[i].isPastNAVUpdate,
-					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].illiquid
+					navUpdateData[i].pastNAVUpdateIndex,
+					navUpdateData[i].pastNAVUpdateEntryIndex
 				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
 				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(
@@ -39,7 +43,8 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					address(this),
 					i,
 					navUpdateData[i].isPastNAVUpdate,
-					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].nft
+					navUpdateData[i].pastNAVUpdateIndex,
+					navUpdateData[i].pastNAVUpdateEntryIndex
 				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
 				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(
@@ -47,7 +52,8 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					address(this),
 					i,
 					navUpdateData[i].isPastNAVUpdate,
-					navUpdate[navUpdateData[i].pastNAVUpdateIndex][navUpdateData[i].pastNAVUpdateEntryIndex].composable
+					navUpdateData[i].pastNAVUpdateIndex,
+					navUpdateData[i].pastNAVUpdateEntryIndex
 				);
 			}
 

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../interfaces/fund/IGovernableFundStorage.sol";
+import "../interfaces/fund/IGovernableFundStorageFunctions.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 abstract contract NAVNft {
-	function nftCalculation(IGovernableFundStorage.NAVNFTUpdate[] calldata nft, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, IGovernableFundStorage.NAVNFTUpdate[] calldata pastNft) external returns (int256) {
+	function nftCalculation(IGovernableFundStorage.NAVNFTUpdate[] calldata nft, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external returns (int256) {
 		//TODO: need to handle decimals and conversion to base currency
 		//TODO: assumes chainlink
 
@@ -17,7 +17,8 @@ abstract contract NAVNft {
 
 			IGovernableFundStorage.NAVNFTUpdate memory nftVal = nft[i];
 			if (isPastNAVUpdate == true){
-				nftVal = pastNft[nft[i].pastNAVUpdateIndex];
+				nftVal = IGovernableFundStorageFunctions(fund).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].nft[nft[i].pastNAVUpdateIndex];
+				//pastNft[nft[i].pastNAVUpdateIndex];
 			}
 
 			AggregatorV3Interface nftFloorPriceFeed = AggregatorV3Interface(nftVal.oracleAddress);

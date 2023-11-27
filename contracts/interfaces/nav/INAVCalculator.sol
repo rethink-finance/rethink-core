@@ -5,10 +5,10 @@ import "../fund/IGovernableFundStorage.sol";
 
 
 interface INAVCalculator {
-	function liquidCalculation(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, IGovernableFundStorage.NAVLiquidUpdate[] calldata pastLiquid) external returns (uint256);
-	function composableCalculation(IGovernableFundStorage.NAVComposableUpdate[] calldata composable, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, IGovernableFundStorage.NAVComposableUpdate[] calldata pastComposable) external returns (uint256);
-	function nftCalculation(IGovernableFundStorage.NAVNFTUpdate[] calldata nft, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, IGovernableFundStorage.NAVNFTUpdate[] calldata pastNft) external returns (uint256);
-	function illiquidCalculation(IGovernableFundStorage.NAVIlliquidUpdate[] calldata illiquid, address safe, bool isPastNAVUpdate, IGovernableFundStorage.NAVIlliquidUpdate[] calldata pastIlliquid) external view returns (uint256);
+	function liquidCalculation(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external returns (uint256);
+	function composableCalculation(IGovernableFundStorage.NAVComposableUpdate[] calldata composable, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external returns (uint256);
+	function nftCalculation(IGovernableFundStorage.NAVNFTUpdate[] calldata nft, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external returns (uint256);
+	function illiquidCalculation(IGovernableFundStorage.NAVIlliquidUpdate[] calldata illiquid, address safe, address fund, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external view returns (uint256);
 	function getNAVLiquidCache(address fund, uint256 navEntryIndex) external view returns (uint256[] calldata);
 	function getNAVComposableCache(address fund, uint256 navEntryIndex) external view returns (int256[]  calldata);
 	function getNAVNFTCache(address fund, uint256 navEntryIndex) external view returns (int256[] calldata);

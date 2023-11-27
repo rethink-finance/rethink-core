@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../interfaces/fund/IGovernableFundStorage.sol";
+import "../interfaces/fund/IGovernableFundStorageFunctions.sol";
 import "@uniswap/v2-periphery/contracts/libraries/UniswapV2OracleLibrary.sol";
 
 abstract contract NAVLiquid {
-	function liquidCalculation(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, IGovernableFundStorage.NAVLiquidUpdate[] calldata pastLiquid) external returns (uint256) {
+
+	function liquidCalculation(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external returns (uint256) {
 		//TODO: need to make sure it returns in nav base token denomination
 		//TODO: need to make sure this can support the popular dex/aggregators abis
 		uint256 liquidSum = 0;
@@ -14,7 +15,8 @@ abstract contract NAVLiquid {
 
 			IGovernableFundStorage.NAVLiquidUpdate memory liquidVal = liquid[i];
 			if (isPastNAVUpdate == true){
-				liquidVal  = pastLiquid[liquid[i].pastNAVUpdateIndex];
+				liquidVal  = IGovernableFundStorageFunctions(fund).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].liquid[liquid[i].pastNAVUpdateIndex];
+				//pastLiquid[liquid[i].pastNAVUpdateIndex];
 			}
 
 			//querying swap price;

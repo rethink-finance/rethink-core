@@ -5,8 +5,8 @@ const UpgradeableBeacon = artifacts.require("UpgradeableBeacon");
 const delay = 10000;
 const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
 const execData = "0x";
-const proxy = "0xCcbAEE52f73e52c3DC7859289ba13Ce93A84dbED";//goerli
-//const proxy = "0xe0D8ca6d6b67E39dfADC137B675455Bc1ee5bCdd";//matic
+//const proxy = "0xCcbAEE52f73e52c3DC7859289ba13Ce93A84dbED";//goerli
+const proxy = "0xe0D8ca6d6b67E39dfADC137B675455Bc1ee5bCdd";//matic
 
 //time truffle migrate --reset -f 5 --to 5 --skip-dry-run --network=goerli
 
@@ -27,6 +27,6 @@ module.exports = async function (deployer) {
 	let p = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
 	p.upgradeTo(NAVCalculator.address);
-	//p.upgradeTo("0xFF84eaf71f19b5F16E1aE05574aFd69D3cA0267c");
+	//p.upgradeTo("0x76b3B44665EE440FBaAF195b5A49408B76c64778");
 	//console.log(p);
 }

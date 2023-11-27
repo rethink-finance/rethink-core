@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../interfaces/fund/IGovernableFundStorage.sol";
+import "../interfaces/fund/IGovernableFundStorageFunctions.sol";
 
 abstract contract NAVComposable {
-	function composableCalculation(IGovernableFundStorage.NAVComposableUpdate[] calldata composable, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, IGovernableFundStorage.NAVComposableUpdate[] calldata pastComposable) external returns (int256) {
+	function composableCalculation(IGovernableFundStorage.NAVComposableUpdate[] calldata composable, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external returns (int256) {
 		//TODO: need to handle decimals and conversion to base currency
 
 		int256 composableSum = 0;
@@ -13,7 +13,8 @@ abstract contract NAVComposable {
 			IGovernableFundStorage.NAVComposableUpdate memory composableVal = composable[i];
 
 			if (isPastNAVUpdate == true){
-				composableVal = pastComposable[composable[i].pastNAVUpdateIndex];
+				composableVal = IGovernableFundStorageFunctions(fund).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].composable[composable[i].pastNAVUpdateIndex];
+				//pastComposable[composable[i].pastNAVUpdateIndex];
 			}
 
 			//querying swap price;

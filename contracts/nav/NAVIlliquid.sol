@@ -1,20 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../interfaces/fund/IGovernableFundStorage.sol";
+import "../interfaces/fund/IGovernableFundStorageFunctions.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 
 abstract contract NAVIlliquid {
-	function illiquidCalculation(IGovernableFundStorage.NAVIlliquidUpdate[] calldata illiquid, address safe, bool isPastNAVUpdate, IGovernableFundStorage.NAVIlliquidUpdate[] calldata pastIlliquid) external view returns (uint256) {
+	function illiquidCalculation(IGovernableFundStorage.NAVIlliquidUpdate[] calldata illiquid, address safe, address fund, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external view returns (uint256) {
 		//TODO: need to handle decimals and conversion to base currency
 		uint256 illiquidSum = 0;
 		for(uint i=0;i<illiquid.length;i++) {
 			IGovernableFundStorage.NAVIlliquidUpdate memory illiquidVal = illiquid[i];
 
 			if (isPastNAVUpdate == true){
-				illiquidVal  = pastIlliquid[illiquid[i].pastNAVUpdateIndex];
+				illiquidVal  = IGovernableFundStorageFunctions(fund).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].illiquid[illiquid[i].pastNAVUpdateIndex];
+				//pastIlliquid[illiquid[i].pastNAVUpdateIndex];
 			}
 			if (illiquidVal.isNFT == true) {
 				if (illiquidVal.nftType == IGovernableFundStorage.NAVNFTType.ERC1155){
