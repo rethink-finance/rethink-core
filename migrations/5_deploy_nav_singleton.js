@@ -18,15 +18,15 @@ module.exports = async function (deployer) {
 
 	*/
 
-	/*
+	/**/
 	let nc = await deployer.deploy(NAVCalculator);
 	setTimeout(function(){},delay);
 	console.log("NAVCalculator singleton is at: "+ NAVCalculator.address);
-	*/
+	/**/
 
 	let p = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
-	//p.upgradeTo(NAVCalculator.address);
-	p.upgradeTo("0xe7c525a5efaf393b73b0881f97e76e59d48652b4");
+	p.upgradeTo(NAVCalculator.address);
+	//p.upgradeTo("0xFF84eaf71f19b5F16E1aE05574aFd69D3cA0267c");
 	//console.log(p);
 }

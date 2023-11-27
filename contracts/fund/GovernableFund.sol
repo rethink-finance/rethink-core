@@ -69,8 +69,14 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		navUpdatedTime[_navUpdateLatestIndex] = block.timestamp;
 
 		//process nav here, save to storage
+
+		//processNav((uint8,(address,address,bytes,address,address,bool,uint256,uint256,uint256)[],(uint256,uint256,address,bool,string[],uint8,uint256,uint256)[],(address,address,uint8,uint256,uint256)[],(address,string,bytes,uint256,bool,uint256,uint256,uint8,uint256)[],bool,uint256,uint256)[]) -> 0x8f7dcf76
+
 		(bool success, bytes memory navBytes) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
-			abi.encodeWithSignature("processNav(NavUpdateEntry[])", navUpdateData)
+			abi.encodeWithSelector(
+				bytes4(0x8f7dcf76),
+				navUpdateData
+			)
 		);
 		require(success == true, "failed processNav");
 
