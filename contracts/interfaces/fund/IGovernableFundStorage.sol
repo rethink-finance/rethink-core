@@ -33,6 +33,7 @@ interface IGovernableFundStorage {
 		uint256 returnLength;
 		uint256 returnIndex;
 		uint256 pastNAVUpdateIndex;
+		string description;
 	}
 
 	struct NAVIlliquidUpdate {
@@ -75,6 +76,7 @@ interface IGovernableFundStorage {
 		uint256 returnArraySize;
 		NAVComposableUpdateReturnType returnValType;
 		uint256 pastNAVUpdateIndex;
+		bool isNegative;
 	}
 
 	enum NavUpdateType {
