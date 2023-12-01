@@ -27,6 +27,6 @@ module.exports = async function (deployer) {
 	let p = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
 	p.upgradeTo(NAVCalculator.address);
-	//p.upgradeTo("0x76b3B44665EE440FBaAF195b5A49408B76c64778");
+	//p.upgradeTo("0x7a1f370658b4a17b0b5346fdef8809d5e73ddaa1");
 	//console.log(p);
 }

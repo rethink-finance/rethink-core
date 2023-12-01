@@ -33,7 +33,6 @@ interface IGovernableFundStorage {
 		uint256 returnLength;
 		uint256 returnIndex;
 		uint256 pastNAVUpdateIndex;
-		string description;
 	}
 
 	struct NAVIlliquidUpdate {
@@ -95,6 +94,7 @@ interface IGovernableFundStorage {
 		bool isPastNAVUpdate;
 		uint256 pastNAVUpdateIndex;
 		uint256 pastNAVUpdateEntryIndex;
+		string description;
 	}
 
 	struct WithdrawalRequestEntry {
