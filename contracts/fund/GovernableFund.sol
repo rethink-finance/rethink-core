@@ -70,11 +70,11 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 
 		//process nav here, save to storage
 
-		//processNav((uint8,(address,address,bytes,address,address,bool,uint256,uint256,uint256)[],(uint256,uint256,address,bool,string[],uint8,uint256,uint256)[],(address,address,uint8,uint256,uint256)[],(address,string,bytes,uint256,bool,uint256,uint256,uint8,uint256)[],bool,uint256,uint256)[]) -> 0x8f7dcf76
+		//processNav((uint8,(address,address,bytes,address,address,bool,uint256,uint256,uint256)[],(uint256,uint256,address,bool,string[],uint8,uint256,uint256)[],(address,address,uint8,uint256,uint256)[],(address,string,bytes,uint256,bool,uint256,uint256,uint8,uint256)[],bool,uint256,uint256)[]) -> 0x7a627c91
 
 		(bool success, bytes memory navBytes) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
 			abi.encodeWithSelector(
-				bytes4(0x8f7dcf76),
+				bytes4(0x7a627c91),
 				navUpdateData
 			)
 		);

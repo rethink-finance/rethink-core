@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
-import "../interfaces/fund/IGovernableFundStorage.sol";
 import "../interfaces/nav/INAVCalculator.sol";
 import "./GovernableFundStorage.sol";
 
@@ -14,7 +13,6 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 	function processNav(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData) public returns (uint256) {
 		//NOTE: may need to happen over multiple transactions?
 		uint256 updateedNav = 0;
-
 
 		for(uint256 i=0; i< navUpdateData.length; i++) {
 			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
