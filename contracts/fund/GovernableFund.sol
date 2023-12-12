@@ -155,7 +155,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
     }
 
     /*
-    TODO: issues with nested delegate calls
+    TODO: issues with nested delegate calls?
 
     function execTransactionWithRole(
     	address roleMod,

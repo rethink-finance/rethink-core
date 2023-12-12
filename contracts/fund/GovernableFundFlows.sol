@@ -91,8 +91,8 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         require(userWithdrawRequest[msg.sender].amount != 0 && userWithdrawRequest[msg.sender].requestTime != 0, "withdrawal not requested");
 
 
-        uint val = valueOf(msg.sender) * userWithdrawRequest[msg.sender].amount / bal;
-        uint feeVal = val * FundSettings.withdrawFee / MAX_BPS;
+        uint val = (valueOf(msg.sender) * userWithdrawRequest[msg.sender].amount) / bal;
+        uint feeVal = (val * FundSettings.withdrawFee) / MAX_BPS;
         uint discountedValue = val - feeVal;
         _feeBal += feeVal;
 
