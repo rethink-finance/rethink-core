@@ -21,6 +21,7 @@ interface IGovernableFundStorage {
 		address governor;
 		string fundName;
 		string fundSymbol;
+		address[4] feeCollectors;
 	}
 
 	struct NAVLiquidUpdate {
@@ -105,5 +106,12 @@ interface IGovernableFundStorage {
 	struct DepositRequestEntry {
 		uint256 amount;
 		uint256 requestTime;
+	}
+
+	enum FundFeeType {
+		DepositFee,
+		WithdrawFee,
+		ManagementFee,
+		PerformanceFee
 	}
 }

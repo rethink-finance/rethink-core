@@ -12,7 +12,6 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 		if (isDeposit == true) {
 	        require(userDepositRequest[msg.sender].amount != 0 && userDepositRequest[msg.sender].requestTime != 0, "deposit not requested");
 	        _depositBal -= userDepositRequest[msg.sender].amount;
-	        _totalDepositBal -= userDepositRequest[msg.sender].amount;
 			_userDepositBal[msg.sender] = 0;
         	userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
 		} else {
@@ -31,7 +30,6 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 		require(userDepositRequest[msg.sender].amount == 0 && userDepositRequest[msg.sender].requestTime == 0, "already requested");
 		userDepositRequest[msg.sender] = DepositRequestEntry(amount, block.timestamp);
 		_depositBal += amount;
-		_totalDepositBal += amount;
 		_userDepositBal[msg.sender] += amount;
 		/**/
 	}
@@ -65,6 +63,8 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 
         IERC20(FundSettings.baseToken).transfer(FundSettings.safe, discountedAmount);
 		_depositBal -= userDepositRequest[msg.sender].amount;
+		_totalDepositBal += discountedAmount;
+
 		_userDepositBal[msg.sender] = 0;
         userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
 
@@ -95,15 +95,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         uint feeVal = (val * FundSettings.withdrawFee) / MAX_BPS;
         uint discountedValue = val - feeVal;
         _feeBal += feeVal;
-
-
-        if (_userDepositBal[msg.sender] >= val){
-        	_userDepositBal[msg.sender] -= val;
-        	_totalDepositBal -= val;
-        } else {
-        	_totalDepositBal -= _userDepositBal[msg.sender];
-        	_userDepositBal[msg.sender] = 0;
-        }
+        _totalDepositBal -= discountedValue;
 
 
         if (totalWithrawalBalance() > discountedValue) {
@@ -117,7 +109,11 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
     }
 
     function valueOf(address ownr) public view returns (uint256) {
-        return (_nav + IERC20(FundSettings.baseToken).balanceOf(address(this)) + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)  - _feeBal) * balanceOf(ownr) / totalSupply();
+        return (totalNAV() * balanceOf(ownr)) / totalSupply();
+    }
+
+    function totalNAV() public view returns (uint256) {
+    	return (_nav + IERC20(FundSettings.baseToken).balanceOf(address(this)) + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)  - _feeBal);
     }
 
     // rounds "v" considering a base "b"

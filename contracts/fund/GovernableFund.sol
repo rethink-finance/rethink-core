@@ -19,7 +19,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 	function initialize(string memory _name_, string memory _symbol_, IGovernableFundStorage.Settings calldata _fundSettings, address navCalculatorAddress, address fundDelgateCallFlowAddress, address fundDelgateCallNavAddress) external initializer {
 		__ERC20_init(_name_, _symbol_);
 		__ERC20Permit_init(_name_);
-		//TODO: need to do validation of imputs
+		//TODO: need to do validation of inputs?
 		FundSettings = _fundSettings;
 		_fundStartTime = block.timestamp;
 		_navCalculatorAddress = navCalculatorAddress;
@@ -36,6 +36,9 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		for (i=0; i<_fundSettings.allowedDepositAddrs.length; i++){
 			whitelistedDepositors[_fundSettings.allowedDepositAddrs[i]] = true;
 		}
+		for (i=0; i<_fundSettings.feeCollectors.length; i++){
+			feeCollectorAddress[FundFeeType(i)] = _fundSettings.feeCollectors[i];
+		}
 	}
 
 	// Overrides IERC6372 functions to make the token & governor timestamp-based
@@ -49,7 +52,6 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
     }
 
 	function updateSettings(IGovernableFundStorage.Settings calldata _fundSettings) external {
-		//TODO: only allow updates on changable settings
 		onlyGovernance();
 		FundSettings = _fundSettings;
 
@@ -59,6 +61,9 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		}
 		for (i=0; i<_fundSettings.allowedDepositAddrs.length; i++){
 			whitelistedDepositors[_fundSettings.allowedDepositAddrs[i]] = true;
+		}
+		for (i=0; i<_fundSettings.feeCollectors.length; i++){
+			feeCollectorAddress[FundFeeType(i)] = _fundSettings.feeCollectors[i];
 		}
 	}
 
@@ -128,34 +133,107 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		require(success == true, "failed withrawal");
     }
 
-    function collectFees() external {
-    	onlyManagers();
-    	IERC20(FundSettings.baseToken).transfer(msg.sender, _feeBal);
-    	_feeBal = 0;
-    }
-
     function calculateAccruedManagementFees() public view returns (uint256 accruedFees) {
-        //add require to only valid token
         uint256 startTime = (_lastClaimedManagementFees == 0) ? _fundStartTime: _lastClaimedManagementFees;
         uint256 accruingPeriod = (block.timestamp - startTime);
-        uint256 managmentFeeLevel = FundSettings.managementFee;
         uint256 feeBase = totalSupply();
-        uint256 feePerSecond = (feeBase * managmentFeeLevel) /
+        uint256 feePerSecond = (feeBase * FundSettings.managementFee) /
             (365 * 86400 * 10000);
         accruedFees = feePerSecond * accruingPeriod;
     }
 
-    function claimManagementFees() public returns (bool) {
-        onlyManagers();
+    function calculateAccruedPerformanceFees() public view returns (uint256 accruedFees) {
+    	uint256 nav = totalNAV();
+    	int256 returnOverDeposits = int256(nav) - int256(_totalDepositBal);
+    	uint256 performanceTake = 0;
+    	if(returnOverDeposits > 0) {
+    		uint256 hurdleReturn = (nav * FundSettings.performaceHurdleRateBps) / MAX_BPS;
+    		if (hurdleReturn < uint256(returnOverDeposits)) {
+    			performanceTake = ((uint256(returnOverDeposits) - hurdleReturn) * FundSettings.performanceFee) / MAX_BPS;
+    			/*
+			        //mintmount = totalSupply * (performanceTake / totalNAV);
+    			*/
+    		}
+    	}
 
-        uint256 _accruedFees = calculateAccruedManagementFees();
-        _mint(msg.sender, _accruedFees);
-        _lastClaimedManagementFees = block.timestamp;
-        return true;
+        uint256 startTime = (_lastClaimedPerformanceFees == 0) ? _fundStartTime: _lastClaimedPerformanceFees;
+        uint256 accruingPeriod = (block.timestamp - startTime);
+        uint256 feeBase = totalSupply();
+        uint256 feePerSecond = ((feeBase * performanceTake) / nav) /
+            (365 * 86400 * 10000);
+        accruedFees = feePerSecond * accruingPeriod;
     }
 
+    function collectFees(FundFeeType feeType) external {
+    	/*
+    		enum FundFeeType {
+				DepositFee,
+				WithdrawFee,
+				ManagementFee,
+				PerformanceFee
+			}
+		*/
+		//NOTE: deposit and withdrawal fees are combined, collector should be same addr
+
+		require(feeCollectorAddress[feeType] != address(0), "no fee collector");
+
+		uint feeVal;
+        uint discountedValue;
+
+		if (feeType == FundFeeType.DepositFee || feeType == FundFeeType.WithdrawFee) {
+			feeVal = (_feeBal * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
+			discountedValue = _feeBal - feeVal;
+
+	    	IERC20(FundSettings.baseToken).transfer(feeCollectorAddress[feeType], discountedValue);
+	    	if (feeVal > 0) {
+		    	IERC20(FundSettings.baseToken).transfer(daoFeeAddr, feeVal);
+	    	}
+
+	    	_feeBal = 0;
+		} else if (feeType == FundFeeType.ManagementFee) {
+			uint256 _accruedFees = calculateAccruedManagementFees();
+			feeVal = (_accruedFees * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
+			discountedValue = _accruedFees - feeVal;
+			_mint(feeCollectorAddress[feeType], discountedValue);
+			if (feeVal > 0) {
+				_mint(daoFeeAddr, feeVal);
+	    	}
+			_lastClaimedManagementFees = block.timestamp;
+		} else if (feeType == FundFeeType.PerformanceFee) {
+			uint256 _accruedFees = calculateAccruedPerformanceFees();
+			feeVal = (_accruedFees * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
+			discountedValue = _accruedFees - feeVal;
+			_mint(feeCollectorAddress[feeType], discountedValue);
+			if (feeVal > 0) {
+				_mint(daoFeeAddr, feeVal);
+	    	}
+			_lastClaimedPerformanceFees = block.timestamp;
+		}
+    }
+
+    function toggleDaoFee() external {
+    	onlyOwner();
+
+		if (isDAOFeeEnabled == true) {
+			isDAOFeeEnabled = false;
+		} else {
+			isDAOFeeEnabled = true;
+		}
+	}
+
+	function setDaoFeeBps(uint256 bps) external {
+    	onlyOwner();
+    	require(bps <= MAX_BPS, "bad bps");
+    	daoFeeBps = bps;
+	}
+
+	function setDaoFeeBps(address addr) external {
+    	onlyOwner();
+    	daoFeeAddr = addr;
+	}
+
     /*
-    TODO: issues with nested delegate calls?
+    TODO: issues with nested delegate calls? would make it more difficult for users since they cannot interact with any arbitrary protocol thru the fund dao contract
 
     function execTransactionWithRole(
     	address roleMod,
@@ -183,7 +261,11 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
     */
 
 	function valueOf(address ownr) public view returns (uint256) {
-        return (_nav + IERC20(FundSettings.baseToken).balanceOf(address(this)) + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)  - _feeBal) * balanceOf(ownr) / totalSupply();
+        return (totalNAV() * balanceOf(ownr)) / totalSupply();
+    }
+
+    function totalNAV() public view returns (uint256) {
+    	return (_nav + IERC20(FundSettings.baseToken).balanceOf(address(this)) + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe)  - _feeBal);
     }
 
     function onlyGovernance() private view {
@@ -192,5 +274,14 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 
     function onlyManagers() private view {
     	require(allowedFundMannagers[msg.sender] == true, "only manager");
+    }
+
+    function onlyOwner() private view {
+    	bytes memory ownerCheck = abi.encodeWithSelector(
+            bytes4(keccak256("owner()"))
+        );
+        (bool success, bytes memory data) = _navCalculatorAddress.staticcall(ownerCheck);
+	    require(success == true, "fail ownerCheck");
+    	require(msg.sender == abi.decode(data, (address)), "only owner");
     }
 }

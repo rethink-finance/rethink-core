@@ -19,7 +19,7 @@ abstract contract GovernableFundStorage is IGovernableFundStorage {
 	address	_fundDelgateCallNavAddress;
 	mapping(address => bool) allowedFundMannagers;
 	mapping(address => bool) whitelistedDepositors;
-	mapping(address => uint256) _userDepositBal;//USED TO KEEP TRACK OF PERFORMANCE FROM DEPOSITS
+	mapping(address => uint256) _userDepositBal;
 	mapping(uint256 => uint256) navUpdatedTime;
 	mapping(uint256 => NavUpdateEntry[]) navUpdate;//nav update index -> nav entries for update
 	bool isRequestedWithdrawals;
@@ -57,6 +57,13 @@ abstract contract GovernableFundStorage is IGovernableFundStorage {
 
     uint256 internal constant fractionBase = 1e9; //NOTE: assumes lp token is 18 decimals
 
+    bool isDAOFeeEnabled = false;
+    uint256 daoFeeBps = 10;
+    address daoFeeAddr;
+    uint256 _lastClaimedPerformanceFees;
+
+    mapping(FundFeeType => address) feeCollectorAddress;
+
 
 	function getFundSettings() external view returns (Settings memory) {
 		return FundSettings;
@@ -64,5 +71,9 @@ abstract contract GovernableFundStorage is IGovernableFundStorage {
 
 	function getNavEntry(uint256 index) external view returns (NavUpdateEntry[] memory) {
 		return navUpdate[index];
+	}
+
+	function getFeeCollector(FundFeeType feeType) external view returns (address) {
+		return feeCollectorAddress[feeType];
 	}
 }
