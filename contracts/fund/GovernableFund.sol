@@ -227,7 +227,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
     	daoFeeBps = bps;
 	}
 
-	function setDaoFeeBps(address addr) external {
+	function setDaoFeeAddr(address addr) external {
     	onlyOwner();
     	daoFeeAddr = addr;
 	}

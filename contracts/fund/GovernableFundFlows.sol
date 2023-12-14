@@ -49,7 +49,8 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 		//transfer tokens to fund
         IERC20(FundSettings.baseToken).safeTransferFrom(msg.sender, FundSettings.fundAddress, userDepositRequest[msg.sender].amount);
         uint feeAmount = userDepositRequest[msg.sender].amount * FundSettings.depositFee / MAX_BPS;
-        uint discountedAmount = userDepositRequest[msg.sender].amount - feeAmount;
+        uint daoFeeAmount = (userDepositRequest[msg.sender].amount * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
+        uint discountedAmount = userDepositRequest[msg.sender].amount - feeAmount - daoFeeAmount;
         _feeBal += feeAmount;
 
         uint b1 = safeBal +_nav + discountedAmount;
@@ -60,8 +61,11 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 
         _mint(msg.sender, v);
 
-
         IERC20(FundSettings.baseToken).transfer(FundSettings.safe, discountedAmount);
+    	if (daoFeeAmount > 0) {
+	    	IERC20(FundSettings.baseToken).transfer(daoFeeAddr, daoFeeAmount);
+    	}
+
 		_depositBal -= userDepositRequest[msg.sender].amount;
 		_totalDepositBal += discountedAmount;
 
@@ -93,7 +97,8 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 
         uint val = (valueOf(msg.sender) * userWithdrawRequest[msg.sender].amount) / bal;
         uint feeVal = (val * FundSettings.withdrawFee) / MAX_BPS;
-        uint discountedValue = val - feeVal;
+        uint daoFeeAmount = (val * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
+        uint discountedValue = val - feeVal - daoFeeAmount;
         _feeBal += feeVal;
         _totalDepositBal -= discountedValue;
 
@@ -101,6 +106,10 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         if (totalWithrawalBalance() > discountedValue) {
            IERC20(FundSettings.baseToken).transfer(msg.sender, discountedValue);
         }
+
+        if (daoFeeAmount > 0) {
+	    	IERC20(FundSettings.baseToken).transfer(daoFeeAddr, daoFeeAmount);
+    	}
         
         _burn(msg.sender, userWithdrawRequest[msg.sender].amount);
         _withdrawalBal -= userWithdrawRequest[msg.sender].amount;
