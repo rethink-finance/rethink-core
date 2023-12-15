@@ -86,10 +86,9 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		require(success == true, "failed processNav");
 
 		_nav = abi.decode(navBytes, (uint256));
-		//_nav = processNav(navUpdateData);
 
 		//NOTE: could be some logic to better handle deposit/withdrawal flows
-		require(((_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe) - _depositBal) * _withdrawalBal / totalSupply()) >= IERC20(FundSettings.baseToken).balanceOf(address(this)), 'not enough for withdrawals');
+		require((((_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe) - _depositBal) * _withdrawalBal) / totalSupply()) <= IERC20(FundSettings.baseToken).balanceOf(address(this)), 'not enough for withdrawals');
 		isRequestedWithdrawals = false;
 		_navUpdateLatestIndex++;
 	}
