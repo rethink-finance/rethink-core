@@ -174,7 +174,9 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		*/
 		//NOTE: deposit and withdrawal fees are combined, collector should be same addr
 
-		require(feeCollectorAddress[feeType] != address(0), "no fee collector");
+		if(feeCollectorAddress[feeType] == address(0)){
+			return;
+		}
 
 		uint feeVal;
         uint discountedValue;
