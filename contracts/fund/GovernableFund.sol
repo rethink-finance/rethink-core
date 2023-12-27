@@ -233,34 +233,6 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
     	daoFeeAddr = addr;
 	}
 
-    /*
-    TODO: issues with nested delegate calls? would make it more difficult for users since they cannot interact with any arbitrary protocol thru the fund dao contract
-
-    function execTransactionWithRole(
-    	address roleMod,
-        address to,
-        uint256 value,
-        bytes calldata data,
-        Enum.Operation operation,
-        uint16 role
-    ) external {
-    	require(allowedFundMannagers[msg.sender] == true || msg.sender == FundSettings.governor, "only manager");
-        //transfer ownership on roles modifier to govenor
-	    bytes memory roleModExecTransactionWithRole = abi.encodeWithSelector(
-            bytes4(keccak256("execTransactionWithRole(address,uint256,bytes,Enum.Operation,uint16,bool)")),
-            to,
-            value,
-            data,
-            operation,
-            role,
-            true
-        );
-        (bool success,) = roleMod.call(roleModExecTransactionWithRole);
-	    require(success == true, "fail roles mod execTransactionWithRole");
-    }
-
-    */
-
 	function valueOf(address ownr) public view returns (uint256) {
         return (totalNAV() * balanceOf(ownr)) / totalSupply();
     }
