@@ -10,11 +10,15 @@ const execData = "0x";
 const proxy = "0x5A7f717B91c998d5DE9764DEA78c2EF20027bDe4";//polygon
 //time truffle migrate --reset -f 3 --to 3 --skip-dry-run --compile-none --network=goerli
 module.exports = async function (deployer) {
+	/**/
 	let gf = await deployer.deploy(GovernableFund);
 	setTimeout(function(){},delay);
 	console.log("GovernableFund singleton is at: "+ GovernableFund.address);
+	/**/
 
 	let p = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
 	p.upgradeTo(GovernableFund.address);
+	//p.upgradeTo("0x1B160D95537762b7c85731E0679423f6d59F3367");
+	
 }
