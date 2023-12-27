@@ -4,6 +4,9 @@ node_modules
 .gitsigners
 .deployment_keys
 /cache
+/lib/zodiac
+q.txt
+query_data.py
 
 # Logs
 logs
