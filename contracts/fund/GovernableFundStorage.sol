@@ -10,7 +10,7 @@ abstract contract GovernableFundStorage is IGovernableFundStorage {
 	uint256 _withdrawalBal;
     uint256 _fundStartTime;
     uint256 MAX_BPS = 10000;
-	uint256 _totalDepositBal;
+	uint256 public _totalDepositBal;
 	uint256 public _navUpdateLatestTime;
 	uint256 public _navUpdateLatestIndex;
     uint256 _lastClaimedManagementFees;
@@ -63,7 +63,7 @@ abstract contract GovernableFundStorage is IGovernableFundStorage {
     uint256 _lastClaimedPerformanceFees;
 
     mapping(FundFeeType => address) feeCollectorAddress;
-
+    string public fundMetadata;
 
 	function getFundSettings() external view returns (Settings memory) {
 		return FundSettings;

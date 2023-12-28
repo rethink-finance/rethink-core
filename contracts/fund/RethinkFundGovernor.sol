@@ -19,6 +19,7 @@ contract RethinkFundGovernor is
 {
     uint256 _votingDelay;
     uint256 _votingPeriod;
+    uint256 _proposalThreshold;
 	/// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -26,7 +27,7 @@ contract RethinkFundGovernor is
 
     //function initialize(IVotesUpgradeable _token, string calldata _govName) external initializer {
     
-    function initialize(IVotesUpgradeable _token, string calldata _govName, uint256 quorumFraction, uint256 lateQuorum, uint256 vDelay, uint256 vPeriod) external initializer {
+    function initialize(IVotesUpgradeable _token, string calldata _govName, uint256 quorumFraction, uint256 lateQuorum, uint256 vDelay, uint256 vPeriod, uint256 proposalThreshold) external initializer {
 		__GovernorVotes_init(_token);
 		__Governor_init(string(abi.encodePacked("Rethink Governor: ", _govName)));
         //__GovernorVotesQuorumFraction_init(10);//10 percent quorum
@@ -35,7 +36,15 @@ contract RethinkFundGovernor is
         __GovernorPreventLateQuorum_init(uint64(lateQuorum)); //1 day in seconds
         _votingDelay = vDelay;
         _votingPeriod = vPeriod;
+        _proposalThreshold = proposalThreshold;//The number of votes required in order for a voter to become a proposer"_.
 	}
+
+    /**
+     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
+     */
+    function proposalThreshold() public view override returns (uint256) {
+        return _proposalThreshold;
+    }
 
 	function votingDelay() public view override returns (uint256) {
         //return 60;//1 min 7200; // 1 day

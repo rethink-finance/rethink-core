@@ -35,6 +35,7 @@ contract GovernableFundFactory is Initializable {
 		uint256 lateQuorum;
 		uint256 votingDelay;
 		uint256 votingPeriod;
+		uint256 proposalThreshold;
 	}
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
@@ -91,7 +92,7 @@ contract GovernableFundFactory is Initializable {
 		return (subRegisterdFunds, settings);
 	}
 
-    function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings) external returns (address) {
+    function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings, string memory _fundMetadata) external returns (address) {
 	    //create erc20 wrapper if needed
 	    if (fundSettings.governanceToken != address(0)) {
 	    	try IVotes(fundSettings.governanceToken).getVotes(msg.sender) returns (uint256) {
@@ -164,7 +165,7 @@ contract GovernableFundFactory is Initializable {
 	    }
 
 	    //initialize fund proxy
-	    IGovernableFund(fundContractAddr).initialize(fundSettings.fundName, fundSettings.fundSymbol, fundSettings, _navCalculatorAddress, _fundDelgateCallFlowSingletonAddress, _fundDelgateCallNavSingletonAddress);
+	    initFund(fundContractAddr, fundSettings, _fundMetadata);
 
 	    IGovernableFundStorage.Settings memory settings = IGovernableFund(fundContractAddr).getFundSettings();
 	    require(settings.governor != address(0), "fail fund init");
@@ -175,6 +176,18 @@ contract GovernableFundFactory is Initializable {
 	    return fundContractAddr;
     }
 
+    function initFund(address fundContractAddr, IGovernableFundStorage.Settings memory fundSettings, string memory _fundMetadata) internal {
+    	IGovernableFund(fundContractAddr).initialize(
+    		fundSettings.fundName,
+    		fundSettings.fundSymbol,
+    		fundSettings, 
+    		_navCalculatorAddress, 
+    		_fundDelgateCallFlowSingletonAddress, 
+    		_fundDelgateCallNavSingletonAddress,
+    		_fundMetadata
+    	);
+    }
+
     function initGovernor(address govContractAddr, IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings) internal {
     	IRethinkFundGovernor(govContractAddr).initialize(
 	    	fundSettings.governanceToken,
@@ -182,7 +195,8 @@ contract GovernableFundFactory is Initializable {
 	    	governorSettings.quorumFraction,
 	    	governorSettings.lateQuorum,
 	    	governorSettings.votingDelay,
-	    	governorSettings.votingPeriod
+	    	governorSettings.votingPeriod,
+	    	governorSettings.proposalThreshold
 	    );
     }
 
