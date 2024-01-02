@@ -6,5 +6,7 @@ import "../common/utils/MoreAssert.t.sol";
 import "./Base.t.sol";
 
 contract TestFundRedemptionActions is Base {
-	
+	function testFundRedemptionRequest() public {}
+	function testFundRedemptionRevoke() public {}
+	function testFundRedemption() public {}
 }

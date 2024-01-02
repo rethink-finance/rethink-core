@@ -7,4 +7,9 @@ import "./Base.t.sol";
 
 contract TestFundCreation is Base {
 	
+	function testFundCreationDefault() public {}
+
+	function testFundCreationExternalGov() public {}
+
+	function testFundCreationWhitelistDepositors() {}
 }

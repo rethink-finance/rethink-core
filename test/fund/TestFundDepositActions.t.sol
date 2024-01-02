@@ -6,5 +6,7 @@ import "../common/utils/MoreAssert.t.sol";
 import "./Base.t.sol";
 
 contract TestFundDepositActions is Base {
-	
+	function testFundDepositRequest() public {}
+	function testFundDepositRevoke() public {}
+	function testFundDeposit() public {}
 }
