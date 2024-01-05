@@ -6,5 +6,5 @@ import "../common/utils/MoreAssert.t.sol";
 import "./Base.t.sol";
 
 contract TestNAVUpdateNFT is Base {
-	
+	function testNftCalculation() public {}
 }

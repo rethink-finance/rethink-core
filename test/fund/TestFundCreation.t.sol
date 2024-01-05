@@ -9,7 +9,9 @@ contract TestFundCreation is Base {
 	
 	function testFundCreationDefault() public {}
 
-	function testFundCreationExternalGov() public {}
+	function testFundCreationExternalERC20VotesCompatGov() public {}
+
+	function testFundCreationExternalNonERC20VotesCompatGov() public {}
 
 	function testFundCreationWhitelistDepositors() {}
 }

@@ -6,5 +6,5 @@ import "../common/utils/MoreAssert.t.sol";
 import "./Base.t.sol";
 
 contract TestNAVUpdateIlliquid is Base {
-	
+	function testIlliquidCalculation() public {}	
 }
