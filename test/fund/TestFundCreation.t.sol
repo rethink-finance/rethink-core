@@ -13,5 +13,5 @@ contract TestFundCreation is Base {
 
 	function testFundCreationExternalNonERC20VotesCompatGov() public {}
 
-	function testFundCreationWhitelistDepositors() {}
+	function testFundCreationWhitelistDepositors() public {}
 }
