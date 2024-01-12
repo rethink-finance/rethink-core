@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "../../contracts/token/WrappedTokenFactory.sol";
 import "../../contracts/nav/NAVCalculator.sol";
 import "../../contracts/fund/GovernableFund.sol";
@@ -11,12 +12,23 @@ import "../../contracts/fund/GovernableFundFlows.sol";
 import "../../contracts/fund/GovernableContractFactory.sol";
 import "../../contracts/fund/RethinkFundGovernor.sol";
 //import "../../contracts/fund/GovernableFundFactory.sol";
+import "../../contracts/token/ERC20Mock.sol";
 
 
 
 contract Base {
+    struct GovernorParams {
+        uint256 quorumFraction;
+        uint256 lateQuorum;
+        uint256 votingDelay;
+        uint256 votingPeriod;
+        uint256 proposalThreshold;
+    }
+    
+
     address gff;
     address gffub;
+
     function setUp() public {
 
         //NOTE: HACK around GovernableFundFactory because of conflicts with RethinkFundGovernor imports
@@ -64,5 +76,54 @@ contract Base {
         );
         (bool success,) = address(gff).call(gffinit);
         require(success == true, "fail gff init");
+    }
+
+    function createFund(address manager, address[] memory allowedDepositAddrs, address governanceToken) public returns (bytes memory) {
+        //function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings, string memory _fundMetadata)
+
+        address baseToken = address(new ERC20Mock(18,"FakeDAI"));
+        address[4] memory feeCollectors = [manager, manager, manager, manager];
+        string memory fundName = "Test Fund DAO";
+        string memory fundSymbol = "TFD-TEST";
+        address[] memory allowedManagers;
+        allowedManagers[0] = manager;
+
+        IGovernableFundStorage.Settings memory fundSettings = IGovernableFundStorage.Settings(
+            10,
+            10,
+            0,
+            10,
+            0,
+            baseToken,
+            address(0),
+            false,
+            false,
+            allowedDepositAddrs,//allowedDepositAddrs
+            allowedManagers,//allowedManagers,
+            governanceToken,
+            address(0),
+            address(0),
+            fundName,
+            fundSymbol,
+            feeCollectors
+        );
+        GovernorParams memory governorSettings = GovernorParams(
+            1,//quorumFraction,
+            60,//lateQuorum,
+            0,//votingDelay,
+            60,//votingPeriod,
+            0//proposalThreshold,
+        );
+
+        string memory _fundMetadata = "{}";
+
+        bytes memory gffCreateFund = abi.encodeWithSelector(
+            bytes4(keccak256("createFund(IGovernableFundStorage.Settings, GovernorParams, string)")),
+            fundSettings,
+            governorSettings,
+            _fundMetadata
+        );
+
+        return gffCreateFund;
     }
 }
