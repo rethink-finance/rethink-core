@@ -24,6 +24,15 @@ contract Agent {
         require(success == true, "fail depositRequest");
 	}
 
+	function revokeDeposit(address fund) public {
+		bytes memory revoke = abi.encodeWithSelector(
+            bytes4(keccak256("revokeDepositWithrawal(bool)")),
+            true
+        );
+        (bool success,) = fund.call(revoke);
+        require(success == true, "fail revokeDeposit");
+	}
+
 	function deposit(address fund) public {
 		//deposit into fund
 		bytes memory deposit = abi.encodeWithSelector(
