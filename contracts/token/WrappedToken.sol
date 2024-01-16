@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 contract WrappedToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
     constructor(
         address wrappedToken
-    ) ERC20(IERC20Metadata(wrappedToken).name(), IERC20Metadata(wrappedToken).symbol()) ERC20Permit(IERC20Metadata(wrappedToken).name()) ERC20Wrapper(IERC20(wrappedToken)) {}
+    ) ERC20(string(abi.encodePacked("Wrapped ", IERC20Metadata(wrappedToken).name())), string(abi.encodePacked("w",IERC20Metadata(wrappedToken).symbol()))) ERC20Permit(string(abi.encodePacked("Wrapped ", IERC20Metadata(wrappedToken).name()))) ERC20Wrapper(IERC20(wrappedToken)) {}
 
     // The functions below are overrides required by Solidity.
 

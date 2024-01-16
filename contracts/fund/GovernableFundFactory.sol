@@ -98,10 +98,23 @@ contract GovernableFundFactory is Initializable {
 	    	try IVotes(fundSettings.governanceToken).getVotes(msg.sender) returns (uint256) {
             	//compatable, can use address directly in RethinkFundGovernor
 	        } catch (bytes memory /*lowLevelData*/) {
-            	//not compatable, can not use address directly in RethinkFundGovernor, create wrapper
-            	address govToken = IWrappedTokenFactory(
-            		IBeacon(_wrappedTokenFactory).implementation()
+			    bytes memory veCheckEpoch = abi.encodeWithSelector(
+		            bytes4(keccak256("epoch()"))
+		        );
+		        (bool success,) = fundSettings.governanceToken.call(veCheckEpoch);
+		        address govToken;
+		        if (success == true) {
+	        		//not compatable, not transferable, cannot use address directly, create ve-wrapper
+	        		//not compatable, can not use address directly in RethinkFundGovernor, create wrapper
+            		govToken = IWrappedTokenFactory(
+            			IBeacon(_wrappedTokenFactory).implementation()
+            		).createVeWrappedToken(fundSettings.governanceToken);
+		        } else {
+	            	//not compatable, can not use address directly in RethinkFundGovernor, create wrapper
+            		govToken = IWrappedTokenFactory(
+            			IBeacon(_wrappedTokenFactory).implementation()
             		).createWrappedToken(fundSettings.governanceToken);
+            	}
             	fundSettings.governanceToken = govToken;
 	        }
             fundSettings.isExternalGovTokenInUse = true;
