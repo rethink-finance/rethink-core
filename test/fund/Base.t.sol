@@ -88,6 +88,8 @@ contract Base {
         address[] memory allowedManagers;
         allowedManagers[0] = manager;
 
+        //TODO: need to have non zero fee params for all
+
         IGovernableFundStorage.Settings memory fundSettings = IGovernableFundStorage.Settings(
             10,
             10,
