@@ -42,6 +42,33 @@ contract Agent {
         require(success == true, "fail deposit");
 	}
 
+	function requestWithdraw(address fund, uint256 amount) public {
+		bytes memory withdrawRequest = abi.encodeWithSelector(
+            bytes4(keccak256("requestWithdraw(uint256)")),
+            amount
+        );
+        (bool success,) = fund.call(withdrawRequest);
+        require(success == true, "fail withdrawRequest");
+	}
+
+	function revokeWithdraw(address fund) public {
+		bytes memory revoke = abi.encodeWithSelector(
+            bytes4(keccak256("revokeDepositWithrawal(bool)")),
+            false
+        );
+        (bool success,) = fund.call(revoke);
+        require(success == true, "fail revokeWithdraw");
+	}
+
+	function withdraw(address fund) public {
+		//withdraw from fund
+		bytes memory withdraw = abi.encodeWithSelector(
+            bytes4(keccak256("withdraw"))
+        );
+        (bool success,) = fund.call(withdraw);
+        require(success == true, "fail withdraw");
+	}
+
 	function delegate(address fund, address delegatee) public {
 		//delegate gov token to delegatee
 		bytes memory delegation = abi.encodeWithSelector(

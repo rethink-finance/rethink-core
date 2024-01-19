@@ -283,7 +283,7 @@ contract TestFundFees is Base {
 	        descriptionHash
 	    );
 
-        require(IERC20(settings.baseToken).balanceOf(address(bob)) > 0, "non zero bob balance after fee collection");
+        require(IERC20(settings.baseToken).balanceOf(address(bob)) > 0, "zero bob balance after fee collection");
         require(IERC20(settings.baseToken).balanceOf(daoAddr) > 0, " zero dao balance");
 
 	}
@@ -342,7 +342,7 @@ contract TestFundFees is Base {
 	        descriptionHash
 	    );
 
-        require(IERC20(settings.baseToken).balanceOf(address(bob)) > 0, "non zero bob balance after fee collection");
+        require(IERC20(settings.baseToken).balanceOf(address(bob)) > 0, "zero bob balance after fee collection");
         require(IERC20(settings.baseToken).balanceOf(daoAddr) > 0, "zero dao balance");
 	}
 	function testPerformanceFeeCollectionDAOEnabled() public {
@@ -401,7 +401,7 @@ contract TestFundFees is Base {
 	        descriptionHash
 	    );
 
-        require(IERC20(settings.baseToken).balanceOf(address(bob)) > 0, "non zero bob balance after fee collection");
+        require(IERC20(settings.baseToken).balanceOf(address(bob)) > 0, "zero bob balance after fee collection");
         require(IERC20(settings.baseToken).balanceOf(daoAddr) > 0, "zero dao balance");
 	}
 
