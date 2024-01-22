@@ -22,7 +22,8 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 	}
 
 	function requestDeposit(uint256 amount) external {
-		/**/
+		require(IERC20(FundSettings.baseToken).balanceOf(msg.sender) >= amount, "Insufficient balance");
+
 		if (FundSettings.isWhitelistedDeposits == true) {
 			require(whitelistedDepositors[msg.sender] == true, "not allowed");
 		}
@@ -31,7 +32,6 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 		userDepositRequest[msg.sender] = DepositRequestEntry(amount, block.timestamp);
 		_depositBal += amount;
 		_userDepositBal[msg.sender] += amount;
-		/**/
 	}
 
 	function deposit() external {
