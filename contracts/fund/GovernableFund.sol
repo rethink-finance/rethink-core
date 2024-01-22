@@ -256,7 +256,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
     	bytes memory ownerCheck = abi.encodeWithSelector(
             bytes4(keccak256("owner()"))
         );
-        (bool success, bytes memory data) = _navCalculatorAddress.staticcall(ownerCheck);
+        (bool success, bytes memory data) = _fundDelgateCallNavAddress.staticcall(ownerCheck);
 	    require(success == true, "fail ownerCheck");
     	require(msg.sender == abi.decode(data, (address)), "only owner");
     }
