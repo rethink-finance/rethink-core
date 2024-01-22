@@ -32,10 +32,10 @@ abstract contract NAVNft {
 	        ) = nftFloorPriceFeed.latestRoundData();
 
 	        int256 normedRetVal;
-	        if (nftVal.nftType == IGovernableFundStorage.NAVNFTType.ERC1155){
+	        if (nftVal.nftType == IGovernableFundStorage.NAVNFTType.ERC721){
 	        	normedRetVal = nftFloorPrice * int256(IERC721(nftVal.nftAddress).balanceOf(safe));
 	        	nftSum += normedRetVal;
-	        } else if (nftVal.nftType == IGovernableFundStorage.NAVNFTType.ERC721){
+	        } else if (nftVal.nftType == IGovernableFundStorage.NAVNFTType.ERC1155){
 	        	normedRetVal = nftFloorPrice * int256(IERC1155(nftVal.nftAddress).balanceOf(safe, nftVal.nftIndex));
 	        	nftSum += normedRetVal;
 	        }
