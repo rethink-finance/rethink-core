@@ -14,8 +14,7 @@ contract RethinkFundGovernor is
 	GovernorCountingSimpleUpgradeable,
 	GovernorVotesUpgradeable,
 	GovernorVotesQuorumFractionUpgradeable,
-	GovernorPreventLateQuorumUpgradeable,
-	GovernorTimelockControlUpgradeable
+	GovernorPreventLateQuorumUpgradeable
 {
     uint256 _votingDelay;
     uint256 _votingPeriod;
@@ -68,13 +67,13 @@ contract RethinkFundGovernor is
         return super._castVote(proposalId, account, support, reason, params);
     }
 
-    function proposalDeadline(uint256 proposalId) public view override(GovernorUpgradeable, GovernorPreventLateQuorumUpgradeable, IGovernorUpgradeable) returns (uint256) {
+    function proposalDeadline(uint256 proposalId) public view override(GovernorUpgradeable, GovernorPreventLateQuorumUpgradeable) returns (uint256) {
         return super.proposalDeadline(proposalId);
     }
 
     function state(
         uint256 proposalId
-    ) public view override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (ProposalState) {
+    ) public view override(GovernorUpgradeable) returns (ProposalState) {
         return super.state(proposalId);
     }
 
@@ -84,7 +83,7 @@ contract RethinkFundGovernor is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) {
+    ) internal override(GovernorUpgradeable) {
         string memory errorMessage = "Governor: call reverted without message";
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
@@ -97,17 +96,17 @@ contract RethinkFundGovernor is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (uint256) {
+    ) internal override(GovernorUpgradeable) returns (uint256) {
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
-    function _executor() internal view override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (address) {
+    function _executor() internal view override(GovernorUpgradeable) returns (address) {
         return address(this);
     }
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(GovernorTimelockControlUpgradeable, GovernorUpgradeable) returns (bool) {
+    ) public view override(GovernorUpgradeable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }
