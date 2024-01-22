@@ -35,7 +35,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					navUpdateData[i].pastNAVUpdateEntryIndex
 				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).nftCalculation(
+				int256 nftCalc = INAVCalculator(_navCalculatorAddress).nftCalculation(
 					navUpdateData[i].nft,
 					FundSettings.safe,
 					address(this),
@@ -44,8 +44,15 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					navUpdateData[i].pastNAVUpdateIndex,
 					navUpdateData[i].pastNAVUpdateEntryIndex
 				);
+
+				if (nftCalc < 0) {
+					updateedNav -= uint256(nftCalc);
+				} else {
+					updateedNav += uint256(nftCalc);
+				}
+
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).composableCalculation(
+				int256 composableCalc = INAVCalculator(_navCalculatorAddress).composableCalculation(
 					navUpdateData[i].composable,
 					address(this),
 					i,
@@ -53,6 +60,12 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					navUpdateData[i].pastNAVUpdateIndex,
 					navUpdateData[i].pastNAVUpdateEntryIndex
 				);
+
+				if (composableCalc < 0) {
+					updateedNav -= uint256(composableCalc);
+				} else {
+					updateedNav += uint256(composableCalc);
+				}
 			}
 
 			if (navUpdateData[i].isPastNAVUpdate == true){
