@@ -59,9 +59,11 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		fundMetadata = _fundMetadata;
 
 		uint i;
+		//TODO: should work like a toggle if already set to true
 		for (i=0; i<_fundSettings.allowedManagers.length; i++){
 			allowedFundMannagers[_fundSettings.allowedManagers[i]] = true;
 		}
+		//TODO: should work like a toggle if already set to true
 		for (i=0; i<_fundSettings.allowedDepositAddrs.length; i++){
 			whitelistedDepositors[_fundSettings.allowedDepositAddrs[i]] = true;
 		}
