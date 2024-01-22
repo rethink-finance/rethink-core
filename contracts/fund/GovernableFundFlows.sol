@@ -62,9 +62,9 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 
         _mint(msg.sender, v);
 
-        IERC20(FundSettings.baseToken).transfer(FundSettings.safe, discountedAmount);
+        IERC20(FundSettings.baseToken).safeTransfer(FundSettings.safe, discountedAmount);
     	if (daoFeeAmount > 0) {
-	    	IERC20(FundSettings.baseToken).transfer(daoFeeAddr, daoFeeAmount);
+	    	IERC20(FundSettings.baseToken).safeTransfer(daoFeeAddr, daoFeeAmount);
     	}
 
 		_depositBal -= userDepositRequest[msg.sender].amount;
@@ -106,11 +106,11 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 
 
         if (totalWithrawalBalance() > discountedValue) {
-           IERC20(FundSettings.baseToken).transfer(msg.sender, discountedValue);
+           IERC20(FundSettings.baseToken).safeTransfer(msg.sender, discountedValue);
         }
 
         if (daoFeeAmount > 0) {
-	    	IERC20(FundSettings.baseToken).transfer(daoFeeAddr, daoFeeAmount);
+	    	IERC20(FundSettings.baseToken).safeTransfer(daoFeeAddr, daoFeeAmount);
     	}
         
         _burn(msg.sender, userWithdrawRequest[msg.sender].amount);
