@@ -75,7 +75,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 	}
 
 	function requestWithdraw(uint256 amount) external {
-		require(balanceOf(msg.sender) > 0, "nothing to withdraw");
+		require(balanceOf(msg.sender) >= amount, "Insufficient balance");
 		isRequestedWithdrawals = true;
 
 		if (FundSettings.isWhitelistedDeposits == true) {
