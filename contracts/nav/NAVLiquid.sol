@@ -35,14 +35,21 @@ abstract contract NAVLiquid {
 		bool success;
 		if (liquidVal.tokenPair != address(0)) {
 			//(success, swapPriceData) = liquidVal.tokenPair.staticcall(liquidVal.functionSignatureWithEncodedInputs);
-			IUniswapV2Pair _pair = IUniswapV2Pair(liquidVal.tokenPair);
-        	(address token0, ) = (_pair.token0(), _pair.token1());
-        	uint16 _index = liquidVal.assetTokenAddress == token0 ? 0 : 1;
-        	(uint256 price0Cumulative, uint256 price1Cumulative, ) = UniswapV2OracleLibrary.currentCumulativePrices(liquidVal.tokenPair);
-        	uint256 priceCumulative = _index == 0 ? price0Cumulative : price1Cumulative;
-        	price = (priceCumulative * 1e8) / 2**112;
-        	success = true;
 
+			IUniswapV2Pair _pair = IUniswapV2Pair(liquidVal.tokenPair);
+
+			(,,uint32 blockTimestampLast) = _pair.getReserves();
+			uint256 price0CumulativeLast = _pair.price0CumulativeLast(); // fetch the current accumulated price value (1 / 0)
+       	 	uint256 price1CumulativeLast = _pair.price1CumulativeLast(); // fetch the current accumulated price value (0 / 1)
+        	(address token0, ) = (_pair.token0(), _pair.token1());
+        	
+        	uint16 _index = liquidVal.assetTokenAddress == token0 ? 0 : 1;
+        	(uint256 price0Cumulative, uint256 price1Cumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(liquidVal.tokenPair);
+	        uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
+        	uint256 priceCumulative = _index == 0 ? price0Cumulative : price1Cumulative;
+
+        	price = ((priceCumulative - (_index == 0 ? price0CumulativeLast : price0CumulativeLast)) / timeElapsed) * 1e8 / 2**112;
+        	success = true;
 		} else {
 			(success, swapPriceData) = liquidVal.aggregatorAddress.staticcall(liquidVal.functionSignatureWithEncodedInputs);
 		}
