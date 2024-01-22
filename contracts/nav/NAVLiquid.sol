@@ -34,8 +34,6 @@ abstract contract NAVLiquid {
 		bytes memory swapPriceData;
 		bool success;
 		if (liquidVal.tokenPair != address(0)) {
-			//(success, swapPriceData) = liquidVal.tokenPair.staticcall(liquidVal.functionSignatureWithEncodedInputs);
-
 			IUniswapV2Pair _pair = IUniswapV2Pair(liquidVal.tokenPair);
 
 			(,,uint32 blockTimestampLast) = _pair.getReserves();
@@ -52,6 +50,8 @@ abstract contract NAVLiquid {
         	success = true;
 		} else {
 			(success, swapPriceData) = liquidVal.aggregatorAddress.staticcall(liquidVal.functionSignatureWithEncodedInputs);
+			require(swapPriceData.length > 0, "bad return data");
+
 		}
 		require(success == true, "remote call failed");
 

@@ -20,7 +20,8 @@ abstract contract NAVComposable {
 			(bool success, bytes memory rawProtcolData) = composableVal.remoteContractAddress.staticcall(composableVal.encodedFunctionSignatureWithInputs);
 
 			require(success == true, "remote call failed");
-
+			require(rawProtcolData.length > 0, "bad return data");
+			
 			int256 retVal;
 			if (composableVal.isReturnArray == false) {
 				if (composableVal.returnValType == IGovernableFundStorage.NAVComposableUpdateReturnType.UINT256) {

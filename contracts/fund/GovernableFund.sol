@@ -260,6 +260,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         );
         (bool success, bytes memory data) = _fundDelgateCallNavAddress.staticcall(ownerCheck);
 	    require(success == true, "fail ownerCheck");
+	    require(data.length > 0, "bad return data");
     	require(msg.sender == abi.decode(data, (address)), "only owner");
     }
 }
