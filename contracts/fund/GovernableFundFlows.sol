@@ -96,18 +96,19 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         require(bal >= userWithdrawRequest[msg.sender].amount, "low bal");
         require(userWithdrawRequest[msg.sender].amount != 0 && userWithdrawRequest[msg.sender].requestTime != 0, "withdrawal not requested");
 
-
         uint val = (valueOf(msg.sender) * userWithdrawRequest[msg.sender].amount) / bal;
         uint feeVal = (val * FundSettings.withdrawFee) / MAX_BPS;
         uint daoFeeAmount = (val * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
         uint discountedValue = val - feeVal - daoFeeAmount;
         _feeBal += feeVal;
-        _totalDepositBal -= discountedValue;
 
-
-        if (totalWithrawalBalance() > discountedValue) {
-           IERC20(FundSettings.baseToken).safeTransfer(msg.sender, discountedValue);
+        if (discountedValue > _totalDepositBal) {
+        	_totalDepositBal = 0;
+        } else {
+        	_totalDepositBal -= discountedValue;        	
         }
+
+        IERC20(FundSettings.baseToken).safeTransfer(msg.sender, discountedValue);
 
         if (daoFeeAmount > 0) {
 	    	IERC20(FundSettings.baseToken).safeTransfer(daoFeeAddr, daoFeeAmount);
