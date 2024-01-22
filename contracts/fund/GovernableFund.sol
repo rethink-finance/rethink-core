@@ -72,7 +72,8 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 
 	function updateNav(NavUpdateEntry[] calldata navUpdateData) external {
 		onlyGovernance();
-		
+
+		_navUpdateLatestIndex++;
 		_navUpdateLatestTime = block.timestamp;
 		navUpdatedTime[_navUpdateLatestIndex] = block.timestamp;
 
@@ -93,7 +94,6 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		//NOTE: could be some logic to better handle deposit/withdrawal flows
 		require((((_nav + IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe) - _depositBal) * _withdrawalBal) / totalSupply()) <= IERC20(FundSettings.baseToken).balanceOf(address(this)), 'not enough for withdrawals');
 		isRequestedWithdrawals = false;
-		_navUpdateLatestIndex++;
 	}
 
 	function revokeDepositWithrawal(bool isDeposit) external {
