@@ -6,6 +6,7 @@ import "../common/utils/MoreAssert.t.sol";
 import "./Base.t.sol";
 import "../../contracts/interfaces/fund/IGovernableFund.sol";
 import "../common/Agent.t.sol";
+import "../common/mock/MockUniV2Pair.t.sol";
 import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 contract TestNAVUpdateLiquid is Base {
@@ -22,42 +23,36 @@ contract TestNAVUpdateLiquid is Base {
         Agent bob = new Agent();
         bob.requestDeposit(settings.baseToken, fundAddr, 10e18);
         bob.deposit(fundAddr);
+        bob.delegate(fundAddr, address(bob));
 
 		address[] memory targets;
         targets[0] = fundAddr;
         uint256[] memory values;
         values[0] = 0;
 
-        /*
-
-        struct NAVLiquidUpdate {
-			address tokenPair;
-			address aggregatorAddress;
-			bytes functionSignatureWithEncodedInputs;
-			address assetTokenAddress;
-			address nonAssetTokenAddress;
-			bool isReturnArray;
-			uint256 returnLength;
-			uint256 returnIndex;
-			uint256 pastNAVUpdateIndex;
-		}
-
-        struct NavUpdateEntry {
-			NavUpdateType entryType;
-			NAVLiquidUpdate[] liquid;
-			NAVIlliquidUpdate[] illiquid;
-			NAVNFTUpdate[] nft;
-			NAVComposableUpdate[] composable;
-			bool isPastNAVUpdate;
-			uint256 pastNAVUpdateIndex;
-			uint256 pastNAVUpdateEntryIndex;
-			string description;
-		}
-        */
-		
+		address tokenPair = address(new MockUniV2Pair());
+		bytes memory functionSignatureWithEncodedInputs;
 		IGovernableFundStorage.NavUpdateEntry[] memory navEntries;
+		IGovernableFundStorage.NAVLiquidUpdate[] memory liquid;
 
-		//TODO: set up nav type with mock liquid data
+		liquid[0] = IGovernableFundStorage.NAVLiquidUpdate(
+			tokenPair,
+			address(0),
+			functionSignatureWithEncodedInputs,
+			address(0),
+			address(0),
+			false,
+			0,
+			0,
+			0
+		);
+
+		navEntries[0].entryType = IGovernableFundStorage.NavUpdateType.NAVLiquidUpdateType;
+		navEntries[0].liquid  = liquid;
+		navEntries[0].isPastNAVUpdate = false;
+		navEntries[0].pastNAVUpdateIndex = 0;
+		navEntries[0].pastNAVUpdateEntryIndex = 0;
+		navEntries[0].description = "Mock Token Pair Price";
 
         bytes memory computeNavUpdate = abi.encodeWithSelector(
             IGovernableFund.updateNav.selector,
@@ -66,7 +61,7 @@ contract TestNAVUpdateLiquid is Base {
 
         bytes[] memory calldatas;
         calldatas[0] = computeNavUpdate;
-        string memory description = "testFundRedemption";
+        string memory description = "testLiquidCalculation";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
 
         uint256 proposalId = IGovernor(settings.governor).propose(
