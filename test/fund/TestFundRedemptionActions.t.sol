@@ -63,12 +63,12 @@ contract TestFundRedemptionActions is Base {
         Agent bob = new Agent();
         bob.requestDeposit(settings.baseToken, fundAddr, 10e18);
         bob.deposit(fundAddr);
+        bob.delegate(fundAddr, address(bob));
 		
 		//withdraw request
         bob.requestWithdraw(fundAddr, 5e18);
 
 
-		//TODO: nav update
 		address[] memory targets;
         targets[0] = fundAddr;
         uint256[] memory values;
