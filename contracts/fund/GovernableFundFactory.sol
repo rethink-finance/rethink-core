@@ -60,9 +60,9 @@ contract GovernableFundFactory is Initializable {
 		safeMultisendAddress -> "https://polygonscan.com/address/0x40A2aCCbd92BCA938b02010E17A5b8929b49130D"
 	*/
 	
-	//function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address safeMultisendAddress, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external initializer {
+	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address safeMultisendAddress, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external initializer {
 
-	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address safeMultisendAddress, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external {
+	//function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address safeMultisendAddress, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external {
 		_governor = governor;
 		_fund = fund;
 		_safeProxyFactory = safeProxyFactory;
