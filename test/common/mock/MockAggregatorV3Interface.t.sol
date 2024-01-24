@@ -2,5 +2,5 @@
 pragma solidity ^0.8.0;
 
 contract MockAggregatorV3Interface {
-	
+	//NOTE: for nft
 }

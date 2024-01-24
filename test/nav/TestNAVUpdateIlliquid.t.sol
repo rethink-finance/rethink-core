@@ -21,47 +21,35 @@ contract TestNAVUpdateIlliquid is Base {
         Agent bob = new Agent();
         bob.requestDeposit(settings.baseToken, fundAddr, 10e18);
         bob.deposit(fundAddr);
+        bob.delegate(fundAddr, address(bob));
 
 		address[] memory targets;
         targets[0] = fundAddr;
         uint256[] memory values;
         values[0] = 0;
-
-        /*
-
-        struct NAVIlliquidUpdate {
-			uint256 baseCurrencySpent;
-			uint256 amountAquiredTokens;
-			address tokenAddress;
-			bool isNFT;
-			string[] otcTxHashes;
-			NAVNFTType nftType;
-			uint256 nftIndex;
-			uint256 pastNAVUpdateIndex;
-		}
-
-		enum NAVNFTType {
-			ERC1155,
-			ERC721,
-			NONE
-		}
-
-        struct NavUpdateEntry {
-			NavUpdateType entryType;
-			NAVLiquidUpdate[] liquid;
-			NAVIlliquidUpdate[] illiquid;
-			NAVNFTUpdate[] nft;
-			NAVComposableUpdate[] composable;
-			bool isPastNAVUpdate;
-			uint256 pastNAVUpdateIndex;
-			uint256 pastNAVUpdateEntryIndex;
-			string description;
-		}
-        */
 		
 		IGovernableFundStorage.NavUpdateEntry[] memory navEntries;
 
-		//TODO: set up nav type with mock illiquid data
+		IGovernableFundStorage.NAVIlliquidUpdate[] memory illiquid;
+		string[] memory otcTxHashes;
+
+		illiquid[0] = IGovernableFundStorage.NAVIlliquidUpdate(
+			1e8,
+			1e18,
+			address(0),
+			false,
+			otcTxHashes,
+			IGovernableFundStorage.NAVNFTType.NONE,
+			0,
+			0
+		);
+
+		navEntries[0].entryType = IGovernableFundStorage.NavUpdateType.NAVLiquidUpdateType;
+		navEntries[0].illiquid  = illiquid;
+		navEntries[0].isPastNAVUpdate = false;
+		navEntries[0].pastNAVUpdateIndex = 0;
+		navEntries[0].pastNAVUpdateEntryIndex = 0;
+		navEntries[0].description = "Mock OTC DEAL";
 
         bytes memory computeNavUpdate = abi.encodeWithSelector(
             IGovernableFund.updateNav.selector,
@@ -70,7 +58,7 @@ contract TestNAVUpdateIlliquid is Base {
 
         bytes[] memory calldatas;
         calldatas[0] = computeNavUpdate;
-        string memory description = "testFundRedemption";
+        string memory description = "testIlliquidCalculation";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
 
         uint256 proposalId = IGovernor(settings.governor).propose(

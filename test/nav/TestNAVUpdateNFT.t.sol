@@ -68,7 +68,7 @@ contract TestNAVUpdateNFT is Base {
 
         bytes[] memory calldatas;
         calldatas[0] = computeNavUpdate;
-        string memory description = "testFundRedemption";
+        string memory description = "testNftCalculation";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
 
         uint256 proposalId = IGovernor(settings.governor).propose(
