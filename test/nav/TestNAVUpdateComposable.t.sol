@@ -6,6 +6,8 @@ import "../common/utils/MoreAssert.t.sol";
 import "./Base.t.sol";
 import "../../contracts/interfaces/fund/IGovernableFund.sol";
 import "../common/Agent.t.sol";
+import "../common/mock/MockMetavaultReader.t.sol";
+
 import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 contract TestNAVUpdateComposable is Base {
@@ -29,49 +31,31 @@ contract TestNAVUpdateComposable is Base {
         uint256[] memory values;
         values[0] = 0;
 
-        /*
-
-        enum NAVComposableUpdateReturnType {
-			UINT256,
-			INT256
-		}
-
-		struct NAVComposableUpdate {
-			address remoteContractAddress;
-			string functionSignatures;
-			bytes encodedFunctionSignatureWithInputs;
-			uint256 normalizationDecimals;
-			bool isReturnArray;
-			uint256 returnValIndex;
-			uint256 returnArraySize;
-			NAVComposableUpdateReturnType returnValType;
-			uint256 pastNAVUpdateIndex;
-			bool isNegative;
-		}
-
-		enum NavUpdateType {
-			NAVLiquidUpdateType,
-			NAVIlliquidUpdateType,
-			NAVNFTUpdateType,
-			NAVComposableUpdateType
-		}
-
-        struct NavUpdateEntry {
-			NavUpdateType entryType;
-			NAVLiquidUpdate[] liquid;
-			NAVIlliquidUpdate[] illiquid;
-			NAVNFTUpdate[] nft;
-			NAVComposableUpdate[] composable;
-			bool isPastNAVUpdate;
-			uint256 pastNAVUpdateIndex;
-			uint256 pastNAVUpdateEntryIndex;
-			string description;
-		}
-        */
-		
+		address mvreader = address(new MockMetavaultReader());		
 		IGovernableFundStorage.NavUpdateEntry[] memory navEntries;
+		bytes memory encodedFunctionSignatureWithInputs = generateProtocolEncodedBytes();
 
-		//TODO: set up nav type with mock composable (metavault reader) data
+		IGovernableFundStorage.NAVComposableUpdate[] memory composable;
+
+		composable[0] = IGovernableFundStorage.NAVComposableUpdate(
+			mvreader,
+			"getPositions(address,address,address[],address[],bool[])",
+			encodedFunctionSignatureWithInputs,
+			0,
+			true,
+			0,
+			9,
+			IGovernableFundStorage.NAVComposableUpdateReturnType.UINT256,
+			0,
+			false
+		);
+
+		navEntries[0].entryType = IGovernableFundStorage.NavUpdateType.NAVComposableUpdateType;
+		navEntries[0].composable  = composable;
+		navEntries[0].isPastNAVUpdate = false;
+		navEntries[0].pastNAVUpdateIndex = 0;
+		navEntries[0].pastNAVUpdateEntryIndex = 0;
+		navEntries[0].description = "Mock Metavault Position";
 
         bytes memory computeNavUpdate = abi.encodeWithSelector(
             IGovernableFund.updateNav.selector,
@@ -80,7 +64,7 @@ contract TestNAVUpdateComposable is Base {
 
         bytes[] memory calldatas;
         calldatas[0] = computeNavUpdate;
-        string memory description = "testFundRedemption";
+        string memory description = "testComposableCalculation";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
 
         uint256 proposalId = IGovernor(settings.governor).propose(
@@ -100,5 +84,28 @@ contract TestNAVUpdateComposable is Base {
 	        calldatas,
 	        descriptionHash
 	    );
-	}	
+	}
+
+	function generateProtocolEncodedBytes() internal view returns (bytes memory) {
+		address[] memory allowedTokens = new address[](1);
+        address[] memory _collateralTokens = new address[](1);
+        address[] memory _indexTokens = new address[](1);
+        bool[] memory _isLong = new bool[](1);
+
+		allowedTokens[0] = address(0);
+		_collateralTokens[0] = address(0);
+		_indexTokens[0] = address(0);
+		_isLong[0] = true;
+
+		bytes memory encodedFunctionSignatureWithInputs = abi.encodeWithSelector(
+            MockMetavaultReader.getPositions.selector,
+            address(0),
+            address(this),
+            _collateralTokens,
+            _indexTokens,
+            _isLong
+        );
+
+        return encodedFunctionSignatureWithInputs;
+	}
 }
