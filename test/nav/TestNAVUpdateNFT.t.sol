@@ -49,7 +49,7 @@ contract TestNAVUpdateNFT is Base {
 		navEntries[0].pastNAVUpdateIndex = 0;
 		navEntries[0].pastNAVUpdateEntryIndex = 0;
 
-		//TODO: set up nav type with mock nft oracle data
+        vm.warp(block.timestamp + 85000);
 
         bytes memory computeNavUpdate = abi.encodeWithSelector(
             IGovernableFund.updateNav.selector,

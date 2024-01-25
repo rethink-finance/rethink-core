@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.0;
 
+import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
@@ -14,7 +15,7 @@ import "../../contracts/fund/RethinkFundGovernor.sol";
 import "../../contracts/token/ERC20Mock.sol";
 
 
-contract Base {
+contract Base is Test {
     struct GovernorParams {
         uint256 quorumFraction;
         uint256 lateQuorum;

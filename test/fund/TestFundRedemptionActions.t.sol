@@ -112,7 +112,7 @@ contract TestFundRedemptionActions is Base {
 
         IGovernor(settings.governor).castVote(proposalId, 1);
 
-        //TODO: need to figure how to speed up chain clock for testing here
+        vm.warp(block.timestamp + 85000);
         
         IGovernor(settings.governor).execute(
 	        targets,
