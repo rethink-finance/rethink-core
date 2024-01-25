@@ -6,6 +6,7 @@ import "../common/utils/MoreAssert.t.sol";
 import "./Base.t.sol";
 import "../../contracts/interfaces/fund/IGovernableFund.sol";
 import "../common/Agent.t.sol";
+import "../common/mock/MockAggregatorV3Interface.t.sol";
 import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 contract TestNAVUpdateNFT is Base {
@@ -27,37 +28,26 @@ contract TestNAVUpdateNFT is Base {
         targets[0] = fundAddr;
         uint256[] memory values;
         values[0] = 0;
-
-        /*
-
-        enum NAVNFTType {
-			ERC1155,
-			ERC721,
-			NONE
-		}
-
-		struct NAVNFTUpdate {
-			address oracleAddress;
-			address nftAddress;
-			NAVNFTType nftType;
-			uint256 nftIndex;
-			uint256 pastNAVUpdateIndex;
-		}
-
-        struct NavUpdateEntry {
-			NavUpdateType entryType;
-			NAVLiquidUpdate[] liquid;
-			NAVIlliquidUpdate[] illiquid;
-			NAVNFTUpdate[] nft;
-			NAVComposableUpdate[] composable;
-			bool isPastNAVUpdate;
-			uint256 pastNAVUpdateIndex;
-			uint256 pastNAVUpdateEntryIndex;
-			string description;
-		}
-        */
 		
+		address nftOracle = address(new MockAggregatorV3Interface());		
 		IGovernableFundStorage.NavUpdateEntry[] memory navEntries;
+
+		IGovernableFundStorage.NAVNFTUpdate[] memory nft;
+		//NOTE: may want to create a fake nft?
+
+		nft[0] = IGovernableFundStorage.NAVNFTUpdate(
+			nftOracle,
+			address(0),
+			IGovernableFundStorage.NAVNFTType.NONE,
+			0,
+			0
+		);
+
+		navEntries[0].entryType = IGovernableFundStorage.NavUpdateType.NAVNFTUpdateType;
+		navEntries[0].nft  = nft;
+		navEntries[0].isPastNAVUpdate = false;
+		navEntries[0].pastNAVUpdateIndex = 0;
+		navEntries[0].pastNAVUpdateEntryIndex = 0;
 
 		//TODO: set up nav type with mock nft oracle data
 
