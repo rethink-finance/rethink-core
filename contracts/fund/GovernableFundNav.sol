@@ -12,11 +12,12 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 
 	function processNav(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData) public returns (uint256) {
 		//NOTE: may need to happen over multiple transactions?
-		uint256 updateedNav = 0;
+		uint256 updatedNav = 0;
+		uint256 updatedNavResNeg = 0;
 
 		for(uint256 i=0; i< navUpdateData.length; i++) {
 			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(
+				updatedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(
 					navUpdateData[i].liquid,
 					FundSettings.safe,
 					address(this),
@@ -26,7 +27,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					navUpdateData[i].pastNAVUpdateEntryIndex
 				);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
-				updateedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(
+				updatedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(
 					navUpdateData[i].illiquid,
 					FundSettings.safe,
 					address(this),
@@ -46,9 +47,9 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 				);
 
 				if (nftCalc < 0) {
-					updateedNav -= uint256(nftCalc);
+					updatedNavResNeg += uint256(-nftCalc);
 				} else {
-					updateedNav += uint256(nftCalc);
+					updatedNav += uint256(nftCalc);
 				}
 
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
@@ -62,9 +63,9 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 				);
 
 				if (composableCalc < 0) {
-					updateedNav -= uint256(composableCalc);
+					updatedNavResNeg += uint256(-composableCalc);
 				} else {
-					updateedNav += uint256(composableCalc);
+					updatedNav += uint256(composableCalc);
 				}
 			}
 
@@ -75,6 +76,8 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 			}
  		}
 
-		return updateedNav;
+ 		updatedNav -= updatedNavResNeg;
+
+		return updatedNav;
 	}
 }

@@ -106,7 +106,7 @@ module.exports = {
       network_id: 137,
       networkCheckTimeout: 1000000,
       timeoutBlocks: 200,
-      gasPrice: 311e8 // 60.1 gewi
+      gasPrice: 331e8 // 60.1 gewi
     },
 
     mumbai: {
