@@ -76,6 +76,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 			}
  		}
 
+ 		require(updatedNavResNeg < updatedNav, "updatedNav will overflow");
  		updatedNav -= updatedNavResNeg;
 
 		return updatedNav;
