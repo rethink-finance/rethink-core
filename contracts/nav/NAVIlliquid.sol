@@ -22,9 +22,9 @@ abstract contract NAVIlliquid {
 			}
 			if (illiquidVal.isNFT == true) {
 				if (illiquidVal.nftType == IGovernableFundStorage.NAVNFTType.ERC1155){
-		        	illiquidSum += (illiquidVal.baseCurrencySpent * IERC721(illiquidVal.tokenAddress).balanceOf(safe)) / (10**fundDecimals);
+		        	illiquidSum += (illiquidVal.baseCurrencySpent * ERC1155(illiquidVal.tokenAddress).balanceOf(safe)) / (10**fundDecimals);
 		        } else if (illiquidVal.nftType == IGovernableFundStorage.NAVNFTType.ERC721){
-		        	illiquidSum += (illiquidVal.baseCurrencySpent * IERC1155(illiquidVal.tokenAddress).balanceOf(safe,illiquidVal.nftIndex)) / (10**fundDecimals);
+		        	illiquidSum += (illiquidVal.baseCurrencySpent * ERC721(illiquidVal.tokenAddress).balanceOf(safe,illiquidVal.nftIndex)) / (10**fundDecimals);
 		        }
 			} else {
 				illiquidSum += (illiquidVal.baseCurrencySpent * IERC20(illiquidVal.tokenAddress).balanceOf(safe)) / (10**fundDecimals);
