@@ -62,7 +62,6 @@ contract GovernableFundFactory is Initializable {
 	
 	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address safeMultisendAddress, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external initializer {
 
-	//function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address safeMultisendAddress, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external {
 		_governor = governor;
 		_fund = fund;
 		_safeProxyFactory = safeProxyFactory;
@@ -105,7 +104,6 @@ contract GovernableFundFactory is Initializable {
 		        address govToken;
 		        if (success == true) {
 	        		//not compatable, not transferable, cannot use address directly, create ve-wrapper
-	        		//not compatable, can not use address directly in RethinkFundGovernor, create wrapper
             		govToken = IWrappedTokenFactory(
             			IBeacon(_wrappedTokenFactory).implementation()
             		).createVeWrappedToken(fundSettings.governanceToken);
