@@ -96,7 +96,7 @@ module.exports = {
       provider: function() {
         return new HDWalletProvider({
             privateKeys: [process.env.MAINNET_RETHINK_PRIVATE_KEY], 
-            providerOrUrl: "https://arb1.arbitrum.io/rpc",
+            providerOrUrl: "https://arbitrum.meowrpc.com",//"https://arb1.arbitrum.io/rpc",//https://rpc.ankr.com/arbitrum
             retryTimeout: 4000,
             pollingInterval: 8000,
         })
@@ -104,11 +104,11 @@ module.exports = {
       deploymentPollingInterval: 16000,
       network_id: 42161,
       chain_id: 42161,
-      maxFeePerGas: 3e8, // .2 gewi
-      maxPriorityFeePerGas: 3e8, // .2 gewi
+      maxFeePerGas: 15e7, // .2 gewi
+      maxPriorityFeePerGas: 15e7, // .2 gewi
       networkCheckTimeout: 1000000,
       timeoutBlocks: 200,
-      gas: 1000000000,
+      //gas: 1000000000
     },
   
     matic: {

@@ -66,20 +66,20 @@ module.exports = async function (deployer) {
 		  	"0x89483Dc199F70268e3aB79D08301456Fb6aF75f4"//governableContractFactorySingletonAddress b
 		  );
 		} else if (network == 'arb1') {
-			gff = await GovernableFundFactory.at("0x4C342E583A7Aa2840e07B4a3afB71533FBE37726");
+			gff = await GovernableFundFactory.at("0x79b15F47640C4e3ac3A9c4B7f1B999a8cccEEeC7");
 			await gff.initialize(
-		  	"",//governor b
-		  	"",//fund b
+		  	"0x248a64e3EDd3F521ef2Aa6A3e804845B5A1C8008",//governor b
+		  	"0xB4c232f0cF194E530c39174F617Ec4ee9d69398C",//fund b
 		  	"0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2",//safeProxyFactory
 		  	"0x3E5c63644E683549055b9Be8653de26E0B4CD36E",//safeSingleton
 		  	"0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4",//safeFallbackHandler
 		  	"0x40A2aCCbd92BCA938b02010E17A5b8929b49130D", //safeMultisendAddress arb1
-		  	"", //wrappedTokenFactory, b
-		  	"",//navCalculatorAddress bp
-		  	"",//zodiacRolesModifierModule b 
-		  	"",//fundDelgateCallFlowSingletonAddress b
-		  	"",//fundDelgateCallNavSingletonAddress b
-		  	""//governableContractFactorySingletonAddress b
+		  	"0x4278a6b150628470F28Af2Df6B43518f372A59E4", //WrappedTokenFactoryUpgradeableBeacon, b
+		  	"0x9825a09FbC727Bb671f08Fa66e3508a2e8938d45",//NAVCalculatorBeaconProxy bp
+		  	"0x5A7f717B91c998d5DE9764DEA78c2EF20027bDe4",//ZodiacRolesV1ModifierUpgradeableBeacon b 
+		  	"0xdf587D859e76B0a6cE2254f1c0bf64C4aE0eD37f",//fundDelgateCallFlowSingletonAddress b
+		  	"0x8fE2e9470ceA2E83e8B89502d636CCAb2D1Ca21B",//GovernableFundNavUpgradeableBeacon b
+		  	"0x89254d6FF377a21aC0b99BD2e456e75b6C76E505"//governableContractFactorySingletonAddress b
 		  );
 		}
 	}

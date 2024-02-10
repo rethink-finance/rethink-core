@@ -202,3 +202,122 @@ GovernableFund singleton is at: 0x045d6611b93bC7d046c2bA90a780F4577F78e33A
 
 GovernableFundUpgradeableBeacon is at: 0xB4c232f0cF194E530c39174F617Ec4ee9d69398C
 
+   Deploying 'UpgradeableBeacon'
+   -----------------------------
+   > transaction hash:    0x5e1ebaac7ee61e7a667dc0cbb8427a1100c0978341fcd60a4cfba2032f71c9fa
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x5A7f717B91c998d5DE9764DEA78c2EF20027bDe4
+   > block number:        179274558
+   > block timestamp:     1707555350
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.051449998947116971
+   > gas used:            3409641 (0x3406e9)
+   > gas price:           0.15 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00051144615 ETH
+
+ZodiacRolesV1ModifierUpgradeableBeacon is at: 0x5A7f717B91c998d5DE9764DEA78c2EF20027bDe4
+
+   Deploying 'GovernableFundFlows'
+   -------------------------------
+   > transaction hash:    0x35c43126054342c8bc0ce811c712898ee9c1387696d502f4df1b5c43055b36ca
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x296203D903178e17DEF9C3891A578278aA230754
+   > block number:        179274594
+   > block timestamp:     1707555360
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.048196337947116971
+   > gas used:            32536610 (0x1f07822)
+   > gas price:           0.15 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0048804915 ETH
+
+GovernableFundFlows singleton is at: 0x296203D903178e17DEF9C3891A578278aA230754
+
+   Replacing 'UpgradeableBeacon'
+   -----------------------------
+   > transaction hash:    0x0ef97ea506ea273055b51970c13d466b2dcf1dad6e494bb89ec3cac12eccbd7c
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xdf587D859e76B0a6cE2254f1c0bf64C4aE0eD37f
+   > block number:        179274627
+   > block timestamp:     1707555368
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.047856273047116971
+   > gas used:            3400649 (0x33e3c9)
+   > gas price:           0.15 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00051009735 ETH
+
+GovernableFundFlowsUpgradeableBeacon is at: 0xdf587D859e76B0a6cE2254f1c0bf64C4aE0eD37f
+
+   Deploying 'GovernableFundNav'
+   -----------------------------
+   > transaction hash:    0xa376e083cb974afe6e68743ad465d3beae0f918b2405104774e0c62f892745e8
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xbbf156CCc038b405001034573E77F3B2174B762a
+   > block number:        179274646
+   > block timestamp:     1707555373
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.043861723347116971
+   > gas used:            39945497 (0x2618519)
+   > gas price:           0.15 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00599182455 ETH
+
+GovernableFundNav singleton is at: 0xbbf156CCc038b405001034573E77F3B2174B762a
+
+   Replacing 'UpgradeableBeacon'
+   -----------------------------
+   > transaction hash:    0x5ce608af6d60a945b93a287fbdd5f75cc3055da4a6daae6d6faeed438e2d73e6
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x8fE2e9470ceA2E83e8B89502d636CCAb2D1Ca21B
+   > block number:        179274691
+   > block timestamp:     1707555386
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.043522558947116971
+   > gas used:            3391644 (0x33c09c)
+   > gas price:           0.15 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0005087466 ETH
+
+GovernableFundNavUpgradeableBeacon is at: 0x8fE2e9470ceA2E83e8B89502d636CCAb2D1Ca21B
+
+   Deploying 'GovernableContractFactory'
+   -------------------------------------
+   > transaction hash:    0xbf84ca135c806b7070d48e51fe55752f03d8c4daff1830fd66743802dc036bd1
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x463F9eE917F71B7DB1c81fbFe44A95a4f5B540a6
+   > block number:        179274711
+   > block timestamp:     1707555391
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.040447544047116971
+   > gas used:            30750149 (0x1d535c5)
+   > gas price:           0.15 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00461252235 ETH
+
+GovernableContractFactory singleton is at: 0x463F9eE917F71B7DB1c81fbFe44A95a4f5B540a6
+
+   Replacing 'UpgradeableBeacon'
+   -----------------------------
+   > transaction hash:    0xfe42bbc323fc295739e9f17c1eb7b4aae227f091b6f0e68b863d1588477949a6
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x89254d6FF377a21aC0b99BD2e456e75b6C76E505
+   > block number:        179274750
+   > block timestamp:     1707555402
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.040107479147116971
+   > gas used:            3400649 (0x33e3c9)
+   > gas price:           0.15 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00051009735 ETH
+
+GovernableContractFactoryUpgradeableBeacon is at: 0x89254d6FF377a21aC0b99BD2e456e75b6C76E505
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:       0.01752522585 ETH
+
+Summary
+=======
+> Total deployments:   7
+> Final cost:          0.01752522585 ETH
