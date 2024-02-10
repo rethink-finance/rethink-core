@@ -91,6 +91,25 @@ module.exports = {
       gas: 8000000,
       gasPrice: 25000000000 // 25 nAVAX for now
     },
+
+    arb1: {
+      provider: function() {
+        return new HDWalletProvider({
+            privateKeys: [process.env.MAINNET_RETHINK_PRIVATE_KEY], 
+            providerOrUrl: "https://arb1.arbitrum.io/rpc",
+            retryTimeout: 4000,
+            pollingInterval: 8000,
+        })
+      },
+      deploymentPollingInterval: 16000,
+      network_id: 42161,
+      chain_id: 42161,
+      maxFeePerGas: 3e8, // .2 gewi
+      maxPriorityFeePerGas: 3e8, // .2 gewi
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
+      gas: 1000000000,
+    },
   
     matic: {
       provider: function() {
