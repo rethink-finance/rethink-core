@@ -6,6 +6,7 @@ node_modules
 /cache
 /lib/zodiac
 q.txt
+protocol-notes.md
 query_data.py
 
 # Logs
