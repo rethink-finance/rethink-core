@@ -5,6 +5,7 @@ node_modules
 .deployment_keys
 /cache
 /lib/zodiac
+/lib/v3-periphery
 q.txt
 protocol-notes.md
 query_data.py
