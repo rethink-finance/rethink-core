@@ -6,6 +6,7 @@ node_modules
 /cache
 /lib/zodiac
 /lib/v3-periphery
+/lib/v3-core
 q.txt
 protocol-notes.md
 query_data.py

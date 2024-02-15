@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@uniswap/v3-periphery/contracts/libraries/PositionValue.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 contract UniswapV3LiquidityReader {
@@ -24,8 +25,8 @@ contract UniswapV3LiquidityReader {
     */
 
     function getLiquidityValue(address pool, address pMaddr, address account, address lpToken, uint256 tokenId) external view returns (uint256 amount0, uint256 amount1) {
-        require(IERC1155(lpToken).balanceOf(account, tokenId)) > 0, "no liq");
-        (uint160 sqrtRatioX96, , , , , , ) = UniswapV3Pool(pool).slot0();
+        require(IERC1155(lpToken).balanceOf(account, tokenId) > 0, "no liq");
+        (uint160 sqrtRatioX96, , , , , , ) = IUniswapV3Pool(pool).slot0();
         INonfungiblePositionManager positionManager = INonfungiblePositionManager(pMaddr);
         (amount0, amount1) = PositionValue.total(positionManager, tokenId, sqrtRatioX96);
     }
