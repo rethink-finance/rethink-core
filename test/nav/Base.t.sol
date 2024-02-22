@@ -183,7 +183,7 @@ contract Base is Test {
         string memory _fundMetadata = "{}";
 
         bytes memory gffCreateFund = abi.encodeWithSelector(
-            bytes4(keccak256("createFund(IGovernableFundStorage.Settings, GovernorParams, string)")),
+            0x25f7d9e7,
             fundSettings,
             governorSettings,
             _fundMetadata

@@ -9,10 +9,10 @@ import "../common/Agent.t.sol";
 import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 contract TestNAVUpdateIlliquid is Base {
-	function testIlliquidCalculation() public {
+	function testNAVIlliquidCalculation() public {
 		address[] memory allowedDepositAddrs;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (bool success, bytes memory data) = gffub.call(gffCreateFund);
+        (bool success, bytes memory data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
 
         address fundAddr = abi.decode(data, (address));

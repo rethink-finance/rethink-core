@@ -7,7 +7,7 @@ const delay = 10000;
 const execData = "0x";
 const proxy = "";
 const isTest = false;
-const network = "matic";
+const network = "arb1";
 
 //time truffle migrate --reset -f 14 --to 14 --compile-none --skip-dry-run --network=arb1
 
@@ -56,9 +56,9 @@ module.exports = async function (deployer) {
 	for (var i=0; i<proxyTypes.length;i++) {
 		let ub = await UpgradeableBeacon.at(proxies[network][proxyTypes[i]]);
 		setTimeout(function(){},delay);
+		await ub.transferOwnership(multiSigs[network]);
+		setTimeout(function(){},delay);
 		console.log(proxyTypes[i] +" at " + proxies[network][proxyTypes[i]] + " ownership has transfered to: "+ multiSigs[network]);
-		//ub.transferOwnership(multiSigs[network]);
-		//setTimeout(function(){},delay);
 	}
 	throw '';
 }

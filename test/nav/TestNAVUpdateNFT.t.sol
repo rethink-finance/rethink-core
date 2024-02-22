@@ -10,10 +10,10 @@ import "../common/mock/MockAggregatorV3Interface.t.sol";
 import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 contract TestNAVUpdateNFT is Base {
-	function testNftCalculation() public {
+	function testNAVNftCalculation() public {
 		address[] memory allowedDepositAddrs;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (bool success, bytes memory data) = gffub.call(gffCreateFund);
+        (bool success, bytes memory data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
 
         address fundAddr = abi.decode(data, (address));

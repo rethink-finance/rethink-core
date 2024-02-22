@@ -14,7 +14,7 @@ contract TestFundFees is Base {
 		bool success;
 		bytes memory data;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (success, data) = gffub.call(gffCreateFund);
+        (success, data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
         success = false;
         address fundAddr = abi.decode(data, (address));
@@ -36,7 +36,7 @@ contract TestFundFees is Base {
 		bool success;
 		bytes memory data;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (success, data) = gffub.call(gffCreateFund);
+        (success, data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
         success = false;
         address fundAddr = abi.decode(data, (address));
@@ -93,7 +93,7 @@ contract TestFundFees is Base {
 		bool success;
 		bytes memory data;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (success, data) = gffub.call(gffCreateFund);
+        (success, data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
         success = false;
         address fundAddr = abi.decode(data, (address));
@@ -151,7 +151,7 @@ contract TestFundFees is Base {
 		bool success;
 		bytes memory data;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (success, data) = gffub.call(gffCreateFund);
+        (success, data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
         success = false;
         address fundAddr = abi.decode(data, (address));
@@ -211,7 +211,7 @@ contract TestFundFees is Base {
 		bool success;
 		bytes memory data;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (success, data) = gffub.call(gffCreateFund);
+        (success, data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
         success = false;
         address fundAddr = abi.decode(data, (address));
@@ -233,7 +233,7 @@ contract TestFundFees is Base {
 		bool success;
 		bytes memory data;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (success, data) = gffub.call(gffCreateFund);
+        (success, data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
         success = false;
         address fundAddr = abi.decode(data, (address));
@@ -292,7 +292,7 @@ contract TestFundFees is Base {
 		bool success;
 		bytes memory data;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (success, data) = gffub.call(gffCreateFund);
+        (success, data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
         success = false;
         address fundAddr = abi.decode(data, (address));
@@ -350,7 +350,7 @@ contract TestFundFees is Base {
 		bool success;
 		bytes memory data;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (success, data) = gffub.call(gffCreateFund);
+        (success, data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
         success = false;
         address fundAddr = abi.decode(data, (address));

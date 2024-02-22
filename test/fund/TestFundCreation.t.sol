@@ -11,7 +11,7 @@ contract TestFundCreation is Base {
 	function testFundCreationDefault() public {
 		address[] memory allowedDepositAddrs;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (bool success,) = gffub.call(gffCreateFund);
+        (bool success,) = gff.call(gffCreateFund);
         require(success == true, "fail gff createFund");
 	}
 
@@ -24,7 +24,7 @@ contract TestFundCreation is Base {
         }
 		address[] memory allowedDepositAddrs;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, govToken);
-        (bool success,) = gffub.call(gffCreateFund);
+        (bool success,) = gff.call(gffCreateFund);
         require(success == true, "fail gff createFund non votes + non transferable compat");
 	}
 
@@ -32,15 +32,15 @@ contract TestFundCreation is Base {
         address govToken = address(new ERC20Mock(18,"FakeExternalGov"));
 		address[] memory allowedDepositAddrs;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, govToken);
-        (bool success,) = gffub.call(gffCreateFund);
+        (bool success,) = gff.call(gffCreateFund);
         require(success == true, "fail gff createFund non votes compat");
 	}
 
 	function testFundCreationWhitelistDepositors() public {
-		address[] memory allowedDepositAddrs;
+		address[] memory allowedDepositAddrs = new address[](1);
 		allowedDepositAddrs[0] = address(this);
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (bool success,) = gffub.call(gffCreateFund);
+        (bool success,) = gff.call(gffCreateFund);
         require(success == true, "fail gff createFund w/ whitlist");
 	}
 }

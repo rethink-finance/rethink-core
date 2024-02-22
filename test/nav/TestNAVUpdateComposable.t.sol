@@ -12,10 +12,10 @@ import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 contract TestNAVUpdateComposable is Base {
 
-	function testComposableCalculation() public {
+	function testNAVComposableCalculation() public {
 		address[] memory allowedDepositAddrs;
 		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (bool success, bytes memory data) = gffub.call(gffCreateFund);
+        (bool success, bytes memory data) = gff.call(gffCreateFund);
         require(success == true, "fail createFund");
 
         address fundAddr = abi.decode(data, (address));
