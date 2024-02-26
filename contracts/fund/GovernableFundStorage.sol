@@ -76,4 +76,12 @@ abstract contract GovernableFundStorage is IGovernableFundStorage {
 	function getFeeCollector(FundFeeType feeType) external view returns (address) {
 		return feeCollectorAddress[feeType];
 	}
+
+	function getCurrentPendingWithdrawalBal() external view returns (uint256) {
+		return _withdrawalBal;
+	}
+
+	function getCurrentPendingDepositBal() external view returns (uint256) {
+		return _depositBal;
+	}
 }

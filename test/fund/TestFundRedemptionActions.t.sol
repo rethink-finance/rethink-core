@@ -14,11 +14,7 @@ contract TestFundRedemptionActions is Base {
 		//deposit
 
 		address[] memory allowedDepositAddrs;
-		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (bool success, bytes memory data) = gff.call(gffCreateFund);
-        require(success == true, "fail createFund");
-
-        address fundAddr = abi.decode(data, (address));
+		address fundAddr = this.createTestFund(address(this), allowedDepositAddrs, address(0));
 
         IGovernableFundStorage.Settings memory settings = IGovernableFund(fundAddr).getFundSettings();
         Agent bob = new Agent();
@@ -32,11 +28,7 @@ contract TestFundRedemptionActions is Base {
 		//deposit
 
 		address[] memory allowedDepositAddrs;
-		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (bool success, bytes memory data) = gff.call(gffCreateFund);
-        require(success == true, "fail createFund");
-
-        address fundAddr = abi.decode(data, (address));
+		address fundAddr = this.createTestFund(address(this), allowedDepositAddrs, address(0));
 
         IGovernableFundStorage.Settings memory settings = IGovernableFund(fundAddr).getFundSettings();
         Agent bob = new Agent();
@@ -53,11 +45,7 @@ contract TestFundRedemptionActions is Base {
 		//deposit
 
 		address[] memory allowedDepositAddrs;
-		bytes memory gffCreateFund = this.createFund(address(this), allowedDepositAddrs, address(0));
-        (bool success, bytes memory data) = gff.call(gffCreateFund);
-        require(success == true, "fail createFund");
-
-        address fundAddr = abi.decode(data, (address));
+		address fundAddr = this.createTestFund(address(this), allowedDepositAddrs, address(0));
 
         IGovernableFundStorage.Settings memory settings = IGovernableFund(fundAddr).getFundSettings();
         Agent bob = new Agent();

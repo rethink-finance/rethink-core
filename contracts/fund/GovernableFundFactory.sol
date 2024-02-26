@@ -80,14 +80,6 @@ contract GovernableFundFactory is Initializable {
 		return _registeredFunds.length;
 	}
 
-	function registeredFunds(uint256 start, uint256 end) external view returns (address[] memory) {
-		address[] memory subRegisterdFunds = new address[](end-start);
-		for(uint i=start; i<end;i++) {
-			subRegisterdFunds[i-start] = _registeredFunds[i];
-		}
-		return subRegisterdFunds;
-	}
-
 	function registeredFundsData(uint256 start, uint256 end) public view returns (address[] memory, IGovernableFundStorage.Settings[] memory) {
 		address[] memory subRegisterdFunds = new address[](end-start);
 		IGovernableFundStorage.Settings[] memory settings = new IGovernableFundStorage.Settings[](end-start);

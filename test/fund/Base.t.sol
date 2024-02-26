@@ -17,9 +17,7 @@ import "../../contracts/token/ERC20Mock.sol";
 import "@gnosis.pm/safe-contracts/contracts/proxies/GnosisSafeProxyFactory.sol";
 import "@gnosis.pm/safe-contracts/contracts/GnosisSafeL2.sol";
 import "@gnosis.pm/safe-contracts/contracts/libraries/MultiSendCallOnly.sol";
-
-//import "../../contracts/fund/GovernableFundFactory.sol";
-
+import "forge-std/console.sol";
 
 contract Base is Test {
     struct GovernorParams {
@@ -144,7 +142,7 @@ contract Base is Test {
         require(success == true, "fail gff init");
     }
 
-    function createFund(address manager, address[] memory allowedDepositAddrs, address governanceToken) public returns (bytes memory) {
+    function createTestFund(address manager, address[] memory allowedDepositAddrs, address governanceToken) public returns (address) {
         //function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings, string memory _fundMetadata)
 
         address baseToken = address(new ERC20Mock(18,"FakeDAI"));
@@ -192,6 +190,13 @@ contract Base is Test {
             _fundMetadata
         );
 
-        return gffCreateFund;
+        (bool success0, bytes memory data0 ) = gff.call(gffCreateFund);
+        require(success0 == true, "fail createFund");
+
+
+        console.logBytes(data0);
+
+        return address(0);
+        //return abi.decode(data0, (address)); //TODO: issue with data0 not containing an address, but initcode of governable fund factory??
     }
 }
