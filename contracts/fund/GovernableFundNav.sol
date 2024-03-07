@@ -31,6 +31,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 					navUpdateData[i].illiquid,
 					FundSettings.safe,
 					address(this),
+					i,
 					navUpdateData[i].isPastNAVUpdate,
 					navUpdateData[i].pastNAVUpdateIndex,
 					navUpdateData[i].pastNAVUpdateEntryIndex

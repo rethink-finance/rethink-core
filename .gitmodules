@@ -22,3 +22,6 @@
 [submodule "lib/v2-periphery"]
 	path = lib/v2-periphery
 	url = https://github.com/uniswap/v2-periphery
+[submodule "lib/zodiac-modifier-roles-v1"]
+	path = lib/zodiac-modifier-roles-v1
+	url = https://github.com/gnosisguild/zodiac-modifier-roles-v1

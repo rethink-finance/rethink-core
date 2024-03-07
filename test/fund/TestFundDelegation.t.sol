@@ -12,7 +12,7 @@ contract TestFundDelegation is Base {
 		 address[] memory allowedDepositAddrs;
 
 		 vm.startPrank(0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6);
-	     address fundAddr = this.createTestFund(address(this), allowedDepositAddrs, address(0));
+	     address fundAddr = createTestFund(address(this), allowedDepositAddrs, address(0));
 		 vm.stopPrank();
 
         //IGovernableFundStorage.Settings memory settings = IGovernableFund(fundAddr).getFundSettings();

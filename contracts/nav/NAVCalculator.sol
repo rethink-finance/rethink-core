@@ -10,7 +10,12 @@ contract NAVCalculator is NAVLiquid, NAVIlliquid, NAVComposable, NAVNft {
 	mapping(address => mapping(uint256 => uint256[])) liquidCache;
 	mapping(address => mapping(uint256 => int256[])) composableCache;
 	mapping(address => mapping(uint256 => int256[])) NFTCache;
+	mapping(address => mapping(uint256 => uint256[])) illiquidCache;
 	
+	function cacheIlliquidCalculation(uint256[] memory data, address fund, uint256 navEntryIndex) override internal {
+		require(msg.sender == fund, "not fund");
+		illiquidCache[fund][navEntryIndex] = data;
+	}
 	function cacheLiquidCalculation(uint256[] memory data, address fund, uint256 navEntryIndex) override internal {
 		require(msg.sender == fund, "not fund");
 		liquidCache[fund][navEntryIndex] = data;
@@ -24,6 +29,10 @@ contract NAVCalculator is NAVLiquid, NAVIlliquid, NAVComposable, NAVNft {
 	function cacheNFTCalculation(int256[] memory data, address fund, uint256 navEntryIndex) override internal {
 		require(msg.sender == fund, "not fund");
 		NFTCache[fund][navEntryIndex] = data;
+	}
+
+	function getNAVIlliquidCache(address fund, uint256 navEntryIndex) external view returns (uint256[] memory) {
+		return illiquidCache[fund][navEntryIndex];
 	}
 
 	function getNAVLiquidCache(address fund, uint256 navEntryIndex) external view returns (uint256[] memory) {

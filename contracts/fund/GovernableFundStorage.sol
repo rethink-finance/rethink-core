@@ -84,4 +84,8 @@ abstract contract GovernableFundStorage is IGovernableFundStorage {
 	function getCurrentPendingDepositBal() external view returns (uint256) {
 		return _depositBal;
 	}
+
+	function getFundStartTime() external view returns (uint256) {
+		return _fundStartTime;
+	}
 }

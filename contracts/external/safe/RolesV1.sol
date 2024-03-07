@@ -67,12 +67,12 @@ contract RolesV1 is Modifier {
         emit RolesModSetup(msg.sender, _owner, _avatar, _target);
     }
 
-    /*function setupModules() internal {
+    function setupModules() internal {
         if (modules[SENTINEL_MODULES] != address(0)) {
             revert SetUpModulesAlreadyCalled();
         }
         modules[SENTINEL_MODULES] = SENTINEL_MODULES;
-    }*/
+    }
 
     /// @dev Set the address of the expected multisend library
     /// @notice Only callable by owner.
