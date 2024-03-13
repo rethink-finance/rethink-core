@@ -10,4 +10,5 @@ interface IGovernableFundStorageFunctions {
 	function getCurrentPendingDepositBal() external view returns (uint256);
 	function getFundStartTime() external view returns (uint256);
 	function totalNAV() external view returns (uint256);
+	function _totalDepositBal() external view returns (uint256);
 }

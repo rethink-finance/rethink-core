@@ -13,6 +13,7 @@ contract RethinkReader {
 	struct FundMetaData {
 		uint256[] startTime;
 		uint256[] totalNav;
+		uint256[] totalDepositBal;
 
 		uint256[] illiquidLen;
 		uint256[] liquidLen;
@@ -40,6 +41,7 @@ contract RethinkReader {
 
 		fd.startTime = new uint256[](arrayLen);
 		fd.totalNav = new uint256[](arrayLen);
+		fd.totalDepositBal = new uint256[](arrayLen);
 		fd.illiquidLen  = new uint256[](arrayLen);
 		fd.liquidLen  = new uint256[](arrayLen);
 		fd.nftLen  = new uint256[](arrayLen);
@@ -48,6 +50,7 @@ contract RethinkReader {
 		for(uint i=0; i<arrayLen;i++) {
 			fd.startTime[i] = IGovernableFundStorageFunctions(funds[i]).getFundStartTime();
 			fd.totalNav[i] = IGovernableFundStorageFunctions(funds[i]).totalNAV();
+			fd.totalDepositBal[i] = IGovernableFundStorageFunctions(funds[i])._totalDepositBal();
 			fd.illiquidLen[i] = INAVCalculator(_nftCalculator).getNAVIlliquidCache(funds[i], navEntryIndex).length;
 			fd.liquidLen[i] = INAVCalculator(_nftCalculator).getNAVLiquidCache(funds[i], navEntryIndex).length;
 			fd.nftLen[i] = INAVCalculator(_nftCalculator).getNAVNFTCache(funds[i], navEntryIndex).length;
