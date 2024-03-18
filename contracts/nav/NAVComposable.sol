@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "../interfaces/fund/IGovernableFundStorageFunctions.sol";
 
 abstract contract NAVComposable {
-	function composableCalculation(IGovernableFundStorage.NAVComposableUpdate[] calldata composable, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external returns (int256) {
+	function composableCalculation(IGovernableFundStorage.NAVComposableUpdate[] calldata composable, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external returns (int256) {
 
 		int256 composableSum = 0;
 		int256[] memory cachedIndexValue = new int256[](composable.length);
@@ -12,7 +12,7 @@ abstract contract NAVComposable {
 			IGovernableFundStorage.NAVComposableUpdate memory composableVal = composable[i];
 
 			if (isPastNAVUpdate == true){
-				composableVal = IGovernableFundStorageFunctions(fund).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].composable[composable[i].pastNAVUpdateIndex];
+				composableVal = IGovernableFundStorageFunctions(pastNAVUpdateEntryFundAddress).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].composable[composable[i].pastNAVUpdateIndex];
 				//pastComposable[composable[i].pastNAVUpdateIndex];
 			}
 

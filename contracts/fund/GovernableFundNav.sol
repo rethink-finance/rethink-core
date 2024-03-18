@@ -17,35 +17,11 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 
 		for(uint256 i=0; i< navUpdateData.length; i++) {
 			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				updatedNav += INAVCalculator(_navCalculatorAddress).liquidCalculation(
-					navUpdateData[i].liquid,
-					FundSettings.safe,
-					address(this),
-					i,
-					navUpdateData[i].isPastNAVUpdate,
-					navUpdateData[i].pastNAVUpdateIndex,
-					navUpdateData[i].pastNAVUpdateEntryIndex
-				);
+				updatedNav += prepLiquid(navUpdateData, i);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
-				updatedNav += INAVCalculator(_navCalculatorAddress).illiquidCalculation(
-					navUpdateData[i].illiquid,
-					FundSettings.safe,
-					address(this),
-					i,
-					navUpdateData[i].isPastNAVUpdate,
-					navUpdateData[i].pastNAVUpdateIndex,
-					navUpdateData[i].pastNAVUpdateEntryIndex
-				);
+				updatedNav += prepIlliquid(navUpdateData, i);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				int256 nftCalc = INAVCalculator(_navCalculatorAddress).nftCalculation(
-					navUpdateData[i].nft,
-					FundSettings.safe,
-					address(this),
-					i,
-					navUpdateData[i].isPastNAVUpdate,
-					navUpdateData[i].pastNAVUpdateIndex,
-					navUpdateData[i].pastNAVUpdateEntryIndex
-				);
+				int256 nftCalc = prepNFT(navUpdateData, i);
 
 				if (nftCalc < 0) {
 					updatedNavResNeg += uint256(-nftCalc);
@@ -54,14 +30,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 				}
 
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				int256 composableCalc = INAVCalculator(_navCalculatorAddress).composableCalculation(
-					navUpdateData[i].composable,
-					address(this),
-					i,
-					navUpdateData[i].isPastNAVUpdate,
-					navUpdateData[i].pastNAVUpdateIndex,
-					navUpdateData[i].pastNAVUpdateEntryIndex
-				);
+				int256 composableCalc = prepComposable(navUpdateData, i);
 
 				if (composableCalc < 0) {
 					updatedNavResNeg += uint256(-composableCalc);
@@ -81,5 +50,56 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
  		updatedNav -= updatedNavResNeg;
 
 		return updatedNav;
+	}
+
+	function prepLiquid(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, uint256 i) internal returns (uint256) {
+		return INAVCalculator(_navCalculatorAddress).liquidCalculation(
+			navUpdateData[i].liquid,
+			FundSettings.safe,
+			address(this),
+			i,
+			navUpdateData[i].isPastNAVUpdate,
+			navUpdateData[i].pastNAVUpdateIndex,
+			navUpdateData[i].pastNAVUpdateEntryIndex,
+			navUpdateData[i].pastNAVUpdateEntryFundAddress
+		);
+	}
+
+	function prepIlliquid(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, uint256 i) internal returns (uint256) {
+		return INAVCalculator(_navCalculatorAddress).illiquidCalculation(
+			navUpdateData[i].illiquid,
+			FundSettings.safe,
+			address(this),
+			i,
+			navUpdateData[i].isPastNAVUpdate,
+			navUpdateData[i].pastNAVUpdateIndex,
+			navUpdateData[i].pastNAVUpdateEntryIndex,
+			navUpdateData[i].pastNAVUpdateEntryFundAddress
+		);
+	}
+
+	function prepNFT(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, uint256 i) internal returns (int256) {
+		return INAVCalculator(_navCalculatorAddress).nftCalculation(
+			navUpdateData[i].nft,
+			FundSettings.safe,
+			address(this),
+			i,
+			navUpdateData[i].isPastNAVUpdate,
+			navUpdateData[i].pastNAVUpdateIndex,
+			navUpdateData[i].pastNAVUpdateEntryIndex,
+			navUpdateData[i].pastNAVUpdateEntryFundAddress
+		);
+	}
+
+	function prepComposable(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, uint256 i) internal returns (int256) {
+		return INAVCalculator(_navCalculatorAddress).composableCalculation(
+			navUpdateData[i].composable,
+			address(this),
+			i,
+			navUpdateData[i].isPastNAVUpdate,
+			navUpdateData[i].pastNAVUpdateIndex,
+			navUpdateData[i].pastNAVUpdateEntryIndex,
+			navUpdateData[i].pastNAVUpdateEntryFundAddress
+		);
 	}
 }

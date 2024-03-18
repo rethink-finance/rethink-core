@@ -96,6 +96,7 @@ interface IGovernableFundStorage {
 		uint256 pastNAVUpdateIndex;
 		uint256 pastNAVUpdateEntryIndex;
 		string description;
+		address pastNAVUpdateEntryFundAddress;
 	}
 
 	struct WithdrawalRequestEntry {

@@ -6,7 +6,7 @@ import "@uniswap/v2-periphery/contracts/libraries/UniswapV2OracleLibrary.sol";
 
 abstract contract NAVLiquid {
 
-	function liquidCalculation(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex) external returns (uint256) {
+	function liquidCalculation(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external returns (uint256) {
 		//TODO: need to make sure it returns in nav base token denomination
 		//TODO: need to make sure this can support the popular dex/aggregators abis
 		uint256 liquidSum = 0;
@@ -15,13 +15,12 @@ abstract contract NAVLiquid {
 
 			IGovernableFundStorage.NAVLiquidUpdate memory liquidVal = liquid[i];
 			if (isPastNAVUpdate == true){
-				liquidVal  = IGovernableFundStorageFunctions(fund).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].liquid[liquid[i].pastNAVUpdateIndex];
+				liquidVal  = IGovernableFundStorageFunctions(pastNAVUpdateEntryFundAddress).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].liquid[liquid[i].pastNAVUpdateIndex];
 				//pastLiquid[liquid[i].pastNAVUpdateIndex];
 			}
 
 			//querying swap price;
-			uint256 price  = querySwapPriceData(liquidVal);			
-			uint256 normedRetVal = price * IERC20(liquidVal.assetTokenAddress).balanceOf(safe) / (10 ** IERC20Metadata(liquidVal.assetTokenAddress).decimals());
+			uint256 normedRetVal = querySwapPriceData(liquidVal, safe);
 			liquidSum += normedRetVal;
 			cachedIndexValue[i] = normedRetVal;
 		}
@@ -29,10 +28,11 @@ abstract contract NAVLiquid {
 		return liquidSum;
 	}
 
-	function querySwapPriceData(IGovernableFundStorage.NAVLiquidUpdate memory liquidVal) private view returns (uint256 price) {
+	function querySwapPriceData(IGovernableFundStorage.NAVLiquidUpdate memory liquidVal, address safe) private view returns (uint256) {
 		//querying swap price;
 		bytes memory swapPriceData;
 		bool success;
+		uint256 price;
 		if (liquidVal.tokenPair != address(0)) {
 			IUniswapV2Pair _pair = IUniswapV2Pair(liquidVal.tokenPair);
 
@@ -61,6 +61,8 @@ abstract contract NAVLiquid {
 			uint256[] memory priceDataDecoded = abi.decode(swapPriceData, (uint256[]));
 			price = priceDataDecoded[liquidVal.returnIndex];
 		}
+
+		return price * IERC20(liquidVal.assetTokenAddress).balanceOf(safe) / (10 ** IERC20Metadata(liquidVal.assetTokenAddress).decimals());
 	}
 
 	function cacheLiquidCalculation(uint256[] memory data, address fund, uint256 navEntryIndex) virtual internal;
