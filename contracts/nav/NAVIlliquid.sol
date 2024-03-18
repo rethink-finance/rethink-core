@@ -31,7 +31,25 @@ abstract contract NAVIlliquid {
 		return illiquidSum;
 	}
 
-	function processIlliquid(IGovernableFundStorage.NAVIlliquidUpdate memory illiquidVal, address safe, address fund) private returns (uint256) {
+	function illiquidCalculationReadOnly(IGovernableFundStorage.NAVIlliquidUpdate[] calldata illiquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external view returns (uint256) {
+		//TODO: need to handle decimals and conversion to base currency
+		uint256 illiquidSum = 0;		
+		for(uint i=0;i<illiquid.length;i++) {
+			IGovernableFundStorage.NAVIlliquidUpdate memory illiquidVal = illiquid[i];
+
+			if (isPastNAVUpdate == true){
+				illiquidVal  = IGovernableFundStorageFunctions(pastNAVUpdateEntryFundAddress).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].illiquid[illiquid[i].pastNAVUpdateIndex];
+				//pastIlliquid[illiquid[i].pastNAVUpdateIndex];
+			}
+
+			uint256 normedRetVal = processIlliquid(illiquidVal, safe, fund);
+		    illiquidSum += normedRetVal;
+		}
+
+		return illiquidSum;
+	}
+
+	function processIlliquid(IGovernableFundStorage.NAVIlliquidUpdate memory illiquidVal, address safe, address fund) private view returns (uint256) {
 
 		uint256 fundDecimals = IERC20Metadata(IGovernableFundStorageFunctions(fund).getFundSettings().baseToken).decimals();
 

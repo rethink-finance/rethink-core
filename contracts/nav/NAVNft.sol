@@ -30,7 +30,25 @@ abstract contract NAVNft {
 	    return nftSum;
 	}
 
-	function proccessFloorPrice(IGovernableFundStorage.NAVNFTUpdate memory nftVal, address safe) private returns (int256) {
+	function nftCalculationReadOnly(IGovernableFundStorage.NAVNFTUpdate[] calldata nft, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external view returns (int256) {
+		//TODO: need to handle decimals and conversion to base currency
+		//TODO: assumes chainlink
+
+		int256 nftSum = 0;
+		for(uint i=0;i<nft.length;i++) {
+			IGovernableFundStorage.NAVNFTUpdate memory nftVal = nft[i];
+			if (isPastNAVUpdate == true){
+				nftVal = IGovernableFundStorageFunctions(pastNAVUpdateEntryFundAddress).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].nft[nft[i].pastNAVUpdateIndex];
+				//pastNft[nft[i].pastNAVUpdateIndex];
+			}
+
+	        int256 normedRetVal = proccessFloorPrice(nftVal, safe);
+	        nftSum += normedRetVal;
+	    }
+	    return nftSum;
+	}
+
+	function proccessFloorPrice(IGovernableFundStorage.NAVNFTUpdate memory nftVal, address safe) private view returns (int256) {
 		AggregatorV3Interface nftFloorPriceFeed = AggregatorV3Interface(nftVal.oracleAddress);
 
 		(

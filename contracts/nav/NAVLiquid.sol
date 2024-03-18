@@ -28,6 +28,25 @@ abstract contract NAVLiquid {
 		return liquidSum;
 	}
 
+	function liquidCalculationReadOnly(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external view returns (uint256) {
+		//TODO: need to make sure it returns in nav base token denomination
+		//TODO: need to make sure this can support the popular dex/aggregators abis
+		uint256 liquidSum = 0;
+		for(uint i=0;i<liquid.length;i++) {
+
+			IGovernableFundStorage.NAVLiquidUpdate memory liquidVal = liquid[i];
+			if (isPastNAVUpdate == true){
+				liquidVal  = IGovernableFundStorageFunctions(pastNAVUpdateEntryFundAddress).getNavEntry(pastNAVUpdateIndex)[pastNAVUpdateEntryIndex].liquid[liquid[i].pastNAVUpdateIndex];
+				//pastLiquid[liquid[i].pastNAVUpdateIndex];
+			}
+
+			//querying swap price;
+			uint256 normedRetVal = querySwapPriceData(liquidVal, safe);
+			liquidSum += normedRetVal;
+		}
+		return liquidSum;
+	}
+
 	function querySwapPriceData(IGovernableFundStorage.NAVLiquidUpdate memory liquidVal, address safe) private view returns (uint256) {
 		//querying swap price;
 		bytes memory swapPriceData;
