@@ -10,18 +10,18 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 
 	//TODO: able to ref remote nav entry with staticcall, basis for nav update lib
 
-	function processNav(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData) public returns (uint256) {
+	function processNav(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress) public returns (uint256) {
 		//NOTE: may need to happen over multiple transactions?
 		uint256 updatedNav = 0;
 		uint256 updatedNavResNeg = 0;
 
 		for(uint256 i=0; i< navUpdateData.length; i++) {
 			if (navUpdateData[i].entryType == NavUpdateType.NAVLiquidUpdateType) {
-				updatedNav += prepLiquid(navUpdateData, i);
+				updatedNav += prepLiquid(navUpdateData, pastNAVUpdateEntryFundAddress, i);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVIlliquidUpdateType) {
-				updatedNav += prepIlliquid(navUpdateData, i);
+				updatedNav += prepIlliquid(navUpdateData, pastNAVUpdateEntryFundAddress, i);
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVNFTUpdateType) {
-				int256 nftCalc = prepNFT(navUpdateData, i);
+				int256 nftCalc = prepNFT(navUpdateData, pastNAVUpdateEntryFundAddress, i);
 
 				if (nftCalc < 0) {
 					updatedNavResNeg += uint256(-nftCalc);
@@ -30,7 +30,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 				}
 
 			} else if (navUpdateData[i].entryType == NavUpdateType.NAVComposableUpdateType) {
-				int256 composableCalc = prepComposable(navUpdateData, i);
+				int256 composableCalc = prepComposable(navUpdateData, pastNAVUpdateEntryFundAddress, i);
 
 				if (composableCalc < 0) {
 					updatedNavResNeg += uint256(-composableCalc);
@@ -52,7 +52,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 		return updatedNav;
 	}
 
-	function prepLiquid(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, uint256 i) internal returns (uint256) {
+	function prepLiquid(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, uint256 i) internal returns (uint256) {
 		return INAVCalculator(_navCalculatorAddress).liquidCalculation(
 			navUpdateData[i].liquid,
 			FundSettings.safe,
@@ -61,11 +61,11 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 			navUpdateData[i].isPastNAVUpdate,
 			navUpdateData[i].pastNAVUpdateIndex,
 			navUpdateData[i].pastNAVUpdateEntryIndex,
-			navUpdateData[i].pastNAVUpdateEntryFundAddress
+			pastNAVUpdateEntryFundAddress[i]
 		);
 	}
 
-	function prepIlliquid(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, uint256 i) internal returns (uint256) {
+	function prepIlliquid(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, uint256 i) internal returns (uint256) {
 		return INAVCalculator(_navCalculatorAddress).illiquidCalculation(
 			navUpdateData[i].illiquid,
 			FundSettings.safe,
@@ -74,11 +74,11 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 			navUpdateData[i].isPastNAVUpdate,
 			navUpdateData[i].pastNAVUpdateIndex,
 			navUpdateData[i].pastNAVUpdateEntryIndex,
-			navUpdateData[i].pastNAVUpdateEntryFundAddress
+			pastNAVUpdateEntryFundAddress[i]
 		);
 	}
 
-	function prepNFT(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, uint256 i) internal returns (int256) {
+	function prepNFT(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, uint256 i) internal returns (int256) {
 		return INAVCalculator(_navCalculatorAddress).nftCalculation(
 			navUpdateData[i].nft,
 			FundSettings.safe,
@@ -87,11 +87,11 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 			navUpdateData[i].isPastNAVUpdate,
 			navUpdateData[i].pastNAVUpdateIndex,
 			navUpdateData[i].pastNAVUpdateEntryIndex,
-			navUpdateData[i].pastNAVUpdateEntryFundAddress
+			pastNAVUpdateEntryFundAddress[i]
 		);
 	}
 
-	function prepComposable(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, uint256 i) internal returns (int256) {
+	function prepComposable(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, uint256 i) internal returns (int256) {
 		return INAVCalculator(_navCalculatorAddress).composableCalculation(
 			navUpdateData[i].composable,
 			address(this),
@@ -99,7 +99,7 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 			navUpdateData[i].isPastNAVUpdate,
 			navUpdateData[i].pastNAVUpdateIndex,
 			navUpdateData[i].pastNAVUpdateEntryIndex,
-			navUpdateData[i].pastNAVUpdateEntryFundAddress
+			pastNAVUpdateEntryFundAddress[i]
 		);
 	}
 }

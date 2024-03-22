@@ -78,7 +78,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		}
 	}
 
-	function updateNav(NavUpdateEntry[] calldata navUpdateData) external {
+	function updateNav(NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress) external {
 		onlyGovernance();
 
 		_navUpdateLatestIndex++;
@@ -87,12 +87,13 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 
 		//process nav here, save to storage
 
-		//processNav((uint8,(address,address,bytes,address,address,bool,uint256,uint256,uint256)[],(uint256,uint256,address,bool,string[],uint8,uint256,uint256)[],(address,address,uint8,uint256,uint256)[],(address,string,bytes,uint256,bool,uint256,uint256,uint8,uint256)[],bool,uint256,uint256)[]) -> 0x7a627c91
+		//cast sig "processNav((uint8,(address,address,bytes,address,address,bool,uint256,uint256,uint256)[],(uint256,uint256,address,bool,string[],uint8,uint256,uint256)[],(address,address,uint8,uint256,uint256)[],(address,string,bytes,uint256,bool,uint256,uint256,uint8,uint256,bool)[],bool,uint256,uint256,string)[],address[])" -> 0xb7ec3eda
 
 		(bool success, bytes memory navBytes) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
 			abi.encodeWithSelector(
-				bytes4(0x7a627c91),
-				navUpdateData
+				bytes4(0xb7ec3eda),
+				navUpdateData,
+				pastNAVUpdateEntryFundAddress
 			)
 		);
 		require(success == true, "failed processNav");
@@ -175,52 +176,10 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
     }
 
     function collectFees(FundFeeType feeType) external {
-    	/*
-    		enum FundFeeType {
-				DepositFee,
-				WithdrawFee,
-				ManagementFee,
-				PerformanceFee
-			}
-		*/
-		//NOTE: deposit and withdrawal fees are combined, collector should be same addr
-
-		if(feeCollectorAddress[feeType] == address(0)){
-			return;
-		}
-
-		uint feeVal;
-        uint discountedValue;
-
-		if (feeType == FundFeeType.DepositFee || feeType == FundFeeType.WithdrawFee) {
-			feeVal = (_feeBal * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
-			discountedValue = _feeBal - feeVal;
-
-	    	IERC20(FundSettings.baseToken).transfer(feeCollectorAddress[feeType], discountedValue);
-	    	if (feeVal > 0) {
-		    	IERC20(FundSettings.baseToken).transfer(daoFeeAddr, feeVal);
-	    	}
-
-	    	_feeBal = 0;
-		} else if (feeType == FundFeeType.ManagementFee) {
-			uint256 _accruedFees = calculateAccruedManagementFees();
-			feeVal = (_accruedFees * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
-			discountedValue = _accruedFees - feeVal;
-			_mint(feeCollectorAddress[feeType], discountedValue);
-			if (feeVal > 0) {
-				_mint(daoFeeAddr, feeVal);
-	    	}
-			_lastClaimedManagementFees = block.timestamp;
-		} else if (feeType == FundFeeType.PerformanceFee) {
-			uint256 _accruedFees = calculateAccruedPerformanceFees();
-			feeVal = (_accruedFees * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
-			discountedValue = _accruedFees - feeVal;
-			_mint(feeCollectorAddress[feeType], discountedValue);
-			if (feeVal > 0) {
-				_mint(daoFeeAddr, feeVal);
-	    	}
-			_lastClaimedPerformanceFees = block.timestamp;
-		}
+		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
+			abi.encodeWithSignature("collectFees(uint8)", feeType)
+		);
+		require(success == true, "failed collectFees");
     }
 
     function toggleDaoFee() external {
