@@ -73,6 +73,15 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 		_userDepositBal[msg.sender] = 0;
         userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
 
+        //delegate to self first always to avoid having to do it in frontend when issued fund tokens
+        if(FundSettings.governanceToken != address(0)) {
+        	(bool success,) = FundSettings.governanceToken.call(
+				abi.encodeWithSignature("delegate(address)", msg.sender)
+			);
+			require(success == true, "failed ext delegate");
+        } else {
+        	delegate(msg.sender);
+        }
 	}
 
 	function requestWithdraw(uint256 amount) external {
@@ -100,6 +109,8 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         uint feeVal = (val * FundSettings.withdrawFee) / MAX_BPS;
         uint daoFeeAmount = (val * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
         uint discountedValue = val - feeVal - daoFeeAmount;
+
+        require(totalWithrawalBalance() > discountedValue, "low withdraw bal");
         _feeBal += feeVal;
 
         if (discountedValue > _totalDepositBal) {

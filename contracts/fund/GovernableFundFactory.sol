@@ -91,7 +91,7 @@ contract GovernableFundFactory is Initializable {
 		return (subRegisterdFunds, settings);
 	}
 
-    function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings, string memory _fundMetadata) external returns (address) {
+    function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings, string memory _fundMetadata, uint256 _feePerformancePeriod, uint256 _feeManagePeriod) external returns (address) {
 	    //create erc20 wrapper if needed
 	    if (fundSettings.governanceToken != address(0)) {
 	    	try IVotes(fundSettings.governanceToken).getVotes(msg.sender) returns (uint256) {
@@ -176,7 +176,7 @@ contract GovernableFundFactory is Initializable {
 	    }
 
 	    //initialize fund proxy
-	    initFund(fundContractAddr, fundSettings, _fundMetadata);
+	    initFund(fundContractAddr, fundSettings, _fundMetadata, _feePerformancePeriod, _feeManagePeriod);
 
 	    IGovernableFundStorage.Settings memory settings = IGovernableFund(fundContractAddr).getFundSettings();
 	    require(settings.governor != address(0), "fail fund init");
@@ -187,7 +187,7 @@ contract GovernableFundFactory is Initializable {
 	    return fundContractAddr;
     }
 
-    function initFund(address fundContractAddr, IGovernableFundStorage.Settings memory fundSettings, string memory _fundMetadata) internal {
+    function initFund(address fundContractAddr, IGovernableFundStorage.Settings memory fundSettings, string memory _fundMetadata, uint256 _feePerformancePeriod, uint256 _feeManagePeriod) internal {
     	IGovernableFund(fundContractAddr).initialize(
     		fundSettings.fundName,
     		fundSettings.fundSymbol,
@@ -195,7 +195,9 @@ contract GovernableFundFactory is Initializable {
     		_navCalculatorAddress, 
     		_fundDelgateCallFlowSingletonAddress, 
     		_fundDelgateCallNavSingletonAddress,
-    		_fundMetadata
+    		_fundMetadata,
+    		_feePerformancePeriod,
+    		_feeManagePeriod
     	);
     }
 

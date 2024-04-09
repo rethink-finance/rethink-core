@@ -16,7 +16,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         _disableInitializers();
     }
 
-	function initialize(string memory _name_, string memory _symbol_, IGovernableFundStorage.Settings calldata _fundSettings, address navCalculatorAddress, address fundDelgateCallFlowAddress, address fundDelgateCallNavAddress, string memory _fundMetadata) external initializer {
+	function initialize(string memory _name_, string memory _symbol_, IGovernableFundStorage.Settings calldata _fundSettings, address navCalculatorAddress, address fundDelgateCallFlowAddress, address fundDelgateCallNavAddress, string memory _fundMetadata, uint256 _feePerformancePeriod, uint256 _feeManagePeriod) external initializer {
 		__ERC20_init(_name_, _symbol_);
 		__ERC20Permit_init(_name_);
 		//TODO: need to do validation of inputs?
@@ -30,6 +30,8 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		_fundSettings.allowedManagers;
 
 		fundMetadata = _fundMetadata;
+		feePerformancePeriod = _feePerformancePeriod;
+		feeManagePeriod = _feeManagePeriod;
 
 		uint i;
 		for (i=0; i<_fundSettings.allowedManagers.length; i++){
@@ -53,10 +55,12 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         return "mode=timestamp";
     }
 
-	function updateSettings(IGovernableFundStorage.Settings calldata _fundSettings, string memory _fundMetadata) external {
+	function updateSettings(IGovernableFundStorage.Settings calldata _fundSettings, string memory _fundMetadata, uint256 _feePerformancePeriod, uint256 _feeManagePeriod) external {
 		onlyGovernance();
 		FundSettings = _fundSettings;
 		fundMetadata = _fundMetadata;
+		feePerformancePeriod = _feePerformancePeriod;
+		feeManagePeriod = _feeManagePeriod;
 
 		uint i;
 		for (i=0; i<_fundSettings.allowedManagers.length; i++){
@@ -78,8 +82,8 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		}
 	}
 
-	function updateNav(NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress) external {
-		onlyGovernance();
+	function updateNav(NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, bool processWithdraw) external {
+		onlyGovernanceOrSafe();
 
 		_navUpdateLatestIndex++;
 		_navUpdateLatestTime = block.timestamp;
@@ -100,9 +104,11 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 
 		_nav = abi.decode(navBytes, (uint256));
 
-		//NOTE: could be some logic to better handle deposit/withdrawal flows
-		require(((totalNAV() * _withdrawalBal) / totalSupply()) <= totalWithrawalBalance(), 'not enough for withdrawals');
-		isRequestedWithdrawals = false;
+		if (processWithdraw == true) {
+			//NOTE: could be some logic to better handle deposit/withdrawal flows
+			require(((totalNAV() * _withdrawalBal) / totalSupply()) <= totalWithrawalBalance(), 'not enough for withdrawals');
+			isRequestedWithdrawals = false;
+		}
 	}
 
 	function revokeDepositWithrawal(bool isDeposit) external {
@@ -149,7 +155,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         uint256 accruingPeriod = (block.timestamp - startTime);
         uint256 feeBase = totalSupply();
         uint256 feePerSecond = (feeBase * FundSettings.managementFee) /
-            (365 * 86400 * 10000);
+            ( ((feeManagePeriod > 0) ? feeManagePeriod : feePeriodDefault) * 10000);
         accruedFees = feePerSecond * accruingPeriod;
     }
 
@@ -171,7 +177,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
         uint256 accruingPeriod = (block.timestamp - startTime);
         uint256 feeBase = totalSupply();
         uint256 feePerSecond = ((feeBase * performanceTake) / _totalDepositBal) /
-            (365 * 86400 * 10000);
+            (((feePerformancePeriod > 0) ? feePerformancePeriod : feePeriodDefault)  * 10000);
         accruedFees = feePerSecond * accruingPeriod;
     }
 
@@ -213,6 +219,10 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 
     function onlyGovernance() private view {
     	require(msg.sender == FundSettings.governor, "only gov");
+    }
+
+    function onlyGovernanceOrSafe() private view {
+    	require(msg.sender == FundSettings.governor || msg.sender == FundSettings.safe, "only gov");
     }
 
     function onlyManagers() private view {

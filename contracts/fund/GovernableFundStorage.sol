@@ -64,6 +64,9 @@ abstract contract GovernableFundStorage is IGovernableFundStorage {
 
     mapping(FundFeeType => address) feeCollectorAddress;
     string public fundMetadata;
+    uint256 public feeManagePeriod;
+    uint256 public feePerformancePeriod;
+    uint256 constant feePeriodDefault = 365 * 86400;
 
 	function getFundSettings() external view returns (Settings memory) {
 		return FundSettings;
