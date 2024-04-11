@@ -13,5 +13,5 @@ interface IGovernableFundFactory {
 		uint256 proposalThreshold;
 	}
 	function registeredFundsData(uint256 start, uint256 end) external view returns (address[] memory, IGovernableFundStorage.Settings[] memory);
-	function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings, string memory _fundMetadata) external returns (address);
+	function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings, string memory _fundMetadata, uint256 _feePerformancePeriod, uint256 _feeManagePeriod) external returns (address);
 }
