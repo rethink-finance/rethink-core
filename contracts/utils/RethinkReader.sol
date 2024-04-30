@@ -48,13 +48,21 @@ contract RethinkReader {
 		fd.composableLen  = new uint256[](arrayLen);
 
 		for(uint i=0; i<arrayLen;i++) {
+			bytes memory gfcall = abi.encodeWithSelector(
+	            bytes4(keccak256("_navUpdateLatestIndex()"))
+	        );
+	        (bool success0, bytes memory data0) = funds[i].staticcall(gfcall);
+	        require(success0 == true, "fail gf nav entry length");
+
+	        uint256 lnIdx = abi.decode(data0, (uint256));
+
 			fd.startTime[i] = IGovernableFundStorageFunctions(funds[i]).getFundStartTime();
 			fd.totalNav[i] = IGovernableFundStorageFunctions(funds[i]).totalNAV();
 			fd.totalDepositBal[i] = IGovernableFundStorageFunctions(funds[i])._totalDepositBal();
-			fd.illiquidLen[i] = INAVCalculator(_nftCalculator).getNAVIlliquidCache(funds[i], navEntryIndex).length;
-			fd.liquidLen[i] = INAVCalculator(_nftCalculator).getNAVLiquidCache(funds[i], navEntryIndex).length;
-			fd.nftLen[i] = INAVCalculator(_nftCalculator).getNAVNFTCache(funds[i], navEntryIndex).length;
-			fd.composableLen[i] = INAVCalculator(_nftCalculator).getNAVComposableCache(funds[i], navEntryIndex).length;
+			fd.illiquidLen[i] = INAVCalculator(_nftCalculator).getNAVIlliquidCache(funds[i], lnIdx).length;
+			fd.liquidLen[i] = INAVCalculator(_nftCalculator).getNAVLiquidCache(funds[i], lnIdx).length;
+			fd.nftLen[i] = INAVCalculator(_nftCalculator).getNAVNFTCache(funds[i], lnIdx).length;
+			fd.composableLen[i] = INAVCalculator(_nftCalculator).getNAVComposableCache(funds[i], lnIdx).length;
 		}
 
 		return fd;
