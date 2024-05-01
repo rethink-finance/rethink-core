@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 
 import "../interfaces/fund/IGovernableFundFactory.sol";
+import "../interfaces/fund/IGovernableFund.sol";
 import "../interfaces/nav/INAVCalculator.sol";
 import "../interfaces/fund/IGovernableFundStorageFunctions.sol";
 
@@ -19,6 +20,11 @@ contract RethinkReader {
 		uint256[] liquidLen;
 		uint256[] nftLen;
 		uint256[] composableLen;
+		uint256[] fundBaseTokenDecimals;
+
+		string[] fundMetadata;
+		string[] fundName;
+		string[] fundBaseTokenSymbol;
 	}
 
 	struct FundNavData {
@@ -27,6 +33,8 @@ contract RethinkReader {
 		int256[][] nft;
 		int256[][] composable;
 	}
+
+	bytes4[] functionSigs = [bytes4(keccak256("_navUpdateLatestIndex()")), bytes4(keccak256("fundMetadata()")), bytes4(keccak256("symbol()")), bytes4(keccak256("decimals()"))];
 
 	constructor(address governableFundFactory, address nftCalculator) {
 		_governableFundFactory = governableFundFactory;
@@ -46,19 +54,28 @@ contract RethinkReader {
 		fd.liquidLen  = new uint256[](arrayLen);
 		fd.nftLen  = new uint256[](arrayLen);
 		fd.composableLen  = new uint256[](arrayLen);
+		fd.fundMetadata = new string[](arrayLen);
+		fd.fundName = new string[](arrayLen);
 
 		for(uint i=0; i<arrayLen;i++) {
-			bytes memory gfcall = abi.encodeWithSelector(
-	            bytes4(keccak256("_navUpdateLatestIndex()"))
-	        );
-	        (bool success0, bytes memory data0) = funds[i].staticcall(gfcall);
-	        require(success0 == true, "fail gf nav entry length");
+	        address fundBaseToken = IGovernableFund(funds[i]).getFundSettings().baseToken;
 
+	        bytes memory data0 = addressStaticCall(funds[i], functionSigs[0]);//_navEntryIndex
+	        bytes memory data1 = addressStaticCall(funds[i], functionSigs[1]);//fundMetadata
+	        bytes memory data2 = addressStaticCall(fundBaseToken, functionSigs[2]);//symbol
+	        bytes memory data3 = addressStaticCall(fundBaseToken, functionSigs[3]);//decimals
+	        
 	        uint256 lnIdx = abi.decode(data0, (uint256));
 
 			fd.startTime[i] = IGovernableFundStorageFunctions(funds[i]).getFundStartTime();
 			fd.totalNav[i] = IGovernableFundStorageFunctions(funds[i]).totalNAV();
 			fd.totalDepositBal[i] = IGovernableFundStorageFunctions(funds[i])._totalDepositBal();
+			fd.fundMetadata[i] = abi.decode(data1, (string));
+			fd.fundName[i] = IGovernableFund(funds[i]).getFundSettings().fundName;
+
+			fd.fundBaseTokenSymbol[i] = abi.decode(data2, (string));
+			fd.fundBaseTokenDecimals[i] = abi.decode(data3, (uint256));
+
 			fd.illiquidLen[i] = INAVCalculator(_nftCalculator).getNAVIlliquidCache(funds[i], lnIdx).length;
 			fd.liquidLen[i] = INAVCalculator(_nftCalculator).getNAVLiquidCache(funds[i], lnIdx).length;
 			fd.nftLen[i] = INAVCalculator(_nftCalculator).getNAVNFTCache(funds[i], lnIdx).length;
@@ -68,13 +85,17 @@ contract RethinkReader {
 		return fd;
 	}
 
-	function getNAVDataForFund(address fund) external view returns (FundNavData memory) {
+	function addressStaticCall(address addr, bytes4 functionSig) private view returns (bytes memory) {
 		bytes memory gfcall = abi.encodeWithSelector(
-            bytes4(keccak256("_navUpdateLatestIndex()"))
+            functionSig
         );
-        (bool success0, bytes memory data0) = fund.staticcall(gfcall);
-        require(success0 == true, "fail gf nav entry length");
+        (bool success0, bytes memory data0) = addr.staticcall(gfcall);
+        require(success0 == true, "fail addr static call");
+        return data0;
+	}
 
+	function getNAVDataForFund(address fund) external view returns (FundNavData memory) {
+		bytes memory data0 = addressStaticCall(fund, functionSigs[0]);//_navEntryIndex
         uint256 navUpdateLatestIndex = abi.decode(data0, (uint256));
 
         FundNavData memory fd;
