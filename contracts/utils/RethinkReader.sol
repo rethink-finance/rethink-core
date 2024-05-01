@@ -56,6 +56,8 @@ contract RethinkReader {
 		fd.composableLen  = new uint256[](arrayLen);
 		fd.fundMetadata = new string[](arrayLen);
 		fd.fundName = new string[](arrayLen);
+		fd.fundBaseTokenSymbol = new string[](arrayLen);
+		fd.fundBaseTokenDecimals = new uint256[](arrayLen);
 
 		for(uint i=0; i<arrayLen;i++) {
 	        address fundBaseToken = IGovernableFund(funds[i]).getFundSettings().baseToken;
