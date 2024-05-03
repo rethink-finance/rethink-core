@@ -76,6 +76,14 @@ abstract contract GovernableFundStorage is IGovernableFundStorage {
 		return navUpdate[index];
 	}
 
+	function getNavUpdateTime() external view returns (uint256[] memory) {
+		uint256[] memory data = new uint256[](_navUpdateLatestIndex);
+		for(uint256 i=0; i<=_navUpdateLatestIndex; i++) {
+			data[i] = navUpdatedTime[i];
+		}
+		return data;
+	}
+
 	function getFeeCollector(FundFeeType feeType) external view returns (address) {
 		return feeCollectorAddress[feeType];
 	}
