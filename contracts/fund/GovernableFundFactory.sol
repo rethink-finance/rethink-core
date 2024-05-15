@@ -232,6 +232,16 @@ contract GovernableFundFactory is Initializable {
         (success,) = rolesModifier.call(rolesSetMultisend);
 	    require(success == true, "fail roles mod setMultisend");
 
+	    /* 
+	    	TODO: THIS IS WHERE PRELOADING ROLES MOD PERMISSIONES NEED TO HAPPEN
+	    	TODO: OWNER IN FUTURE SHOULD BE ROLES MODIFIER METADATA CONTRACT (WHICH IS OWNED BY THE GOVERNANCE)
+
+	    	ROLES MODIFIER METADATA CONTRACT:
+	    		- JSON metadata string
+	    		- Maps metadata string to roles modfifier permisions on targets
+
+	    */
+
 
 	    //transfer ownership on roles modifier to govenor
 	    bytes memory rolesTransferOwnership = abi.encodeWithSelector(
