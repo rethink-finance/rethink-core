@@ -65,7 +65,7 @@ abstract contract NAVLiquid {
 	        uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
         	uint256 priceCumulative = _index == 0 ? price0Cumulative : price1Cumulative;
 
-        	price = ((priceCumulative - (_index == 0 ? price0CumulativeLast : price0CumulativeLast)) / timeElapsed) * 1e8 / 2**112;
+        	price = ((priceCumulative - (_index == 0 ? price0CumulativeLast : price1CumulativeLast)) / timeElapsed) * 1e8 / 2**112;
         	success = true;
 		} else {
 			(success, swapPriceData) = liquidVal.aggregatorAddress.staticcall(liquidVal.functionSignatureWithEncodedInputs);
