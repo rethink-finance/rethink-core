@@ -9,7 +9,7 @@ import "../interfaces/fund/IGovernableFundStorageFunctions.sol";
 
 contract RethinkReader {
 	address _governableFundFactory;
-	address _nftCalculator;
+	address _navCalculator;
 
 	struct FundMetaData {
 		uint256[] startTime;
@@ -42,9 +42,9 @@ contract RethinkReader {
 		bytes4(keccak256("decimals()"))
 	];
 
-	constructor(address governableFundFactory, address nftCalculator) {
+	constructor(address governableFundFactory, address navCalculator) {
 		_governableFundFactory = governableFundFactory;
-		_nftCalculator = nftCalculator;
+		_navCalculator = navCalculator;
 	}
 
 
@@ -84,10 +84,10 @@ contract RethinkReader {
 			fd.fundBaseTokenSymbol[i] = abi.decode(data2, (string));
 			fd.fundBaseTokenDecimals[i] = abi.decode(data3, (uint256));
 
-			fd.illiquidLen[i] = INAVCalculator(_nftCalculator).getNAVIlliquidCache(funds[i], lnIdx).length;
-			fd.liquidLen[i] = INAVCalculator(_nftCalculator).getNAVLiquidCache(funds[i], lnIdx).length;
-			fd.nftLen[i] = INAVCalculator(_nftCalculator).getNAVNFTCache(funds[i], lnIdx).length;
-			fd.composableLen[i] = INAVCalculator(_nftCalculator).getNAVComposableCache(funds[i], lnIdx).length;
+			fd.illiquidLen[i] = INAVCalculator(_navCalculator).getNAVIlliquidCache(funds[i], lnIdx).length;
+			fd.liquidLen[i] = INAVCalculator(_navCalculator).getNAVLiquidCache(funds[i], lnIdx).length;
+			fd.nftLen[i] = INAVCalculator(_navCalculator).getNAVNFTCache(funds[i], lnIdx).length;
+			fd.composableLen[i] = INAVCalculator(_navCalculator).getNAVComposableCache(funds[i], lnIdx).length;
 		}
 
 		return fd;
@@ -124,10 +124,10 @@ contract RethinkReader {
 		fd.encodedNavUpdate = new bytes[](navUpdateLatestIndex);//NOTE: WILL NEED TO BE DECODED BY CLIENT SIDE ABI
 
         for(uint i=0; i<navUpdateLatestIndex;i++) {
-			fd.illiquid[i] = INAVCalculator(_nftCalculator).getNAVIlliquidCache(fund, i);
-			fd.liquid[i] = INAVCalculator(_nftCalculator).getNAVLiquidCache(fund, i);
-			fd.nft[i] = INAVCalculator(_nftCalculator).getNAVNFTCache(fund, i);
-			fd.composable[i] = INAVCalculator(_nftCalculator).getNAVComposableCache(fund, i);
+			fd.illiquid[i] = INAVCalculator(_navCalculator).getNAVIlliquidCache(fund, i);
+			fd.liquid[i] = INAVCalculator(_navCalculator).getNAVLiquidCache(fund, i);
+			fd.nft[i] = INAVCalculator(_navCalculator).getNAVNFTCache(fund, i);
+			fd.composable[i] = INAVCalculator(_navCalculator).getNAVComposableCache(fund, i);
 			bytes memory gfcall = abi.encodeWithSelector(
 				bytes4(keccak256("getNavEntry(uint256)")),
 				i
