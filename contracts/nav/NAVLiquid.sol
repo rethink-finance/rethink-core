@@ -75,7 +75,11 @@ abstract contract NAVLiquid {
 		require(success == true, "remote call failed");
 
 		if (liquidVal.isReturnArray == false) {
-			//price = abi.decode(swapPriceData, (uint256));
+			if (liquidVal.tokenPair != address(0)) {
+				//price = abi.decode(swapPriceData, (uint256));
+			} else {
+				price = abi.decode(swapPriceData, (uint256));				
+			}
 		} else {
 			uint256[] memory priceDataDecoded = abi.decode(swapPriceData, (uint256[]));
 			price = priceDataDecoded[liquidVal.returnIndex];
