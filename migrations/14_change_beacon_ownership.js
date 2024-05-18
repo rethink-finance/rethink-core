@@ -7,13 +7,14 @@ const delay = 10000;
 const execData = "0x";
 const proxy = "";
 const isTest = false;
-const network = "arb1";
+const network = "frax";
 
 //time truffle migrate --reset -f 14 --to 14 --compile-none --skip-dry-run --network=arb1
 
 const multiSigs = {
 	"arb1": "0xd8a5076Da13a2d95062de42dD26CB41B9Daa0B53",
 	"matic": "0x83f2492DB796BF0692C90B65DeBB926bd688fAe5"
+	"frax": "0x59Bc7266991376D75dfe892AA4D36fB0619775D9"
 };
 
 const proxyTypes = [
@@ -50,6 +51,17 @@ const proxies = {
 		"GovernableFundFlowsUpgradeableBeacon": "0x8fE2e9470ceA2E83e8B89502d636CCAb2D1Ca21B",
 		"GovernableFundNavUpgradeableBeacon": "0x89254d6FF377a21aC0b99BD2e456e75b6C76E505",
 		"GovernableContractFactoryUpgradeableBeacon": "0x89483Dc199F70268e3aB79D08301456Fb6aF75f4"
+	},
+	"frax": {
+		"GovernableFundFactoryUpgradeableBeacon": "",
+		"RethinkFundGovernerUpgradeableBeacon": "",
+		"GovernableFundUpgradeableBeacon": "",
+		"WrappedTokenFactoryUpgradeableBeacon": "",
+		"NAVCalculatorUpgradeableBeacon": "",
+		"ZodiacRolesV1ModifierUpgradeableBeacon": "",
+		"GovernableFundFlowsUpgradeableBeacon": "",
+		"GovernableFundNavUpgradeableBeacon": "",
+		"GovernableContractFactoryUpgradeableBeacon": ""
 	}
 };
 module.exports = async function (deployer) {

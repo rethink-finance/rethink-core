@@ -12,11 +12,13 @@ module.exports = async function (deployer) {
 	let gff = await deployer.deploy(GovernableContractFactory);
 	setTimeout(function(){},delay);
 	console.log("GovernableContractFactory singleton is at: "+ GovernableContractFactory.address);
-	
+
+	/*
 	let ub = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
 	//ub.upgradeTo("0xd6d86a6B9207AdB6BFf1949aa440cdE23AdC1e77");
 	ub.upgradeTo(GovernableContractFactory.address);
+	*/
 	
 	/*
   	let gffub = await deployer.deploy(UpgradeableBeacon, GovernableContractFactory.address);

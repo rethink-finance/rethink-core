@@ -21,9 +21,9 @@ module.exports = async function (deployer) {
 	console.log("GovernableFundFactory singleton is at: "+ GovernableFundFactory.address);
 
 	
-	let ub = await UpgradeableBeacon.at(proxy);
-	setTimeout(function(){},delay);
-	ub.upgradeTo(GovernableFundFactory.address);
+	//let ub = await UpgradeableBeacon.at(proxy);
+	//setTimeout(function(){},delay);
+	//ub.upgradeTo(GovernableFundFactory.address);
 	//ub.upgradeTo("0x4fd04f9a76e71debe1cff38436b9d5b742060248");
 
 	/*

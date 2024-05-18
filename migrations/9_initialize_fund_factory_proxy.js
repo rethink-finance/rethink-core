@@ -81,6 +81,22 @@ module.exports = async function (deployer) {
 		  	"0x8fE2e9470ceA2E83e8B89502d636CCAb2D1Ca21B",//GovernableFundNavUpgradeableBeacon b
 		  	"0x89254d6FF377a21aC0b99BD2e456e75b6C76E505"//governableContractFactorySingletonAddress b
 		  );
+		} else if (network == 'frax') {
+			gff = await GovernableFundFactory.at("0x79b15F47640C4e3ac3A9c4B7f1B999a8cccEEeC7");
+			await gff.initialize(
+		  	"",//governor b
+		  	"",//fund b
+		  	"0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2",//safeProxyFactory
+		  	"0x3E5c63644E683549055b9Be8653de26E0B4CD36E",//safeSingleton
+		  	"0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4",//safeFallbackHandler
+		  	"0x40A2aCCbd92BCA938b02010E17A5b8929b49130D", //safeMultisendAddress frax
+		  	"", //WrappedTokenFactoryUpgradeableBeacon, b
+		  	"",//NAVCalculatorBeaconProxy bp
+		  	"",//ZodiacRolesV1ModifierUpgradeableBeacon b 
+		  	"",//fundDelgateCallFlowSingletonAddress b
+		  	"",//GovernableFundNavUpgradeableBeacon b
+		  	""//governableContractFactorySingletonAddress b
+		  );
 		}
 	}
 }

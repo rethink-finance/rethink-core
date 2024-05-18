@@ -14,10 +14,11 @@ module.exports = async function (deployer) {
 	  let d = await deployer.deploy(GovernableFundNav);
 	  setTimeout(function(){},delay);
 	  console.log("GovernableFundNav singleton is at: "+ GovernableFundNav.address);
-
+	  /*
 	  let p = await UpgradeableBeacon.at(proxy);
 	  setTimeout(function(){},delay);
 	  p.upgradeTo(GovernableFundNav.address);
+	  */
 	  /*
 	  let gfnavub = await deployer.deploy(UpgradeableBeacon, GovernableFundNav.address);
 	  setTimeout(function(){},delay);

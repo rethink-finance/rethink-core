@@ -24,9 +24,9 @@ module.exports = async function (deployer) {
 	console.log("NAVCalculator singleton is at: "+ NAVCalculator.address);
 	/**/
 
-	let p = await UpgradeableBeacon.at(proxy);
-	setTimeout(function(){},delay);
-	p.upgradeTo(NAVCalculator.address);
+	//let p = await UpgradeableBeacon.at(proxy);
+	//setTimeout(function(){},delay);
+	//p.upgradeTo(NAVCalculator.address);
 	//p.upgradeTo("0x7a1f370658b4a17b0b5346fdef8809d5e73ddaa1");
 	//console.log(p);
 }

@@ -11,7 +11,7 @@ const GovernableContractFactory = artifacts.require("GovernableContractFactory")
 
 const delay = 10000;
 
-const isTest = true;
+const isTest = false;
 var owner;
 if (isTest == true){
   owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
@@ -19,9 +19,12 @@ if (isTest == true){
 } else {
   owner ="0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337"
 }
+//time truffle migrate --reset -f 2 --to 2 --skip-dry-run --compile-none --network=frax
+
 const execData = "0x";
 module.exports = async function (deployer, network, accounts) {
 
+  /*
   let wtf = await deployer.deploy(WrappedTokenFactory);
   setTimeout(function(){},delay);
   console.log("WrappedTokenFactory is at: "+ WrappedTokenFactory.address);
@@ -40,8 +43,11 @@ module.exports = async function (deployer, network, accounts) {
   let gffub = await deployer.deploy(UpgradeableBeacon, gff.address);
   setTimeout(function(){},delay);
   console.log("GovernableFundFactoryUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
+  */
 
-  let gffbprox = await deployer.deploy(BeaconProxy, UpgradeableBeacon.address, execData);
+
+  //let gffbprox = await deployer.deploy(BeaconProxy, UpgradeableBeacon.address, execData);
+  let gffbprox = await deployer.deploy(BeaconProxy, "0x4C342E583A7Aa2840e07B4a3afB71533FBE37726", execData);
   setTimeout(function(){},delay);
   console.log("GovernableFundFactoryBeaconProxy is at: "+ BeaconProxy.address);
 

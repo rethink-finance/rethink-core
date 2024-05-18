@@ -16,11 +16,12 @@ module.exports = async function (deployer) {
 	  setTimeout(function(){},delay);
 	  console.log("GovernableFundFlows singleton is at: "+ GovernableFundFlows.address);
 	 /* */
-
+	  /*
 	  let p = await UpgradeableBeacon.at(proxy);
 	  setTimeout(function(){},delay);
 	  //p.upgradeTo("0x685529B78C931E646335DA952494458eD69C508A");
 	  p.upgradeTo(GovernableFundFlows.address);
+	  */
 
 	  /*
 	  let gfflowub = await deployer.deploy(UpgradeableBeacon, GovernableFundFlows.address);
