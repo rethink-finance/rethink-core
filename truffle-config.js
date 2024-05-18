@@ -104,11 +104,46 @@ module.exports = {
       deploymentPollingInterval: 16000,
       network_id: 42161,
       chain_id: 42161,
-      maxFeePerGas: 15e7, // .2 gewi
-      maxPriorityFeePerGas: 15e7, // .2 gewi
+      maxFeePerGas: 3e7, // .03 gewi
+      maxPriorityFeePerGas: 3e7, // .03 gewi
       networkCheckTimeout: 1000000,
       timeoutBlocks: 200,
       //gas: 1000000000
+    },
+
+    frax: {
+      provider: function() {
+        return new HDWalletProvider({
+            privateKeys: [process.env.MAINNET_RETHINK_PRIVATE_KEY], 
+            providerOrUrl: "https://rpc.frax.com",//"https://arb1.arbitrum.io/rpc",//https://rpc.ankr.com/arbitrum
+            retryTimeout: 4000,
+            pollingInterval: 8000,
+        })
+      },
+      deploymentPollingInterval: 16000,
+      network_id: 252,
+      chain_id: 252,
+      maxFeePerGas: 2e5, // 0.0002 gwei
+      maxPriorityFeePerGas: 2e5, // 0.000101015 gwei
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
+      //gas: 1000000000
+    },
+
+    eth: {
+      provider: function() {
+        return new HDWalletProvider({
+            privateKeys: [process.env.MAINNET_RETHINK_PRIVATE_KEY], 
+            providerOrUrl: "https://eth.drpc.org",
+            //providerOrUrl: "https://polygon-testnet.blastapi.io/4d2d0ede-b1cd-43fa-a3b0-db1fefae4322",
+            retryTimeout: 4000,
+            pollingInterval: 8000,
+        })
+      },
+      deploymentPollingInterval: 16000,
+      network_id: 1,
+      networkCheckTimeout: 1000000,
+      timeoutBlocks: 200,
     },
   
     matic: {
@@ -125,7 +160,7 @@ module.exports = {
       network_id: 137,
       networkCheckTimeout: 1000000,
       timeoutBlocks: 200,
-      gasPrice: 801e8 // 60.1 gewi
+      gasPrice: 301e8 // 30.1 gewi
     },
 
     mumbai: {
