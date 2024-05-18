@@ -24,7 +24,6 @@ if (isTest == true){
 const execData = "0x";
 module.exports = async function (deployer, network, accounts) {
 
-  /*
   let wtf = await deployer.deploy(WrappedTokenFactory);
   setTimeout(function(){},delay);
   console.log("WrappedTokenFactory is at: "+ WrappedTokenFactory.address);
@@ -43,11 +42,10 @@ module.exports = async function (deployer, network, accounts) {
   let gffub = await deployer.deploy(UpgradeableBeacon, gff.address);
   setTimeout(function(){},delay);
   console.log("GovernableFundFactoryUpgradeableBeacon is at: "+ UpgradeableBeacon.address);
-  */
 
 
-  //let gffbprox = await deployer.deploy(BeaconProxy, UpgradeableBeacon.address, execData);
-  let gffbprox = await deployer.deploy(BeaconProxy, "0x4C342E583A7Aa2840e07B4a3afB71533FBE37726", execData);
+  let gffbprox = await deployer.deploy(BeaconProxy, UpgradeableBeacon.address, execData);
+  //let gffbprox = await deployer.deploy(BeaconProxy, "0x4C342E583A7Aa2840e07B4a3afB71533FBE37726", execData);
   setTimeout(function(){},delay);
   console.log("GovernableFundFactoryBeaconProxy is at: "+ BeaconProxy.address);
 
@@ -91,8 +89,8 @@ module.exports = async function (deployer, network, accounts) {
       from: accounts[0],
       //gas: 8000000,
       //gas: 1000000000,//arb1
-      maxFeePerGas: 15e7,//arb1
-      maxPriorityFeePerGas: 15e7, // .2 gewi//arb1
+      maxFeePerGas: 2e5,//frax
+      maxPriorityFeePerGas: 2e5, // .2 gewi//frax
       data: rolesInitCode
   })).contractAddress;
 

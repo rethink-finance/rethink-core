@@ -53,15 +53,15 @@ const proxies = {
 		"GovernableContractFactoryUpgradeableBeacon": "0x89483Dc199F70268e3aB79D08301456Fb6aF75f4"
 	},
 	"frax": {
-		"GovernableFundFactoryUpgradeableBeacon": "",
-		"RethinkFundGovernerUpgradeableBeacon": "",
-		"GovernableFundUpgradeableBeacon": "",
-		"WrappedTokenFactoryUpgradeableBeacon": "",
-		"NAVCalculatorUpgradeableBeacon": "",
-		"ZodiacRolesV1ModifierUpgradeableBeacon": "",
-		"GovernableFundFlowsUpgradeableBeacon": "",
-		"GovernableFundNavUpgradeableBeacon": "",
-		"GovernableContractFactoryUpgradeableBeacon": ""
+		"GovernableFundFactoryUpgradeableBeacon": "0x4C342E583A7Aa2840e07B4a3afB71533FBE37726",
+		"RethinkFundGovernerUpgradeableBeacon": "0xA2eC20a1D6139890962989d5F33DBF03BFbf0dD1",
+		"GovernableFundUpgradeableBeacon": "0x296203D903178e17DEF9C3891A578278aA230754",
+		"WrappedTokenFactoryUpgradeableBeacon": "0x79b15F47640C4e3ac3A9c4B7f1B999a8cccEEeC7",
+		"NAVCalculatorUpgradeableBeacon": "0x248a64e3EDd3F521ef2Aa6A3e804845B5A1C8008",
+		"ZodiacRolesV1ModifierUpgradeableBeacon": "0x463F9eE917F71B7DB1c81fbFe44A95a4f5B540a6",
+		"GovernableFundFlowsUpgradeableBeacon": "0x5b8137fC792f1d054099fb2B7EEb7e575Ee8403B",
+		"GovernableFundNavUpgradeableBeacon": "0x26cEb3873ad8A3dee2e5d3d67d2d0800704B9fb5",
+		"GovernableContractFactoryUpgradeableBeacon": "0x9C3bEa435Ed4100E67a962712D727F79853792a4"
 	}
 };
 module.exports = async function (deployer) {

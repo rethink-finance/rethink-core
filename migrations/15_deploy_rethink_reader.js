@@ -12,7 +12,7 @@ const isTest = false;
 
 module.exports = async function (deployer) {
 	
-	//	constructor(address governableFundFactory, address nftCalculator) {
+	//	constructor(address governableFundFactory, address navCalculator) {
 
 	if (isTest == true) {
 		let rr = await deployer.deploy(RethinkReader, "0x2e71Eef0AE6C82902B6458655A36BfD7B76E6B2D", "0x26d70661664Fc2b4a1519Fa5766ccFF7E384a12F");
@@ -29,7 +29,7 @@ module.exports = async function (deployer) {
 			setTimeout(function(){},delay);
 			console.log("RethinkReader singleton is at: "+ RethinkReader.address);
 		} else if (network == 'frax') {
-			let rr = await deployer.deploy(RethinkReader, "", "");
+			let rr = await deployer.deploy(RethinkReader, "0x9825a09FbC727Bb671f08Fa66e3508a2e8938d45", "0x045d6611b93bC7d046c2bA90a780F4577F78e33A");
 			setTimeout(function(){},delay);
 			console.log("RethinkReader singleton is at: "+ RethinkReader.address);
 		}
