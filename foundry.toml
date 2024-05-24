@@ -51,9 +51,10 @@ ignored_error_codes = [1878, 5574]
 # Whether contract build warnings will cause compilation to fail
 deny_warnings = false
 # Configures the permissions of cheat codes that touch the file system
-fs_permissions = []
+fs_permissions = [{ access = "read", path = "./out/"}]
+ast = true
 # Whether to emit additional build info files
-build_info = false
+build_info = true
 # Whether or not to enable `vm.ffi`
 ffi = false
 # The address of `msg.sender` in tests
@@ -81,7 +82,7 @@ block_difficulty = 0
 # The memory limit of the EVM (32 MB by default)
 memory_limit = 33554432
 # Extra output to include in the contract's artifact.
-extra_output = []
+extra_output = ['storageLayout']
 # Extra output to write to separate files.
 extra_output_files = []
 # Print the names of the compiled contracts
@@ -132,7 +133,7 @@ rpc_endpoints = { optimism = "https://optimism.alchemyapi.io/v2/...", mainnet = 
 # The block gas limit
 #block_gas_limit = None
 # The path to the `build-info` directory that contains the build info json files
-#build_info_path = None
+build_info_path = 'out/build-info'
 
 [fmt]
 # Maximum line length where formatter will try to wrap the line

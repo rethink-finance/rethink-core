@@ -10,8 +10,8 @@ contract TestFundCreation is Base {
 	
 	function testFundCreationDefault() public {
 		address[] memory allowedDepositAddrs;
-		//address fundAddr = this.createTestFund(address(this), allowedDepositAddrs, address(0));
-		this.createTestFundTest(address(this), allowedDepositAddrs, address(0));
+		address fundAddr = this.createTestFund(address(this), allowedDepositAddrs, address(0));
+		//this.createTestFundTest(address(this), allowedDepositAddrs, address(0));
 	}
 
 	function testFundCreationExternalNonERC20VotesNonTransferableCompatGov() public {

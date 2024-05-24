@@ -14,21 +14,38 @@ import "./InitSafeRolesModule.sol";
 //https://wizard.openzeppelin.com/#governor
 
 contract GovernableFundFactory is Initializable {
-	address _governor;
-	address _fund;
-	address _safeProxyFactory;
-	address _safeSingleton;
-	address _safeFallbackHandler;
-	address _wrappedTokenFactory;
-	address _navCalculatorAddress;
-	address _zodiacRolesModifierModule;//TODO: do we need to deploy our own roles contract? https://github.com/gnosis/zodiac-modifier-roles-v1/raw/main/packages/evm/contracts/Roles.sol
-	address _fundDelgateCallFlowSingletonAddress;
-	address _fundDelgateCallNavSingletonAddress;
+	/*
+		address _governor;
+		address _fund;
+		address _safeProxyFactory;
+		address _safeSingleton;
+		address _safeFallbackHandler;
+		address _wrappedTokenFactory;
+		address _navCalculatorAddress;
+		address _zodiacRolesModifierModule;//TODO: do we need to deploy our own roles contract? https://github.com/gnosis/zodiac-modifier-roles-v1/raw/main/packages/evm/contracts/Roles.sol
+		address _fundDelgateCallFlowSingletonAddress;
+		address _fundDelgateCallNavSingletonAddress;
+	*/
+	address[] _initAddrs;
 	address[] _registeredFunds;
 
+
+	/*
+		_initAddrs[0] -> _governor;
+		_initAddrs[1] -> _fund;
+		_initAddrs[2] -> _safeProxyFactory;
+		_initAddrs[3] -> _safeSingleton;
+		_initAddrs[4] -> _safeFallbackHandler;
+		_initAddrs[5] -> _safeMultisendAddress;
+		_initAddrs[6] -> _wrappedTokenFactory;
+		_initAddrs[7] -> _navCalculatorAddress;
+		_initAddrs[8] -> _zodiacRolesModifierModule;//TODO: do we need to deploy our own roles contract? https://github.com/gnosis/zodiac-modifier-roles-v1/raw/main/packages/evm/contracts/Roles.sol
+		_initAddrs[9] -> _fundDelgateCallFlowSingletonAddress;
+		_initAddrs[10] -> _fundDelgateCallNavSingletonAddress;
+		_initAddrs[11] -> _governableContractFactory;
+	*/
+
 	mapping(address => address) baseTokenOracleMapping;//TODO: NOT IMP FOR STORAGE
-	address _governableContractFactory;
-	address _safeMultisendAddress;
 
 	struct GovernorParams {
 		uint256 quorumFraction;
@@ -43,8 +60,8 @@ contract GovernableFundFactory is Initializable {
         _disableInitializers();
     }
 
-	// keccak256(toUtf8Bytes('Safe Account Abstraction'))
-	uint256 PREDETERMINED_SALT_NONCE = 0xb1073742015cbcf5a3a4d9d1ae33ecf619439710b89475f92e2abd2117e90f90;
+	// keccak256(toUtf8Bytes('Safe Account Abstraction')) -> 0xb1073742015cbcf5a3a4d9d1ae33ecf619439710b89475f92e2abd2117e90f90
+	uint256 PREDETERMINED_SALT_NONCE;
 
 	/*
 	https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/
@@ -60,20 +77,15 @@ contract GovernableFundFactory is Initializable {
 		safeMultisendAddress -> "https://polygonscan.com/address/0x40A2aCCbd92BCA938b02010E17A5b8929b49130D"
 	*/
 	
-	function initialize(address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address safeMultisendAddress, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external initializer {
+	//function initialize(uint256 _PREDETERMINED_SALT_NONCE, address governor, address fund, address safeProxyFactory, address safeSingleton, address safeFallbackHandler, address safeMultisendAddress, address wrappedTokenFactory, address navCalculatorAddress, address zodiacRolesModifierModule, address fundDelgateCallFlowSingletonAddress, address fundDelgateCallNavSingletonAddress, address governableContractFactorySingletonAddress) external initializer {
+	
+	function initialize(uint256 _PREDETERMINED_SALT_NONCE, address[] calldata initAddrs) external initializer {
+		PREDETERMINED_SALT_NONCE = _PREDETERMINED_SALT_NONCE;
 
-		_governor = governor;
-		_fund = fund;
-		_safeProxyFactory = safeProxyFactory;
-		_safeSingleton = safeSingleton;
-		_safeFallbackHandler = safeFallbackHandler;
-		_safeMultisendAddress = safeMultisendAddress;
-		_wrappedTokenFactory = wrappedTokenFactory;
-		_navCalculatorAddress = navCalculatorAddress;
-		_zodiacRolesModifierModule = zodiacRolesModifierModule;
-		_fundDelgateCallFlowSingletonAddress = fundDelgateCallFlowSingletonAddress;
-		_fundDelgateCallNavSingletonAddress = fundDelgateCallNavSingletonAddress;
-		_governableContractFactory = governableContractFactorySingletonAddress;
+		//add addrs to array in order
+		for(uint i=0; i < initAddrs.length; i++) {
+			_initAddrs.push(initAddrs[i]);
+		}
 	}
 
 	function registeredFundsLength() public view returns (uint256) {
@@ -105,12 +117,12 @@ contract GovernableFundFactory is Initializable {
 		        if (success == true) {
 	        		//not compatable, not transferable, cannot use address directly, create ve-wrapper
             		govToken = IWrappedTokenFactory(
-            			IBeacon(_wrappedTokenFactory).implementation()
+            			IBeacon(_initAddrs[6]).implementation()
             		).createVeWrappedToken(fundSettings.governanceToken);
 		        } else {
 	            	//not compatable, can not use address directly in RethinkFundGovernor, create wrapper
             		govToken = IWrappedTokenFactory(
-            			IBeacon(_wrappedTokenFactory).implementation()
+            			IBeacon(_initAddrs[6]).implementation()
             		).createWrappedToken(fundSettings.governanceToken);
             	}
             	fundSettings.governanceToken = govToken;
@@ -119,22 +131,22 @@ contract GovernableFundFactory is Initializable {
 	    }
 
 	    //create proxy around governor
-	    address govContractAddr = address(new BeaconProxy(_governor, ""));
+	    address govContractAddr = address(new BeaconProxy(_initAddrs[0], ""));
 
 	    /*
 	    	NOTE: enabling zodiac role modifier enable modules from data field, but can be and external contract that can run any priveleged functions on safe state.because this is doing a delegatecall
 	    */
 
 	    //create proxy around zodiac roles modifier making governance contract owner of role
-	    address rolesModifier = address(new BeaconProxy(_zodiacRolesModifierModule, ""));
+	    address rolesModifier = address(new BeaconProxy(_initAddrs[8], ""));
 
 	    //create proxy around fund
 	    address fundContractAddr = IGovernableContractFactory(
-	    	IBeacon(_governableContractFactory).implementation()
-	    ).createFundBeaconProxy(_fund);
+	    	IBeacon(_initAddrs[11]).implementation()
+	    ).createFundBeaconProxy(_initAddrs[1]);
 
 	    address rolesModuleInitializer = IGovernableContractFactory(
-	    	IBeacon(_governableContractFactory).implementation()
+	    	IBeacon(_initAddrs[11]).implementation()
 	    ).createRolesMod(govContractAddr, rolesModifier, fundContractAddr);
 
 	    bytes memory enableZodiacModule = abi.encodeWithSelector(
@@ -157,7 +169,7 @@ contract GovernableFundFactory is Initializable {
 	    );
 
 	    //create safe proxy w/ gov token + govener
-	    address safeProxyAddr = address(ISafeProxyFactory(_safeProxyFactory).createProxyWithNonce(_safeSingleton, initializer, PREDETERMINED_SALT_NONCE));
+	    address safeProxyAddr = address(ISafeProxyFactory(_initAddrs[2]).createProxyWithNonce(_initAddrs[3], initializer, PREDETERMINED_SALT_NONCE));
 	    fundSettings.safe = safeProxyAddr;
 	    
 	    _registeredFunds.push(fundContractAddr);
@@ -192,9 +204,9 @@ contract GovernableFundFactory is Initializable {
     		fundSettings.fundName,
     		fundSettings.fundSymbol,
     		fundSettings, 
-    		_navCalculatorAddress, 
-    		_fundDelgateCallFlowSingletonAddress, 
-    		_fundDelgateCallNavSingletonAddress,
+    		_initAddrs[7], 
+    		_initAddrs[9], 
+    		_initAddrs[10],
     		_fundMetadata,
     		_feePerformancePeriod,
     		_feeManagePeriod
@@ -227,7 +239,7 @@ contract GovernableFundFactory is Initializable {
 	    //set multisend addr on roles modifier
 	    bytes memory rolesSetMultisend = abi.encodeWithSelector(
             bytes4(keccak256("setMultisend(address)")),
-            _safeMultisendAddress
+            _initAddrs[5]
         );
         (success,) = rolesModifier.call(rolesSetMultisend);
 	    require(success == true, "fail roles mod setMultisend");
