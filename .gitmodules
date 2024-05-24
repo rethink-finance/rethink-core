@@ -25,6 +25,3 @@
 [submodule "lib/zodiac-modifier-roles-v1"]
 	path = lib/zodiac-modifier-roles-v1
 	url = https://github.com/gnosisguild/zodiac-modifier-roles-v1
-[submodule "lib/openzeppelin-foundry-upgrades"]
-	path = lib/openzeppelin-foundry-upgrades
-	url = https://github.com/OpenZeppelin/openzeppelin-foundry-upgrades

@@ -1,6 +1,7 @@
 [profile.default]
 # The source directory
 src = 'contracts'
+#src = 'lib/zodiac-modifier-roles-v1/packages/evm/contracts'
 # The test directory
 test = 'test'
 # The script directory
