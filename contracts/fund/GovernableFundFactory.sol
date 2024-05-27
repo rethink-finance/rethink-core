@@ -55,6 +55,11 @@ contract GovernableFundFactory is Initializable {
 		uint256 proposalThreshold;
 	}
 
+	struct LocalVariables {
+		address gcfImpAddr;
+		address safeProxyAddr;
+	}
+
 	/// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -140,13 +145,17 @@ contract GovernableFundFactory is Initializable {
 	    //create proxy around zodiac roles modifier making governance contract owner of role
 	    address rolesModifier = address(new BeaconProxy(_initAddrs[8], ""));
 
+	    LocalVariables memory lv;
+
+	    lv.gcfImpAddr = IBeacon(_initAddrs[11]).implementation();
+
 	    //create proxy around fund
 	    address fundContractAddr = IGovernableContractFactory(
-	    	IBeacon(_initAddrs[11]).implementation()
+	    	lv.gcfImpAddr
 	    ).createFundBeaconProxy(_initAddrs[1]);
 
 	    address rolesModuleInitializer = IGovernableContractFactory(
-	    	IBeacon(_initAddrs[11]).implementation()
+	    	lv.gcfImpAddr
 	    ).createRolesMod(govContractAddr, rolesModifier, fundContractAddr);
 
 	    bytes memory enableZodiacModule = abi.encodeWithSelector(
@@ -169,8 +178,8 @@ contract GovernableFundFactory is Initializable {
 	    );
 
 	    //create safe proxy w/ gov token + govener
-	    address safeProxyAddr = address(ISafeProxyFactory(_initAddrs[2]).createProxyWithNonce(_initAddrs[3], initializer, PREDETERMINED_SALT_NONCE));
-	    fundSettings.safe = safeProxyAddr;
+	    lv.safeProxyAddr = address(ISafeProxyFactory(_initAddrs[2]).createProxyWithNonce(_initAddrs[3], initializer, PREDETERMINED_SALT_NONCE));
+	    fundSettings.safe = lv.safeProxyAddr;
 	    
 	    _registeredFunds.push(fundContractAddr);
 
@@ -194,7 +203,7 @@ contract GovernableFundFactory is Initializable {
 	    require(settings.governor != address(0), "fail fund init");
 
 	    //init role mod
-	    initRoleMod(safeProxyAddr, rolesModifier, govContractAddr);
+	    initRoleMod(lv.safeProxyAddr, rolesModifier, govContractAddr);
 
 	    return fundContractAddr;
     }
