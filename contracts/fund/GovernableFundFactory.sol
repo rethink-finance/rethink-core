@@ -171,7 +171,7 @@ contract GovernableFundFactory is Initializable {
 	    	1,
 	    	rolesModuleInitializer,//to for setupModules, otherwise, should be null if data is null
 	    	enableZodiacModule,//data setupModules
-	    	address(0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4),//_safeFallbackHandler,
+	    	_initAddrs[4],//_safeFallbackHandler,
 	    	address(0),
 	    	0,
 	    	address(0)

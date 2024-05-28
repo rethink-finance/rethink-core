@@ -51,7 +51,7 @@ ignored_error_codes = [1878, 5574]
 # Whether contract build warnings will cause compilation to fail
 deny_warnings = false
 # Configures the permissions of cheat codes that touch the file system
-fs_permissions = [{ access = "read", path = "./out/"}]
+fs_permissions = [{ access = "read", path = "./out/"}, { access = "read", path = "./data/"}]
 ast = true
 # Whether to emit additional build info files
 build_info = true
