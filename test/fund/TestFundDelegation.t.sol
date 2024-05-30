@@ -15,10 +15,10 @@ contract TestFundDelegation is Base {
 	     address fundAddr = createTestFund(address(this), allowedDepositAddrs, address(0));
 		 vm.stopPrank();
 
-        //IGovernableFundStorage.Settings memory settings = IGovernableFund(fundAddr).getFundSettings();
-        //Agent bob = new Agent();
-        //bob.requestDeposit(settings.baseToken, fundAddr, 10e18);
-        //bob.deposit(fundAddr);
-        //bob.delegate(fundAddr, address(bob));
+        IGovernableFundStorage.Settings memory settings = IGovernableFund(fundAddr).getFundSettings();
+        Agent bob = new Agent();
+        bob.requestDeposit(settings.baseToken, fundAddr, 10e18);
+        bob.deposit(fundAddr);
+        bob.delegate(fundAddr, address(bob));
 	}
 }

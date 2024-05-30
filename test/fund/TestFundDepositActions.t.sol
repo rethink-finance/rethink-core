@@ -24,7 +24,7 @@ contract TestFundDepositActions is Base {
         bob.requestDeposit(settings.baseToken, fundAddr, 10e18);
         bob.revokeDeposit(fundAddr);
 	}
-	function testFundDeposit() public {
+	function testFundDepositOnly() public {
 		address[] memory allowedDepositAddrs;
 		address fundAddr = this.createTestFund(address(this), allowedDepositAddrs, address(0));
 

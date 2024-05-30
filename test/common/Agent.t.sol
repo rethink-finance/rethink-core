@@ -36,7 +36,7 @@ contract Agent {
 	function deposit(address fund) public {
 		//deposit into fund
 		bytes memory deposit = abi.encodeWithSelector(
-            bytes4(keccak256("deposit"))
+            bytes4(keccak256("deposit()"))
         );
         (bool success,) = fund.call(deposit);
         require(success == true, "fail deposit");
@@ -63,7 +63,7 @@ contract Agent {
 	function withdraw(address fund) public {
 		//withdraw from fund
 		bytes memory withdraw = abi.encodeWithSelector(
-            bytes4(keccak256("withdraw"))
+            bytes4(keccak256("withdraw()"))
         );
         (bool success,) = fund.call(withdraw);
         require(success == true, "fail withdraw");
