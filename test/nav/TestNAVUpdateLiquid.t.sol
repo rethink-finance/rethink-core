@@ -72,7 +72,6 @@ contract TestNAVUpdateLiquid is Base {
         vm.warp(block.timestamp + 2);
         vm.roll(block.number + 2);
         IGovernor(settings.governor).castVote(proposalId, 1);
-
         vm.warp(block.timestamp + 85000);
         vm.roll(block.number + 85000);
 

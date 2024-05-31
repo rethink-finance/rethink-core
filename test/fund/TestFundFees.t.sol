@@ -44,9 +44,9 @@ contract TestFundFees is Base {
         bob.delegate(fundAddr, address(bob));
 
 
-        address[] memory targets;
+        address[] memory targets = new address[](1);
         targets[0] = fundAddr;
-        uint256[] memory values;
+        uint256[] memory values = new uint256[](1);
         values[0] = 0;
 
         bytes memory collectDepositWithdrwalFees = abi.encodeWithSelector(
@@ -54,7 +54,7 @@ contract TestFundFees is Base {
             0//0 -> deposit/withdrawl, 2 -> manager fees, 3 -> performance fees
         );
 
-        bytes[] memory calldatas;
+        bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = collectDepositWithdrwalFees;
         string memory description = "testDepositWithdrawFeeCollectionDAODisabled";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
@@ -97,9 +97,9 @@ contract TestFundFees is Base {
         bob.delegate(fundAddr, address(bob));
 
 
-        address[] memory targets;
+        address[] memory targets = new address[](1);
         targets[0] = fundAddr;
-        uint256[] memory values;
+        uint256[] memory values = new uint256[](1);
         values[0] = 0;
 
         bytes memory collectDepositWithdrwalFees = abi.encodeWithSelector(
@@ -107,7 +107,7 @@ contract TestFundFees is Base {
             2//0 -> deposit/withdrawl, 2 -> manager fees, 3 -> performance fees
         );
 
-        bytes[] memory calldatas;
+        bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = collectDepositWithdrwalFees;
         string memory description = "testManagementFeeCollectionDAODisabled";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
@@ -119,9 +119,11 @@ contract TestFundFees is Base {
         	description
         );
 
+        vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
         IGovernor(settings.governor).castVote(proposalId, 1);
-
         vm.warp(block.timestamp + 85000);
+        vm.roll(block.number + 85000);
         
         IGovernor(settings.governor).execute(
 	        targets,
@@ -174,9 +176,11 @@ contract TestFundFees is Base {
         	description
         );
 
+        vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
         IGovernor(settings.governor).castVote(proposalId, 1);
-
         vm.warp(block.timestamp + 85000);
+        vm.roll(block.number + 85000);
         
         IGovernor(settings.governor).execute(
 	        targets,
@@ -249,9 +253,11 @@ contract TestFundFees is Base {
         	description
         );
 
+        vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
         IGovernor(settings.governor).castVote(proposalId, 1);
-
         vm.warp(block.timestamp + 85000);
+        vm.roll(block.number + 85000);
         
         IGovernor(settings.governor).execute(
 	        targets,
@@ -304,9 +310,11 @@ contract TestFundFees is Base {
         	description
         );
 
+        vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
         IGovernor(settings.governor).castVote(proposalId, 1);
-
         vm.warp(block.timestamp + 85000);
+        vm.roll(block.number + 85000);
         
         IGovernor(settings.governor).execute(
 	        targets,
@@ -359,9 +367,11 @@ contract TestFundFees is Base {
         	description
         );
 
+        vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
         IGovernor(settings.governor).castVote(proposalId, 1);
-
         vm.warp(block.timestamp + 85000);
+        vm.roll(block.number + 85000);
         
         IGovernor(settings.governor).execute(
 	        targets,
