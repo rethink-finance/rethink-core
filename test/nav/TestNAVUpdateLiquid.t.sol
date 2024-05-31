@@ -21,15 +21,17 @@ contract TestNAVUpdateLiquid is Base {
         bob.deposit(fundAddr);
         bob.delegate(fundAddr, address(bob));
 
-		address[] memory targets;
+		address[] memory targets = new address[](1);
         targets[0] = fundAddr;
-        uint256[] memory values;
+        uint256[] memory values = new uint256[](1);
         values[0] = 0;
 
 		address tokenPair = address(new MockUniV2Pair());
 		bytes memory functionSignatureWithEncodedInputs;
-		IGovernableFundStorage.NavUpdateEntry[] memory navEntries;
-		IGovernableFundStorage.NAVLiquidUpdate[] memory liquid;
+		IGovernableFundStorage.NavUpdateEntry[] memory navEntries = new IGovernableFundStorage.NavUpdateEntry[](1);
+		IGovernableFundStorage.NAVLiquidUpdate[] memory liquid = new IGovernableFundStorage.NAVLiquidUpdate[](1);
+
+		//TODO: need to properly mock this
 
 		liquid[0] = IGovernableFundStorage.NAVLiquidUpdate(
 			tokenPair,
@@ -55,7 +57,7 @@ contract TestNAVUpdateLiquid is Base {
             navEntries
         );
 
-        bytes[] memory calldatas;
+        bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = computeNavUpdate;
         string memory description = "testLiquidCalculation";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
@@ -67,10 +69,13 @@ contract TestNAVUpdateLiquid is Base {
         	description
         );
 
+        vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
         IGovernor(settings.governor).castVote(proposalId, 1);
 
         vm.warp(block.timestamp + 85000);
-        
+        vm.roll(block.number + 85000);
+
         IGovernor(settings.governor).execute(
 	        targets,
 	        values,
