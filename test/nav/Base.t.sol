@@ -16,6 +16,8 @@ import "../../contracts/fund/RethinkFundGovernor.sol";
 import "../../contracts/token/ERC20Mock.sol";
 
 import "../../contracts/interfaces/fund/IGovernableFundFactory.sol";
+import "../../contracts/interfaces/nav/INAVCalculator.sol";
+
 
 import "@gnosis.pm/safe-contracts/contracts/proxies/GnosisSafeProxyFactory.sol";
 import "@gnosis.pm/safe-contracts/contracts/GnosisSafeL2.sol";
@@ -49,12 +51,12 @@ contract Base is Test {
 
     address gff;
     address gffub;
+    BaseVariables bv;
 
     function setUp() public {
         gffub = UnsafeUpgrades.deployBeacon("GovernableFundFactory.sol", address(this));
         gff = address(new BeaconProxy(gffub, ""));
 
-        BaseVariables memory bv;
         bv.wtfub = address(new UpgradeableBeacon(address(new WrappedTokenFactory())));
         bv.navcalcub = address(new UpgradeableBeacon(address(new NAVCalculator())));
         bv.navcalcbp = address(new BeaconProxy(bv.navcalcub, ""));

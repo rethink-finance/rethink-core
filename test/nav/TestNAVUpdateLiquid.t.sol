@@ -59,6 +59,9 @@ contract TestNAVUpdateLiquid is Base {
 			0
 		);
 
+		//function liquidCalculationReadOnly(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external view returns (uint256);
+
+
 		navEntries[0].entryType = IGovernableFundStorage.NavUpdateType.NAVLiquidUpdateType;
 		navEntries[0].liquid  = liquid;
 		navEntries[0].isPastNAVUpdate = false;
@@ -66,9 +69,25 @@ contract TestNAVUpdateLiquid is Base {
 		navEntries[0].pastNAVUpdateEntryIndex = 0;
 		navEntries[0].description = "Mock Token Pair Price";
 
+		/*
+		INAVCalculator(_navCalculatorAddress).liquidCalculation(
+			navEntries[0].liquid,
+			settings.safe,
+			address(this),
+			0,
+			navEntries[0].isPastNAVUpdate,
+			navEntries[0].pastNAVUpdateIndex,
+			navEntries[0].pastNAVUpdateEntryIndex,
+			lv.targets[0]
+		);
+
+		*/
+
         bytes memory computeNavUpdate = abi.encodeWithSelector(
             IGovernableFund.updateNav.selector,
-            navEntries
+            navEntries,
+            lv.targets,
+            true
         );
 
         bytes[] memory calldatas = new bytes[](1);
