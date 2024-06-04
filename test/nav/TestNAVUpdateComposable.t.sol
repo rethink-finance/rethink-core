@@ -70,7 +70,7 @@ contract TestNAVUpdateComposable is Base {
         	description
         );
 
-        IGovernor(settings.governor).castVote(proposalId, 1);
+        bob.voteYay(settings.governor, proposalId);
 
         vm.warp(block.timestamp + 85000);
         

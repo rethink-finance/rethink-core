@@ -11,9 +11,20 @@ import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 contract TestNAVUpdateLiquid is Base {
 
+	struct LocalVars {
+		address t1;
+		address t2;
+		address tp;
+		address[] allowedDepositAddrs;
+		address[] targets;
+		uint256[] values;
+		string description;
+        bytes32 descriptionHash;
+	}
+
 	function testNAVLiquidCalculation() public {
-		address[] memory allowedDepositAddrs;
-        address fundAddr = this.createTestFund(address(this), allowedDepositAddrs, address(0));
+		LocalVars memory lv;
+        address fundAddr = this.createTestFund(address(this), lv.allowedDepositAddrs, address(0));
 
         IGovernableFundStorage.Settings memory settings = IGovernableFund(fundAddr).getFundSettings();
         Agent bob = new Agent();
@@ -21,24 +32,27 @@ contract TestNAVUpdateLiquid is Base {
         bob.deposit(fundAddr);
         bob.delegate(fundAddr, address(bob));
 
-		address[] memory targets = new address[](1);
-        targets[0] = fundAddr;
-        uint256[] memory values = new uint256[](1);
-        values[0] = 0;
+		lv.targets = new address[](1);
+        lv.targets[0] = fundAddr;
+        lv.values = new uint256[](1);
+        lv.values[0] = 0;
 
-		address tokenPair = address(new MockUniV2Pair());
 		bytes memory functionSignatureWithEncodedInputs;
 		IGovernableFundStorage.NavUpdateEntry[] memory navEntries = new IGovernableFundStorage.NavUpdateEntry[](1);
 		IGovernableFundStorage.NAVLiquidUpdate[] memory liquid = new IGovernableFundStorage.NAVLiquidUpdate[](1);
 
 		//TODO: need to properly mock this
 
+		lv.t1 = address(new ERC20Mock(18,"FakeA"));
+		lv.t2 = address(new ERC20Mock(18,"FakeB"));
+		lv.tp = address(new MockUniV2Pair(lv.t1, lv.t2));
+
 		liquid[0] = IGovernableFundStorage.NAVLiquidUpdate(
-			tokenPair,
+			lv.tp,
 			address(0),
 			functionSignatureWithEncodedInputs,
-			address(0),
-			address(0),
+			lv.t1,
+			lv.t2,
 			false,
 			0,
 			0,
@@ -59,27 +73,31 @@ contract TestNAVUpdateLiquid is Base {
 
         bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = computeNavUpdate;
-        string memory description = "testLiquidCalculation";
-        bytes32 descriptionHash = keccak256(abi.encodePacked(description));
+        lv.description = "testLiquidCalculation";
+        lv.descriptionHash = keccak256(abi.encodePacked(lv.description));
 
         uint256 proposalId = IGovernor(settings.governor).propose(
-        	targets,
-        	values,
+        	lv.targets,
+        	lv.values,
         	calldatas,
-        	description
+        	lv.description
         );
 
-        vm.warp(block.timestamp + 2);
-        vm.roll(block.number + 2);
-        IGovernor(settings.governor).castVote(proposalId, 1);
-        vm.warp(block.timestamp + 85000);
-        vm.roll(block.number + 85000);
+        simulateVoteYayCycle(bob, settings.governor, proposalId);
 
         IGovernor(settings.governor).execute(
-	        targets,
-	        values,
+	        lv.targets,
+	        lv.values,
 	        calldatas,
-	        descriptionHash
+	        lv.descriptionHash
 	    );
+	}
+
+	function simulateVoteYayCycle(Agent a, address gov, uint256 proposalId) private {
+		vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
+        a.voteYay(gov, proposalId);
+        vm.warp(block.timestamp + 85000);
+        vm.roll(block.number + 85000);
 	}
 }

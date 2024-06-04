@@ -57,9 +57,16 @@ contract TestNAVUpdateNFT is Base {
         string memory description = "testNftCalculation";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
 
+        uint256 proposalId = IGovernor(settings.governor).propose(
+        	targets,
+        	values,
+        	calldatas,
+        	description
+        );
+
         vm.warp(block.timestamp + 2);
         vm.roll(block.number + 2);
-        IGovernor(settings.governor).castVote(proposalId, 1);
+        bob.voteYay(settings.governor, proposalId);
         vm.warp(block.timestamp + 85000);
         vm.roll(block.number + 85000);
         

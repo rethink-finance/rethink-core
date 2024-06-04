@@ -65,10 +65,12 @@ contract TestFundFees is Base {
         	calldatas,
         	description
         );
-
-        IGovernor(settings.governor).castVote(proposalId, 1);
+        vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
+        bob.voteYay(settings.governor, proposalId);
 
         vm.warp(block.timestamp + 85000);
+        vm.roll(block.number + 85000);
         
         IGovernor(settings.governor).execute(
 	        targets,
@@ -121,7 +123,7 @@ contract TestFundFees is Base {
 
         vm.warp(block.timestamp + 2);
         vm.roll(block.number + 2);
-        IGovernor(settings.governor).castVote(proposalId, 1);
+        bob.voteYay(settings.governor, proposalId);
         vm.warp(block.timestamp + 85000);
         vm.roll(block.number + 85000);
         
@@ -178,7 +180,7 @@ contract TestFundFees is Base {
 
         vm.warp(block.timestamp + 2);
         vm.roll(block.number + 2);
-        IGovernor(settings.governor).castVote(proposalId, 1);
+        bob.voteYay(settings.governor, proposalId);
         vm.warp(block.timestamp + 85000);
         vm.roll(block.number + 85000);
         
@@ -255,7 +257,7 @@ contract TestFundFees is Base {
 
         vm.warp(block.timestamp + 2);
         vm.roll(block.number + 2);
-        IGovernor(settings.governor).castVote(proposalId, 1);
+        bob.voteYay(settings.governor, proposalId);
         vm.warp(block.timestamp + 85000);
         vm.roll(block.number + 85000);
         
@@ -312,7 +314,7 @@ contract TestFundFees is Base {
 
         vm.warp(block.timestamp + 2);
         vm.roll(block.number + 2);
-        IGovernor(settings.governor).castVote(proposalId, 1);
+        bob.voteYay(settings.governor, proposalId);
         vm.warp(block.timestamp + 85000);
         vm.roll(block.number + 85000);
         
@@ -369,7 +371,7 @@ contract TestFundFees is Base {
 
         vm.warp(block.timestamp + 2);
         vm.roll(block.number + 2);
-        IGovernor(settings.governor).castVote(proposalId, 1);
+        bob.voteYay(settings.governor, proposalId);
         vm.warp(block.timestamp + 85000);
         vm.roll(block.number + 85000);
         

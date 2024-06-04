@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.0;
 import "../../contracts/token/ERC20Mock.sol";
+import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 contract Agent {
 	/*
@@ -77,5 +78,9 @@ contract Agent {
         );
         (bool success,) = fund.call(delegation);
         require(success == true, "fail delegation");
+	}
+
+	function voteYay(address gov, uint256 proposalId) public {
+		IGovernor(gov).castVote(proposalId, 1);
 	}
 }
