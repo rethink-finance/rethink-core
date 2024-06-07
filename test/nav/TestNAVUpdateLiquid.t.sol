@@ -47,10 +47,24 @@ contract TestNAVUpdateLiquid is Base {
 		lv.t2 = address(new ERC20Mock(18,"FakeB"));
 		lv.tp = address(new MockUniV2Pair(lv.t1, lv.t2));
 
+		/*
+			struct NAVLiquidUpdate {
+			address tokenPair;
+			address aggregatorAddress;
+			bytes functionSignatureWithEncodedInputs;
+			address assetTokenAddress;
+			address nonAssetTokenAddress;
+			bool isReturnArray;
+			uint256 returnLength;
+			uint256 returnIndex;
+			uint256 pastNAVUpdateIndex;
+		}
+		*/
+
 		liquid[0] = IGovernableFundStorage.NAVLiquidUpdate(
 			lv.tp,
 			address(0),
-			functionSignatureWithEncodedInputs,
+			"0x",//functionSignatureWithEncodedInputs
 			lv.t1,
 			lv.t2,
 			false,
@@ -62,6 +76,23 @@ contract TestNAVUpdateLiquid is Base {
 		//function liquidCalculationReadOnly(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external view returns (uint256);
 
 
+		/*
+
+			struct NavUpdateEntry {
+				NavUpdateType entryType;
+				NAVLiquidUpdate[] liquid;
+				NAVIlliquidUpdate[] illiquid;
+				NAVNFTUpdate[] nft;
+				NAVComposableUpdate[] composable;
+				bool isPastNAVUpdate;
+				uint256 pastNAVUpdateIndex;
+				uint256 pastNAVUpdateEntryIndex;
+				string description;
+			}
+
+		*/
+
+
 		navEntries[0].entryType = IGovernableFundStorage.NavUpdateType.NAVLiquidUpdateType;
 		navEntries[0].liquid  = liquid;
 		navEntries[0].isPastNAVUpdate = false;
@@ -69,19 +100,42 @@ contract TestNAVUpdateLiquid is Base {
 		navEntries[0].pastNAVUpdateEntryIndex = 0;
 		navEntries[0].description = "Mock Token Pair Price";
 
-		/*
-		INAVCalculator(_navCalculatorAddress).liquidCalculation(
+		uint256 lc = INAVCalculator(bv.navcalcbp).liquidCalculation(
 			navEntries[0].liquid,
 			settings.safe,
-			address(this),
+			fundAddr,
 			0,
 			navEntries[0].isPastNAVUpdate,
 			navEntries[0].pastNAVUpdateIndex,
 			navEntries[0].pastNAVUpdateEntryIndex,
-			lv.targets[0]
+			fundAddr
 		);
 
+		/*
+			    │   │   ├─ [197] MockUniV2Pair::getReserves() [staticcall]
+    │   │   │   └─ ← [Return] 10000000000000000000 [1e19], 3000000000000000000 [3e18], 1
+    │   │   ├─ [203] MockUniV2Pair::price0CumulativeLast() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ [236] MockUniV2Pair::price1CumulativeLast() [staticcall]
+    │   │   │   └─ ← [Return] 10000000000000000001000000000000000000 [1e37]
+    │   │   ├─ [320] MockUniV2Pair::token0() [staticcall]
+    │   │   │   └─ ← [Return] ERC20Mock: [0xDA5A5ADC64C8013d334A0DA9e711B364Af7A4C2d]
+    │   │   ├─ [397] MockUniV2Pair::token1() [staticcall]
+    │   │   │   └─ ← [Return] ERC20Mock: [0x886D6d1eB8D415b00052828CD6d5B321f072073d]
+    │   │   ├─ [203] MockUniV2Pair::price0CumulativeLast() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ [236] MockUniV2Pair::price1CumulativeLast() [staticcall]
+    │   │   │   └─ ← [Return] 10000000000000000001000000000000000000 [1e37]
+    │   │   ├─ [197] MockUniV2Pair::getReserves() [staticcall]
+    │   │   │   └─ ← [Return] 10000000000000000000 [1e19], 3000000000000000000 [3e18], 1
+    │   │   └─ ← [Revert] panic: division or modulo by zero (0x12)
+    │   └─ ← [Revert] panic: division or modulo by zero (0x12)
+    └─ ← [Revert] panic: division or modulo by zero (0x12)
+
+
 		*/
+
+		console.logUint(lc);
 
         bytes memory computeNavUpdate = abi.encodeWithSelector(
             IGovernableFund.updateNav.selector,
