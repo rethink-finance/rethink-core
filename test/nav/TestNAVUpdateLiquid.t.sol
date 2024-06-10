@@ -10,6 +10,7 @@ import "../common/mock/MockUniV2Pair.t.sol";
 import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 contract TestNAVUpdateLiquid is Base {
+	uint256 TS_OFFSET = 171774987;
 
 	struct LocalVars {
 		address t1;
@@ -167,10 +168,10 @@ contract TestNAVUpdateLiquid is Base {
 	}
 
 	function simulateVoteYayCycle(Agent a, address gov, uint256 proposalId) private {
-		vm.warp(block.timestamp + 2);
-        vm.roll(block.number + 2);
+		vm.warp(block.timestamp + TS_OFFSET + 2);
+        vm.roll(block.number + TS_OFFSET + 2);
         a.voteYay(gov, proposalId);
-        vm.warp(block.timestamp + 85000);
-        vm.roll(block.number + 85000);
+        vm.warp(block.timestamp + TS_OFFSET + 85000);
+        vm.roll(block.number + TS_OFFSET + 85000);
 	}
 }

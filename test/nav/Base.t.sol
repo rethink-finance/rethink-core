@@ -38,6 +38,10 @@ contract Base is Test {
         bytes defaultHandlerCreationCode;
     }
 
+    struct GenericCode {
+        bytes bytecode;
+    }
+
     struct BaseVariables {
         address wtfub;
         address navcalcub;
@@ -246,5 +250,30 @@ contract Base is Test {
         //  function createFund(IGovernableFundStorage.Settings memory fundSettings, GovernorParams memory governorSettings, string memory _fundMetadata, uint256 _feePerformancePeriod, uint256 _feeManagePeriod) external returns (address);
 
         return IGovernableFundFactory(gff).createFund(fundSettings, governorSettings, _fundMetadata, 60*60*24*365, 60*60*24*365);
+    }
+
+    function deployUNIV2Pool(address t1, address t2) returns (address) {
+        string memory jsonFactory = vm.readFile(
+            string(
+                abi.encodePacked(vm.projectRoot(),"/data/univ2factory.json")
+            )
+        );
+
+        string memory jsonPair = vm.readFile(
+            string(
+                abi.encodePacked(vm.projectRoot(),"/data/univ2pair.json")
+            )
+        );
+
+        bytes memory codeData1 = vm.parseJson(jsonFactory);
+        bytes memory codeData2 = vm.parseJson(jsonPair);
+        
+        GenericCode memory gc1 = abi.decode(codeData1, (GenericCode));
+        GenericCode memory gc2 = abi.decode(codeData2, (GenericCode));
+        bytes memory factoryInit = gc1.bytecode;
+        bytes memory gc2code = gc2.bytecode;
+
+        //bytes memory factoryInit = abi.encode(gc1code, '0x');
+        bytes memory pairInit = abi.encode(gc2code,t1,t2);
     }
 }
