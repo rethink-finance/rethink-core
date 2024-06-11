@@ -35,21 +35,6 @@ contract MockUniV2Pair {
 	  })).contractAddress;
 
 
-	  tx_hash = transaction_helper(
-	            agent,
-	            self.pangolin_router.functions.addLiquidity(
-	                self.xsd_token.address,
-	                self.usdt_token.address,
-	                xsd.to_wei(),
-	                usdt.to_wei(),
-	                min_xsd_amount.to_wei(),
-	                min_usdt_amount.to_wei(),
-	                agent.address,
-	                (int(current_timestamp) + DEADLINE_FROM_NOW)
-	            ), 
-	            500000
-	        )
-        
 	*/
 	function getReserves() public view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast) {
         _reserve0 = 1311499952458300268383695;

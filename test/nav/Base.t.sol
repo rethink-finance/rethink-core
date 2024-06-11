@@ -275,5 +275,22 @@ contract Base is Test {
 
         //bytes memory factoryInit = abi.encode(gc1code, '0x');
         bytes memory pairInit = abi.encode(gc2code,t1,t2);
+
+        /*
+            tx_hash = transaction_helper(
+                agent,
+                self.pangolin_router.functions.addLiquidity(
+                    self.xsd_token.address,
+                    self.usdt_token.address,
+                    xsd.to_wei(),
+                    usdt.to_wei(),
+                    min_xsd_amount.to_wei(),
+                    min_usdt_amount.to_wei(),
+                    agent.address,
+                    (int(current_timestamp) + DEADLINE_FROM_NOW)
+                ), 
+                500000
+            )
+        */
     }
 }
