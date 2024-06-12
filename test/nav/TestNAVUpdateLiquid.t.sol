@@ -46,7 +46,9 @@ contract TestNAVUpdateLiquid is Base {
 
 		lv.t1 = address(new ERC20Mock(18,"FakeA"));
 		lv.t2 = address(new ERC20Mock(18,"FakeB"));
-		lv.tp = address(new MockUniV2Pair(lv.t1, lv.t2));
+		//lv.tp = address(new MockUniV2Pair(lv.t1, lv.t2));
+
+		lv.tp = this.deployUNIV2Pool(lv.t1, lv.t2);
 
 		/*
 			struct NAVLiquidUpdate {
