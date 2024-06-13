@@ -252,7 +252,11 @@ contract Base is Test {
         return IGovernableFundFactory(gff).createFund(fundSettings, governorSettings, _fundMetadata, 60*60*24*365, 60*60*24*365);
     }
 
-    function deployUNIV2Pool(address t1, address t2) public returns (address) {
+    function initPool(address t1, address t2, uint256 TS_OFFSET) private returns (address) {
+
+        vm.warp(block.timestamp + TS_OFFSET);
+        vm.roll(block.number + TS_OFFSET);
+
         string memory jsonFactory = vm.readFile(
             string(
                 abi.encodePacked(vm.projectRoot(),"/data/univ2factory.json")
@@ -278,25 +282,75 @@ contract Base is Test {
 
         address factory = generateBytecode(factoryInit);
         address tp = generateBytecode(pairInit);
+        return tp;
+    }
 
-        ERC20Mock(t1).issue(address(this), 1e18);
-        ERC20Mock(t2).issue(address(this), 1e18);
+    function deployUNIV2Pool(address t1, address t2, uint256 TS_OFFSET) public returns (address) {
+        bool success;
 
+        address tp = initPool(t1, t2, TS_OFFSET);
+        issuanceAndApprovals(t1, t2, tp);
 
+        vm.warp(block.timestamp + TS_OFFSET);
+        vm.roll(block.number + TS_OFFSET);
+
+        //add liq
         bytes memory addLiquidty = abi.encodeWithSelector(
             bytes4(keccak256("addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint32)")),
             t1,
             t2,
-            1e18,
-            1e18,
+            5e18,
+            5e18,
             0,
             0,
             address(this),
             0
         );
 
-        (bool success0, bytes memory data0 ) = tp.call(addLiquidty);
-        require(success0 == true, "fail addLiquidty");
+        (success, ) = tp.call(addLiquidty);
+        require(success == true, "fail addLiquidty");
+
+        //swap
+        bytes memory swapTokensForExactTokens = abi.encodeWithSelector(
+            bytes4(keccak256("swapTokensForExactTokens(uint256,uint256,address[],address,uint256)")),
+            1e18,
+            1e18,
+            [t1, t2],
+            address(this),
+            0
+        );
+        
+
+        (success, ) = tp.call(swapTokensForExactTokens);
+        require(success == true, "fail swapTokensForExactTokens");
+
+        /*
+
+        # explore this more?
+        slippage = 0.01
+        max_usdt_amount = (max_usdt_amount * (1 + slippage))
+
+        tx_hash = transaction_helper(
+            agent,
+            self.pangolin_router.functions.swapExactTokensForTokens(
+                usdt.to_wei(),
+                max_usdt_amount.to_wei(),
+                [self.usdt_token.address, self.xsd_token.address],
+                agent.address,
+                int(current_timestamp + DEADLINE_FROM_NOW)
+            ), 
+            500000
+        )
+        return tx_hash
+
+        */
         return tp;
+    }
+
+    function issuanceAndApprovals(address t1, address t2, address tp) private {
+        ERC20Mock(t1).issue(address(this), 10e18);
+        ERC20Mock(t2).issue(address(this), 10e18);
+        ERC20Mock(t1).approve(tp, 1e18);
+        ERC20Mock(t2).approve(tp, 1e18);
     }
 }

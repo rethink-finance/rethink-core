@@ -11,31 +11,6 @@ contract MockUniV2Pair {
 		_t1 = t1;		
 	}
 	
-
-	/*
-
-
-		console.log('Deploy fake Pangolin Factory');
-	  // We need an address arg to the contract
-	  let pangolinArg = '';
-	  for (let i = 0; i < 32; i++) { pangolinArg += '00';}
-	  const pangolinFactoryAddress = (await web3.eth.sendTransaction({from: accounts[0], gas: 8000000, data: PangolinFactoryBytecode + pangolinArg})).contractAddress;
-
-	  console.log('Deploy fake wAVAX');
-	  const wAVAXAddress = (await web3.eth.sendTransaction({from: accounts[0], gas: 8000000, data: WAVAXBytecode})).contractAddress;
-
-	  console.log('Deploy fake Pangolin Router');
-	  console.log(pangolinFactoryAddress.substr(2));
-	  console.log(wAVAXAddress.substr(2));
-	  console.log(web3.eth.abi.encodeParameters(['address', 'address'],[pangolinFactoryAddress, wAVAXAddress]).slice(2));
-	  const PangolinRouterAddress = (await web3.eth.sendTransaction({
-	    from: accounts[0],
-	    gas: 8000000,
-	    data: PangolinRouter02Bytecode + web3.eth.abi.encodeParameters(['address', 'address'],[pangolinFactoryAddress, wAVAXAddress]).slice(2)
-	  })).contractAddress;
-
-
-	*/
 	function getReserves() public view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast) {
         _reserve0 = 1311499952458300268383695;
         _reserve1 = 246623759970843809984;

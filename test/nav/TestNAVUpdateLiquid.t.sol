@@ -21,6 +21,8 @@ contract TestNAVUpdateLiquid is Base {
 		uint256[] values;
 		string description;
         bytes32 descriptionHash;
+        bytes getReserves;
+        bool success;
 	}
 
 	function testNAVLiquidCalculation() public {
@@ -48,7 +50,18 @@ contract TestNAVUpdateLiquid is Base {
 		lv.t2 = address(new ERC20Mock(18,"FakeB"));
 		//lv.tp = address(new MockUniV2Pair(lv.t1, lv.t2));
 
-		lv.tp = this.deployUNIV2Pool(lv.t1, lv.t2);
+		lv.tp = this.deployUNIV2Pool(lv.t1, lv.t2, TS_OFFSET);
+
+		//getReserves
+        lv.getReserves = abi.encodeWithSelector(
+            bytes4(keccak256("getReserves()"))
+        );
+
+        abi.decode(lv.getReserves, (uint112, uint112, uint32));
+        
+
+        (lv.success, ) = lv.tp.staticcall(lv.getReserves);
+        require(lv.success == true, "fail getReserves");
 
 		/*
 			struct NAVLiquidUpdate {
