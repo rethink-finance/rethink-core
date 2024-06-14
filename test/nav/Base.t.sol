@@ -52,6 +52,18 @@ contract Base is Test {
         address zrv1;
     }
     
+    struct MockVariables {
+        bytes codeData1;
+        bytes codeData2;
+        bytes codeData3;
+        bytes factoryInit;
+        bytes gc1code;
+        bytes gc2code;
+        bytes gc3code;
+        address rt;
+        address tp;
+        address factory;
+    }
 
     address gff;
     address gffub;
@@ -252,7 +264,8 @@ contract Base is Test {
         return IGovernableFundFactory(gff).createFund(fundSettings, governorSettings, _fundMetadata, 60*60*24*365, 60*60*24*365);
     }
 
-    function initPool(address t1, address t2, uint256 TS_OFFSET) private returns (address) {
+    function initPool(address t1, address t2, uint256 TS_OFFSET) private returns (address,address) {
+        MockVariables memory mv;
 
         vm.warp(block.timestamp + TS_OFFSET);
         vm.roll(block.number + TS_OFFSET);
@@ -269,27 +282,79 @@ contract Base is Test {
             )
         );
 
-        bytes memory codeData1 = vm.parseJson(jsonFactory);
-        bytes memory codeData2 = vm.parseJson(jsonPair);
+        string memory jsonRouter = vm.readFile(
+            string(
+                abi.encodePacked(vm.projectRoot(),"/data/univ2router.json")
+            )
+        );
+
+        mv.codeData1 = vm.parseJson(jsonFactory);
+        mv.codeData2 = vm.parseJson(jsonPair);
+        mv.codeData3 = vm.parseJson(jsonRouter);
         
-        GenericCode memory gc1 = abi.decode(codeData1, (GenericCode));
-        GenericCode memory gc2 = abi.decode(codeData2, (GenericCode));
-        bytes memory factoryInit = gc1.bytecode;
-        bytes memory gc2code = gc2.bytecode;
+        GenericCode memory gc1 = abi.decode(mv.codeData1, (GenericCode));
+        GenericCode memory gc2 = abi.decode(mv.codeData2, (GenericCode));
+        GenericCode memory gc3 = abi.decode(mv.codeData3, (GenericCode));
+        mv.gc1code = gc1.bytecode;
+        mv.gc2code = gc2.bytecode;
+        mv.gc3code = gc3.bytecode;
 
-        //bytes memory factoryInit = abi.encode(gc1code, '0x');
-        bytes memory pairInit = abi.encode(gc2code,t1,t2);
+        bytes memory factoryInit = abi.encode(mv.gc1code,address(0));
 
-        address factory = generateBytecode(factoryInit);
-        address tp = generateBytecode(pairInit);
-        return tp;
+        bytes memory pairInit = abi.encode(mv.gc2code,t1,t2);
+
+
+        
+
+
+        /* 
+            console.log('Deploy fake wAVAX');
+              const wAVAXAddress = (await web3.eth.sendTransaction({from: accounts[0], gas: 8000000, data: WAVAXBytecode})).contractAddress;
+
+              console.log('Deploy fake Pangolin Router');
+              console.log(pangolinFactoryAddress.substr(2));
+              console.log(wAVAXAddress.substr(2));
+              console.log(web3.eth.abi.encodeParameters(['address', 'address'],[pangolinFactoryAddress, wAVAXAddress]).slice(2));
+              const PangolinRouterAddress = (await web3.eth.sendTransaction({
+                from: accounts[0],
+                gas: 8000000,
+                data: PangolinRouter02Bytecode + web3.eth.abi.encodeParameters(['address', 'address'],[pangolinFactoryAddress, wAVAXAddress]).slice(2)
+              })).contractAddress;
+
+        */
+
+        address factory = generateBytecode(mv.factoryInit);
+        //address tp = generateBytecode(pairInit);
+
+        address weth = address(new ERC20Mock(18,"WETH"));
+        bytes memory routerInit = abi.encode(mv.gc3code, factory, weth);
+        address rt = generateBytecode(routerInit);
+
+        return (rt, factory);
     }
 
     function deployUNIV2Pool(address t1, address t2, uint256 TS_OFFSET) public returns (address) {
         bool success;
+        bytes memory data;
 
-        address tp = initPool(t1, t2, TS_OFFSET);
-        issuanceAndApprovals(t1, t2, tp);
+        MockVariables memory mv;
+
+        (mv.rt, mv.factory) = initPool(t1, t2, TS_OFFSET);
+
+        //createPair
+        bytes memory createPair = abi.encodeWithSelector(
+            bytes4(keccak256("createPair(address,address)")),
+            t1,
+            t2
+        );
+        
+
+        (success, data) = mv.factory.call(createPair);
+        require(success == true, "fail createPair");
+
+        mv.tp = abi.decode(data, (address));
+
+        issuanceAndApprovals(t1, t2, mv.rt);
 
         vm.warp(block.timestamp + TS_OFFSET);
         vm.roll(block.number + TS_OFFSET);
@@ -307,7 +372,7 @@ contract Base is Test {
             0
         );
 
-        (success, ) = tp.call(addLiquidty);
+        (success, ) = mv.rt.call(addLiquidty);
         require(success == true, "fail addLiquidty");
 
         //swap
@@ -321,7 +386,7 @@ contract Base is Test {
         );
         
 
-        (success, ) = tp.call(swapTokensForExactTokens);
+        (success, ) = mv.rt.call(swapTokensForExactTokens);
         require(success == true, "fail swapTokensForExactTokens");
 
         /*
@@ -344,13 +409,13 @@ contract Base is Test {
         return tx_hash
 
         */
-        return tp;
+        return mv.tp;
     }
 
-    function issuanceAndApprovals(address t1, address t2, address tp) private {
+    function issuanceAndApprovals(address t1, address t2, address rt) private {
         ERC20Mock(t1).issue(address(this), 10e18);
         ERC20Mock(t2).issue(address(this), 10e18);
-        ERC20Mock(t1).approve(tp, 1e18);
-        ERC20Mock(t2).approve(tp, 1e18);
+        ERC20Mock(t1).approve(rt, 1e18);
+        ERC20Mock(t2).approve(rt, 1e18);
     }
 }

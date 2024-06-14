@@ -23,9 +23,13 @@ contract TestNAVUpdateLiquid is Base {
         bytes32 descriptionHash;
         bytes getReserves;
         bool success;
+        bytes tmp;
 	}
 
 	function testNAVLiquidCalculation() public {
+
+
+
 		LocalVars memory lv;
         address fundAddr = this.createTestFund(address(this), lv.allowedDepositAddrs, address(0));
 
@@ -57,10 +61,14 @@ contract TestNAVUpdateLiquid is Base {
             bytes4(keccak256("getReserves()"))
         );
 
-        abi.decode(lv.getReserves, (uint112, uint112, uint32));
         
 
-        (lv.success, ) = lv.tp.staticcall(lv.getReserves);
+        (lv.success, lv.tmp) = lv.tp.staticcall(lv.getReserves);
+        abi.decode(lv.tmp, (uint112, uint112, uint32));
+        require(lv.success == true, "fail getReserves");
+
+        (lv.success, lv.tmp) = lv.tp.staticcall(lv.getReserves);
+        abi.decode(lv.tmp, (uint112, uint112, uint32));
         require(lv.success == true, "fail getReserves");
 
 		/*
@@ -115,6 +123,7 @@ contract TestNAVUpdateLiquid is Base {
 		navEntries[0].pastNAVUpdateIndex = 0;
 		navEntries[0].pastNAVUpdateEntryIndex = 0;
 		navEntries[0].description = "Mock Token Pair Price";
+
 
 		uint256 lc = INAVCalculator(bv.navcalcbp).liquidCalculation(
 			navEntries[0].liquid,
