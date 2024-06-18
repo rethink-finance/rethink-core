@@ -23,6 +23,7 @@ import "@gnosis.pm/safe-contracts/contracts/proxies/GnosisSafeProxyFactory.sol";
 import "@gnosis.pm/safe-contracts/contracts/GnosisSafeL2.sol";
 import "@gnosis.pm/safe-contracts/contracts/libraries/MultiSendCallOnly.sol";
 
+import {UniswapDeployer} from "../../script/UniswapDeployer.s.sol";
 
 contract Base is Test {
     struct GovernorParams {
@@ -175,6 +176,8 @@ contract Base is Test {
             out := create(0, add(code, 0x20), mload(code))
             size := extcodesize(out)
         }
+
+        require(out != address(0), "bad create");
     }
 
     function initFundFactory(
@@ -267,68 +270,44 @@ contract Base is Test {
     function initPool(address t1, address t2, uint256 TS_OFFSET) private returns (address,address) {
         MockVariables memory mv;
 
+        UniswapDeployer udp = new UniswapDeployer();
+        udp.run();
+
         vm.warp(block.timestamp + TS_OFFSET);
         vm.roll(block.number + TS_OFFSET);
 
+
+        /*
         string memory jsonFactory = vm.readFile(
             string(
                 abi.encodePacked(vm.projectRoot(),"/data/univ2factory.json")
             )
         );
+        mv.codeData1 = vm.parseJson(jsonFactory);
+        
+        GenericCode memory gc1 = abi.decode(mv.codeData1, (GenericCode));
+        mv.gc1code = gc1.bytecode;
+        bytes memory factoryInit = abi.encode(mv.gc1code, address(0));
+        address factory = generateBytecode(mv.factoryInit);
+        */
+        
+        address factory = 0x3c4293F66941eCA00f4950C10D4255D5c271Ba1f;
 
-        string memory jsonPair = vm.readFile(
-            string(
-                abi.encodePacked(vm.projectRoot(),"/data/univ2pair.json")
-            )
-        );
+        /*
 
         string memory jsonRouter = vm.readFile(
             string(
                 abi.encodePacked(vm.projectRoot(),"/data/univ2router.json")
             )
         );
-
-        mv.codeData1 = vm.parseJson(jsonFactory);
-        mv.codeData2 = vm.parseJson(jsonPair);
         mv.codeData3 = vm.parseJson(jsonRouter);
-        
-        GenericCode memory gc1 = abi.decode(mv.codeData1, (GenericCode));
-        GenericCode memory gc2 = abi.decode(mv.codeData2, (GenericCode));
+
         GenericCode memory gc3 = abi.decode(mv.codeData3, (GenericCode));
-        mv.gc1code = gc1.bytecode;
-        mv.gc2code = gc2.bytecode;
         mv.gc3code = gc3.bytecode;
-
-        bytes memory factoryInit = abi.encode(mv.gc1code,address(0));
-
-        bytes memory pairInit = abi.encode(mv.gc2code,t1,t2);
-
-
-        
-
-
-        /* 
-            console.log('Deploy fake wAVAX');
-              const wAVAXAddress = (await web3.eth.sendTransaction({from: accounts[0], gas: 8000000, data: WAVAXBytecode})).contractAddress;
-
-              console.log('Deploy fake Pangolin Router');
-              console.log(pangolinFactoryAddress.substr(2));
-              console.log(wAVAXAddress.substr(2));
-              console.log(web3.eth.abi.encodeParameters(['address', 'address'],[pangolinFactoryAddress, wAVAXAddress]).slice(2));
-              const PangolinRouterAddress = (await web3.eth.sendTransaction({
-                from: accounts[0],
-                gas: 8000000,
-                data: PangolinRouter02Bytecode + web3.eth.abi.encodeParameters(['address', 'address'],[pangolinFactoryAddress, wAVAXAddress]).slice(2)
-              })).contractAddress;
-
-        */
-
-        address factory = generateBytecode(mv.factoryInit);
-        //address tp = generateBytecode(pairInit);
-
         address weth = address(new ERC20Mock(18,"WETH"));
         bytes memory routerInit = abi.encode(mv.gc3code, factory, weth);
-        address rt = generateBytecode(routerInit);
+        */
+        address rt = 0x3C4293F66941eCA00f4950c10d4255d5c271bA2f; //generateBytecode(routerInit);
 
         return (rt, factory);
     }
@@ -360,7 +339,7 @@ contract Base is Test {
         vm.roll(block.number + TS_OFFSET);
 
         //add liq
-        bytes memory addLiquidty = abi.encodeWithSelector(
+        bytes memory addLiquidity = abi.encodeWithSelector(
             bytes4(keccak256("addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint32)")),
             t1,
             t2,
@@ -372,8 +351,8 @@ contract Base is Test {
             0
         );
 
-        (success, ) = mv.rt.call(addLiquidty);
-        require(success == true, "fail addLiquidty");
+        (success, ) = mv.rt.call(addLiquidity);
+        require(success == true, "fail addLiquidity");
 
         //swap
         bytes memory swapTokensForExactTokens = abi.encodeWithSelector(
@@ -413,9 +392,9 @@ contract Base is Test {
     }
 
     function issuanceAndApprovals(address t1, address t2, address rt) private {
-        ERC20Mock(t1).issue(address(this), 10e18);
-        ERC20Mock(t2).issue(address(this), 10e18);
-        ERC20Mock(t1).approve(rt, 1e18);
-        ERC20Mock(t2).approve(rt, 1e18);
+        ERC20Mock(t1).issue(address(this), 100e18);
+        ERC20Mock(t2).issue(address(this), 100e18);
+        ERC20Mock(t1).approve(rt, 5e18);
+        ERC20Mock(t2).approve(rt, 5e18);
     }
 }

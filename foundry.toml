@@ -182,3 +182,5 @@ dictionary_weight = 80
 include_storage = true
 # The flag indicating whether to include push bytes values
 include_push_bytes = true
+
+unchecked_cheatcode_artifacts = true
