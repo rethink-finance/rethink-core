@@ -153,7 +153,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         uint256 accruingPeriod = (block.timestamp - startTime);
         uint256 feeBase = totalSupply();
         uint256 feePerSecond = (feeBase * FundSettings.managementFee) /
-            (365 * 86400 * 10000);
+            ( ((feeManagePeriod > 0) ? feeManagePeriod : feePeriodDefault) * 10000);
         accruedFees = feePerSecond * accruingPeriod;
     }
 
@@ -175,7 +175,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         uint256 accruingPeriod = (block.timestamp - startTime);
         uint256 feeBase = totalSupply();
         uint256 feePerSecond = ((feeBase * performanceTake) / _totalDepositBal) /
-            (365 * 86400 * 10000);
+            (((feePerformancePeriod > 0) ? feePerformancePeriod : feePeriodDefault)  * 10000);
         accruedFees = feePerSecond * accruingPeriod;
     }
 
