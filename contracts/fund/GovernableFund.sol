@@ -112,25 +112,34 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		}
 	}
 
+	function executeNAVUpdate(address navExecutor) external {
+		onlyGovernanceOrSafe();
+		(, bytes memory execData) = navExecutor.call(
+			abi.encodeWithSignature("getNAVData(address)", address(this))
+		);
+		(bool success, ) = address(this).call(execData);
+		require(success == true, "fail permissioned nav update");
+	}
+
 	function revokeDepositWithrawal(bool isDeposit) external {
 		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("revokeDepositWithrawal(bool)", isDeposit)
 		);
-		require(success == true, "failed revoke");
+		require(success == true, "fail revoke");
 	}
 
 	function requestDeposit(uint256 amount) external {
 		(bool success, ) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("requestDeposit(uint256)", amount)
 		);
-		require(success == true, "failed deposit request");
+		require(success == true, "fail deposit request");
 	}
 
 	function deposit() external {
 		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("deposit()")
 		);
-		require(success == true, "failed deposit");
+		require(success == true, "fail deposit");
 	}
 
 	function totalWithrawalBalance() public view returns (uint256) {
@@ -141,14 +150,14 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("requestWithdraw(uint256)", amount)
 		);
-		require(success == true, "failed withrawal request");
+		require(success == true, "fail withrawal request");
 	}
 	
 	function withdraw() external {
 		(bool success, ) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("withdraw()")
 		);
-		require(success == true, "failed withrawal");
+		require(success == true, "fail withrawal");
     }
 
     function calculateAccruedManagementFees() public view returns (uint256 accruedFees) {
@@ -186,7 +195,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("collectFees(uint8)", feeType)
 		);
-		require(success == true, "failed collectFees");
+		require(success == true, "fail collectFees");
     }
 
     function toggleDaoFee() external {

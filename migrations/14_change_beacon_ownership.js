@@ -26,7 +26,8 @@ const proxyTypes = [
 	"ZodiacRolesV1ModifierUpgradeableBeacon",
 	"GovernableFundFlowsUpgradeableBeacon",
 	"GovernableFundNavUpgradeableBeacon",
-	"GovernableContractFactoryUpgradeableBeacon"
+	"GovernableContractFactoryUpgradeableBeacon",
+	"NAVExecutorUpgradeableBeacon"
 ];
 
 const proxies = {
@@ -39,7 +40,8 @@ const proxies = {
 		"ZodiacRolesV1ModifierUpgradeableBeacon": "0x5A7f717B91c998d5DE9764DEA78c2EF20027bDe4",
 		"GovernableFundFlowsUpgradeableBeacon": "0xdf587D859e76B0a6cE2254f1c0bf64C4aE0eD37f",
 		"GovernableFundNavUpgradeableBeacon": "0x8fE2e9470ceA2E83e8B89502d636CCAb2D1Ca21B",
-		"GovernableContractFactoryUpgradeableBeacon": "0x89254d6FF377a21aC0b99BD2e456e75b6C76E505"
+		"GovernableContractFactoryUpgradeableBeacon": "0x89254d6FF377a21aC0b99BD2e456e75b6C76E505",
+		"NAVExecutorUpgradeableBeacon": ""
 	},
 	"matic": {
 		"GovernableFundFactoryUpgradeableBeacon": "0xE16b6C9C2CB8aE15f0872A3A46d2Eb070c27f20D",
@@ -50,7 +52,8 @@ const proxies = {
 		"ZodiacRolesV1ModifierUpgradeableBeacon": "0xdf587D859e76B0a6cE2254f1c0bf64C4aE0eD37f",
 		"GovernableFundFlowsUpgradeableBeacon": "0x8fE2e9470ceA2E83e8B89502d636CCAb2D1Ca21B",
 		"GovernableFundNavUpgradeableBeacon": "0x89254d6FF377a21aC0b99BD2e456e75b6C76E505",
-		"GovernableContractFactoryUpgradeableBeacon": "0x89483Dc199F70268e3aB79D08301456Fb6aF75f4"
+		"GovernableContractFactoryUpgradeableBeacon": "0x89483Dc199F70268e3aB79D08301456Fb6aF75f4",
+		"NAVExecutorUpgradeableBeacon": ""
 	},
 	"frax": {
 		"GovernableFundFactoryUpgradeableBeacon": "0x4C342E583A7Aa2840e07B4a3afB71533FBE37726",
@@ -61,7 +64,8 @@ const proxies = {
 		"ZodiacRolesV1ModifierUpgradeableBeacon": "0x463F9eE917F71B7DB1c81fbFe44A95a4f5B540a6",
 		"GovernableFundFlowsUpgradeableBeacon": "0x5b8137fC792f1d054099fb2B7EEb7e575Ee8403B",
 		"GovernableFundNavUpgradeableBeacon": "0x26cEb3873ad8A3dee2e5d3d67d2d0800704B9fb5",
-		"GovernableContractFactoryUpgradeableBeacon": "0x9C3bEa435Ed4100E67a962712D727F79853792a4"
+		"GovernableContractFactoryUpgradeableBeacon": "0x9C3bEa435Ed4100E67a962712D727F79853792a4",
+		"NAVExecutorUpgradeableBeacon": ""
 	}
 };
 module.exports = async function (deployer) {
