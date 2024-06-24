@@ -121,76 +121,51 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		require(success == true, "fail permissioned nav update");
 	}
 
-	function revokeDepositWithrawal(bool isDeposit) external {
-		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
-			abi.encodeWithSignature("revokeDepositWithrawal(bool)", isDeposit)
-		);
-		require(success == true, "fail revoke");
-	}
+	function fundFlowsCall(bytes calldata flowCall) external {
+		bytes4 matchSig = bytes4(flowCall);
 
-	function requestDeposit(uint256 amount) external {
-		(bool success, ) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
-			abi.encodeWithSignature("requestDeposit(uint256)", amount)
-		);
-		require(success == true, "fail deposit request");
-	}
+		bool isFound = false;
+		if (matchSig == bytes4(keccak256("revokeDepositWithrawal(bool)"))) {
+			isFound = true;
+		} else if (matchSig == bytes4(keccak256("requestDeposit(uint256)"))) {
+			isFound = true;
+		} else if (matchSig == bytes4(keccak256("deposit()"))) {
+			isFound = true;
+		} else if (matchSig == bytes4(keccak256("requestWithdraw(uint256)"))) {
+			isFound = true;
+		} else if (matchSig == bytes4(keccak256("withdraw()"))) {
+			isFound = true;
+		} else if (matchSig == bytes4(keccak256("collectFees(uint8)"))) {
+			isFound = true;		
+		} else if (matchSig == bytes4(keccak256("mintPerformanceFee(uint256)"))) {
+			onlyGovernanceOrSafe();
+			isFound = true;
+		}
 
-	function deposit() external {
-		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
-			abi.encodeWithSignature("deposit()")
-		);
-		require(success == true, "fail deposit");
+		if (isFound == true) {
+			(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
+				flowCall
+			);
+			require(success == true, "fail flowCall");
+		}
 	}
 
 	function totalWithrawalBalance() public view returns (uint256) {
 		return IERC20(FundSettings.baseToken).balanceOf(address(this)) - _feeBal;
 	}
 
-	function requestWithdraw(uint256 amount) external {
-		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
-			abi.encodeWithSignature("requestWithdraw(uint256)", amount)
+    //NOTE: IS NOT STATE CHANGING FUNCTION, BUT DELEGATE CALLS CANNOT USE VIEW
+    function calculateAccrued(uint8 feeKind) public returns (uint256) {
+    	bytes memory _feeCall = (feeKind == 0) ? abi.encodeWithSignature("calculateAccruedManagementFees()") : abi.encodeWithSignature("calculateAccruedPerformanceFees()");
+    	(bool success, bytes memory data) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
+			_feeCall
 		);
-		require(success == true, "fail withrawal request");
-	}
-	
-	function withdraw() external {
-		(bool success, ) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
-			abi.encodeWithSignature("withdraw()")
-		);
-		require(success == true, "fail withrawal");
+		require(success == true, "fail calculateAccruedX");
+
+		return abi.decode(data, (uint256));
     }
 
-    function calculateAccruedManagementFees() public view returns (uint256 accruedFees) {
-        uint256 startTime = (_lastClaimedManagementFees == 0) ? _fundStartTime: _lastClaimedManagementFees;
-        uint256 accruingPeriod = (block.timestamp - startTime);
-        uint256 feeBase = totalSupply();
-        uint256 feePerSecond = (feeBase * FundSettings.managementFee) /
-            ( ((feeManagePeriod > 0) ? feeManagePeriod : feePeriodDefault) * 10000);
-        accruedFees = feePerSecond * accruingPeriod;
-    }
-
-    function calculateAccruedPerformanceFees() public view returns (uint256 accruedFees) {
-    	uint256 nav = totalNAV();
-    	int256 returnOverDeposits = int256(nav) - int256(_totalDepositBal);
-    	uint256 performanceTake = 0;
-    	if(returnOverDeposits > 0) {
-    		uint256 hurdleReturn = (nav * FundSettings.performaceHurdleRateBps) / MAX_BPS;
-    		if (hurdleReturn < uint256(returnOverDeposits)) {
-    			performanceTake = ((uint256(returnOverDeposits) - hurdleReturn) * FundSettings.performanceFee) / MAX_BPS;
-    			/*
-			        //mintmount = totalSupply * (performanceTake / totalNAV);
-    			*/
-    		}
-    	}
-
-        uint256 startTime = (_lastClaimedPerformanceFees == 0) ? _fundStartTime: _lastClaimedPerformanceFees;
-        uint256 accruingPeriod = (block.timestamp - startTime);
-        uint256 feeBase = totalSupply();
-        uint256 feePerSecond = ((feeBase * performanceTake) / _totalDepositBal) /
-            (((feePerformancePeriod > 0) ? feePerformancePeriod : feePeriodDefault)  * 10000);
-        accruedFees = feePerSecond * accruingPeriod;
-    }
-
+    //TODO: REPLACE WITH DYNAMIC FUND FLOW CALL WITH SIG CHECK, PASS IN ENCODED FUNCTION
     function collectFees(FundFeeType feeType) external {
 		(bool success,) = IBeacon(_fundDelgateCallFlowAddress).implementation().delegatecall(
 			abi.encodeWithSignature("collectFees(uint8)", feeType)
