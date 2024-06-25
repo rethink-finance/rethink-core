@@ -1,5 +1,6 @@
 const NAVExecutor = artifacts.require("NAVExecutor");
 const UpgradeableBeacon = artifacts.require("UpgradeableBeacon");
+const BeaconProxy = artifacts.require("BeaconProxy");
 
 
 const delay = 10000;
@@ -19,6 +20,10 @@ module.exports = async function (deployer) {
 	let p = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
 	p.upgradeTo(NAVExecutor.address);
+	
+	setTimeout(function(){},delay);
+	await p.transferOwnership(multiSigs[network]);
+
 	*/
 
 	/**/

@@ -13,8 +13,9 @@ const network = "frax";
 
 const multiSigs = {
 	"arb1": "0xd8a5076Da13a2d95062de42dD26CB41B9Daa0B53",
-	"matic": "0x83f2492DB796BF0692C90B65DeBB926bd688fAe5"
-	"frax": "0x59Bc7266991376D75dfe892AA4D36fB0619775D9"
+	"matic": "0x83f2492DB796BF0692C90B65DeBB926bd688fAe5",
+	"frax": "0x59Bc7266991376D75dfe892AA4D36fB0619775D9",
+	"eth": ""
 };
 
 const proxyTypes = [
