@@ -153,30 +153,43 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         uint256 accruingPeriod = (block.timestamp - startTime);
         uint256 feeBase = totalSupply();
         uint256 feePerSecond = (feeBase * FundSettings.managementFee) /
-            (365 * 86400 * 10000);
+            ( ((feeManagePeriod > 0) ? feeManagePeriod : feePeriodDefault) * 10000);
         accruedFees = feePerSecond * accruingPeriod;
     }
 
     function calculateAccruedPerformanceFees() public view returns (uint256 accruedFees) {
-    	uint256 nav = totalNAV();
-    	int256 returnOverDeposits = int256(nav) - int256(_totalDepositBal);
-    	uint256 performanceTake = 0;
-    	if(returnOverDeposits > 0) {
-    		uint256 hurdleReturn = (nav * FundSettings.performaceHurdleRateBps) / MAX_BPS;
-    		if (hurdleReturn < uint256(returnOverDeposits)) {
-    			performanceTake = ((uint256(returnOverDeposits) - hurdleReturn) * FundSettings.performanceFee) / MAX_BPS;
-    			/*
-			        //mintmount = totalSupply * (performanceTake / totalNAV);
-    			*/
-    		}
-    	}
+    	if (_totalDepositBal > 0) {
+	    	uint256 nav = totalNAV();
+	    	int256 returnOverDeposits = int256(nav) - int256(_totalDepositBal);
+	    	uint256 performanceTake = 0;
+	    	if(returnOverDeposits > 0) {
+	    		uint256 hurdleReturn = (nav * FundSettings.performaceHurdleRateBps) / MAX_BPS;
+	    		if (hurdleReturn < uint256(returnOverDeposits)) {
+	    			performanceTake = ((uint256(returnOverDeposits) - hurdleReturn) * FundSettings.performanceFee) / MAX_BPS;
+	    			/*
+				        //mintmount = totalSupply * (performanceTake / totalNAV);
+	    			*/
+	    		}
+	    	}
 
-        uint256 startTime = (_lastClaimedPerformanceFees == 0) ? _fundStartTime: _lastClaimedPerformanceFees;
-        uint256 accruingPeriod = (block.timestamp - startTime);
-        uint256 feeBase = totalSupply();
-        uint256 feePerSecond = ((feeBase * performanceTake) / _totalDepositBal) /
-            (365 * 86400 * 10000);
-        accruedFees = feePerSecond * accruingPeriod;
+	        uint256 startTime = (_lastClaimedPerformanceFees == 0) ? _fundStartTime: _lastClaimedPerformanceFees;
+	        uint256 accruingPeriod = (block.timestamp - startTime);
+	        uint256 feeBase = totalSupply();
+	        uint256 feePerSecond = ((feeBase * performanceTake) / _totalDepositBal) /
+	            (((feePerformancePeriod > 0) ? feePerformancePeriod : feePeriodDefault)  * 10000);
+	        accruedFees = feePerSecond * accruingPeriod;
+        }
+    }
+
+    //NOTE: NEEDS TO BE CALLED FROM OIV, AND ONLY GOV/SAFE
+    function mintPerformanceFee(uint256 feeInBaseAsset) external {
+		uint256 feeVal = (feeInBaseAsset * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
+		uint256 discountedValue = feeInBaseAsset - feeVal;
+		_mint(feeCollectorAddress[FundFeeType.PerformanceFee], discountedValue);
+		if (feeVal > 0) {
+			_mint(daoFeeAddr, feeVal);
+    	}
+		_lastClaimedPerformanceFees = block.timestamp;
     }
 
 	function collectFees(FundFeeType feeType) external {

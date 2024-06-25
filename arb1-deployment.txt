@@ -321,3 +321,56 @@ Summary
 =======
 > Total deployments:   7
 > Final cost:          0.01752522585 ETH
+
+
+=========================
+
+   Deploying 'NAVExecutor'
+   -----------------------
+   > transaction hash:    0xb6c71b7bca1601dd25c6073af0af3384318c4529918f7036cf5624be0965df2e
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xE72d8bF4c9106194ad0ba72B647e169336bED0e5
+   > block number:        225095385
+   > block timestamp:     1719200797
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.005121845223110971
+   > gas used:            496765 (0x7947d)
+   > gas price:           0.03 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00001490295 ETH
+
+NAVExecutor singleton is at: 0xE72d8bF4c9106194ad0ba72B647e169336bED0e5
+
+   Replacing 'UpgradeableBeacon'
+   -----------------------------
+   > transaction hash:    0x4e032ca1ff0a8706746d346cd8bc95fa5b7ebb34d4d036a6bb57cf85fb6c71d9
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xcC1f375aa10c5f6c5CBD5295f937D9aaF84427E0
+   > block number:        225095408
+   > block timestamp:     1719200803
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.005118923293110971
+   > gas used:            292193 (0x47561)
+   > gas price:           0.03 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00000876579 ETH
+
+NAVExecutorUpgradeableBeacon is at: 0xcC1f375aa10c5f6c5CBD5295f937D9aaF84427E0
+
+   Deploying 'BeaconProxy'
+   -----------------------
+   > transaction hash:    0x813314e3b000a1265c98707e4ae126c491212af67519e2451155b1022f7c2402
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xf5251F36f66dC60106DBa0517B19cc984624CaB3
+   > block number:        225096236
+   > block timestamp:     1719201011
+   > account:             0x0Afa7779A8B48E196C78Dbc884d3d1A49FDFb337
+   > balance:             0.005117160793110971
+   > gas used:            176250 (0x2b07a)
+   > gas price:           0.03 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0000052875 ETH
+
+NAVExecutorBeaconProxy is at: 0xf5251F36f66dC60106DBa0517B19cc984624CaB3
+
+
