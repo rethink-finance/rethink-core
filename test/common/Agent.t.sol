@@ -21,7 +21,13 @@ contract Agent {
             bytes4(keccak256("requestDeposit(uint256)")),
             amount
         );
-        (bool success,) = fund.call(depositRequest);
+
+        bytes memory fundFlowsCall = abi.encodeWithSelector(
+            bytes4(keccak256("fundFlowsCall(bytes)")),
+            depositRequest
+        );
+
+        (bool success,) = fund.call(fundFlowsCall);
         require(success == true, "fail depositRequest");
 	}
 
@@ -30,7 +36,12 @@ contract Agent {
             bytes4(keccak256("revokeDepositWithrawal(bool)")),
             true
         );
-        (bool success,) = fund.call(revoke);
+
+        bytes memory fundFlowsCall = abi.encodeWithSelector(
+            bytes4(keccak256("fundFlowsCall(bytes)")),
+            revoke
+        );
+        (bool success,) = fund.call(fundFlowsCall);
         require(success == true, "fail revokeDeposit");
 	}
 
@@ -39,7 +50,12 @@ contract Agent {
 		bytes memory deposit = abi.encodeWithSelector(
             bytes4(keccak256("deposit()"))
         );
-        (bool success,) = fund.call(deposit);
+
+        bytes memory fundFlowsCall = abi.encodeWithSelector(
+            bytes4(keccak256("fundFlowsCall(bytes)")),
+            deposit
+        );
+        (bool success,) = fund.call(fundFlowsCall);
         require(success == true, "fail deposit");
 	}
 
@@ -48,7 +64,11 @@ contract Agent {
             bytes4(keccak256("requestWithdraw(uint256)")),
             amount
         );
-        (bool success,) = fund.call(withdrawRequest);
+        bytes memory fundFlowsCall = abi.encodeWithSelector(
+            bytes4(keccak256("fundFlowsCall(bytes)")),
+            withdrawRequest
+        );
+        (bool success,) = fund.call(fundFlowsCall);
         require(success == true, "fail withdrawRequest");
 	}
 
@@ -57,7 +77,11 @@ contract Agent {
             bytes4(keccak256("revokeDepositWithrawal(bool)")),
             false
         );
-        (bool success,) = fund.call(revoke);
+        bytes memory fundFlowsCall = abi.encodeWithSelector(
+            bytes4(keccak256("fundFlowsCall(bytes)")),
+            revoke
+        );
+        (bool success,) = fund.call(fundFlowsCall);
         require(success == true, "fail revokeWithdraw");
 	}
 
@@ -66,7 +90,11 @@ contract Agent {
 		bytes memory withdraw = abi.encodeWithSelector(
             bytes4(keccak256("withdraw()"))
         );
-        (bool success,) = fund.call(withdraw);
+        bytes memory fundFlowsCall = abi.encodeWithSelector(
+            bytes4(keccak256("fundFlowsCall(bytes)")),
+            withdraw
+        );
+        (bool success,) = fund.call(fundFlowsCall);
         require(success == true, "fail withdraw");
 	}
 
