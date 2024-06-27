@@ -82,8 +82,8 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		}
 	}
 
-	function updateNav(NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, bool processWithdraw) external {
-		onlyGovernanceOrSafe();
+	function updateNav(NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, bool processWithdraw) public {
+    	require(msg.sender == FundSettings.governor || msg.sender == FundSettings.safe || msg.sender == address(this), "only gov");
 
 		_navUpdateLatestIndex++;
 		_navUpdateLatestTime = block.timestamp;
@@ -117,7 +117,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		(, bytes memory execData) = navExecutor.call(
 			abi.encodeWithSignature("getNAVData(address)", address(this))
 		);
-		(bool success, ) = address(this).call(execData);
+		(bool success, ) = address(this).call(abi.decode(execData, (bytes)));
 		require(success == true, "fail permissioned nav update");
 	}
 
