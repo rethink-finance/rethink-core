@@ -7,7 +7,7 @@ const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
 const execData = "0x";
 const proxy = "";
 const isTest = false;
-const network = "frax";
+const network = "eth";
 
 //time truffle migrate --reset -f 9 --to 9 --skip-dry-run --network=goerli
 
@@ -96,6 +96,22 @@ module.exports = async function (deployer) {
 		  	"0x5b8137fC792f1d054099fb2B7EEb7e575Ee8403B",//GovernableFundFlowsUpgradeableBeacon b
 		  	"0x26cEb3873ad8A3dee2e5d3d67d2d0800704B9fb5",//GovernableFundNavUpgradeableBeacon b
 		  	"0x9C3bEa435Ed4100E67a962712D727F79853792a4"//GovernableContractFactoryUpgradeableBeacon b
+		  );
+		} else if (network == 'eth') {
+			gff = await GovernableFundFactory.at("0x9825a09FbC727Bb671f08Fa66e3508a2e8938d45");
+			await gff.initialize(
+		  	"0xA2eC20a1D6139890962989d5F33DBF03BFbf0dD1",//RethinkFundGovernerUpgradeableBeacon b
+		  	"0x296203D903178e17DEF9C3891A578278aA230754",//GovernableFundUpgradeableBeacon b
+		  	"0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2",//safeProxyFactory
+		  	"0x3E5c63644E683549055b9Be8653de26E0B4CD36E",//safeSingleton
+		  	"0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4",//safeFallbackHandler
+		  	"0x40A2aCCbd92BCA938b02010E17A5b8929b49130D", //safeMultisendAddress frax
+		  	"0x79b15F47640C4e3ac3A9c4B7f1B999a8cccEEeC7", //WrappedTokenFactoryUpgradeableBeacon, b
+		  	"0x045d6611b93bC7d046c2bA90a780F4577F78e33A",//NAVCalculatorBeaconProxy bp
+		  	"0xbbf156CCc038b405001034573E77F3B2174B762a",//ZodiacRolesV1ModifierUpgradeableBeacon b 
+		  	"0x463F9eE917F71B7DB1c81fbFe44A95a4f5B540a6",//GovernableFundFlowsUpgradeableBeacon b
+		  	"0x5b8137fC792f1d054099fb2B7EEb7e575Ee8403B",//GovernableFundNavUpgradeableBeacon b
+		  	"0x26cEb3873ad8A3dee2e5d3d67d2d0800704B9fb5"//GovernableContractFactoryUpgradeableBeacon b
 		  );
 		}
 	}
