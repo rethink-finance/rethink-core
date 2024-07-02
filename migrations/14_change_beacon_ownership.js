@@ -79,6 +79,18 @@ const proxies = {
 		"GovernableFundNavUpgradeableBeacon": "0x5b8137fC792f1d054099fb2B7EEb7e575Ee8403B",
 		"GovernableContractFactoryUpgradeableBeacon": "0x26cEb3873ad8A3dee2e5d3d67d2d0800704B9fb5",
 		"NAVExecutorUpgradeableBeacon": "0x9C3bEa435Ed4100E67a962712D727F79853792a4"
+	},
+	"arbsep": {
+		"GovernableFundFactoryUpgradeableBeacon": "",
+		"RethinkFundGovernerUpgradeableBeacon": "",
+		"GovernableFundUpgradeableBeacon": "",
+		"WrappedTokenFactoryUpgradeableBeacon": "",
+		"NAVCalculatorUpgradeableBeacon": "",
+		"ZodiacRolesV1ModifierUpgradeableBeacon": "",
+		"GovernableFundFlowsUpgradeableBeacon": "",
+		"GovernableFundNavUpgradeableBeacon": "",
+		"GovernableContractFactoryUpgradeableBeacon": "",
+		"NAVExecutorUpgradeableBeacon": "",
 	}
 };
 module.exports = async function (deployer) {
