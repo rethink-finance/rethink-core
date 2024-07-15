@@ -74,6 +74,7 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
         userDepositRequest[msg.sender] = DepositRequestEntry(0, 0);
 
         //delegate to self first always to avoid having to do it in frontend when issued fund tokens
+        //NOTE: does not work as intended, although msg.sender is right, the caller is the fund contract
         if(FundSettings.governanceToken != address(0)) {
         	(bool success,) = FundSettings.governanceToken.call(
 				abi.encodeWithSignature("delegate(address)", msg.sender)
@@ -182,12 +183,31 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
     }
 
     //NOTE: NEEDS TO BE CALLED FROM OIV, AND ONLY GOV/SAFE
-    function mintPerformanceFee(uint256 feeInBaseAsset) external {
-		uint256 feeVal = (feeInBaseAsset * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
-		uint256 discountedValue = feeInBaseAsset - feeVal;
+    function mintPerformanceFee(uint256 amountInOIVTokens) external {
+		uint256 feeVal = (amountInOIVTokens * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
+		uint256 discountedValue = amountInOIVTokens - feeVal;
 		_mint(feeCollectorAddress[FundFeeType.PerformanceFee], discountedValue);
 		if (feeVal > 0) {
 			_mint(daoFeeAddr, feeVal);
+    	}
+		_lastClaimedPerformanceFees = block.timestamp;
+    }
+
+    //NOTE: NEEDS TO BE CALLED FROM OIV, AND ONLY GOV/SAFE
+    function mintToMany(uint256[] calldata amountInOIVTokens, address[] calldata recipients) external {
+    	require(amountInOIVTokens.length == recipients.length, "mismatch dims");
+    	uint256 feeVal;
+    	uint256 discountedValue;
+
+    	for(uint i=0; i<amountInOIVTokens.length; i++){ 
+			feeVal = (amountInOIVTokens[i] * ((isDAOFeeEnabled == true) ? daoFeeBps : 0)) / MAX_BPS;
+			discountedValue = amountInOIVTokens[i] - feeVal;
+
+			_mint(recipients[i], discountedValue);
+			
+			if (feeVal > 0) {
+				_mint(daoFeeAddr, feeVal);
+	    	}
     	}
 		_lastClaimedPerformanceFees = block.timestamp;
     }

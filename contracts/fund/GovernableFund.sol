@@ -140,6 +140,9 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		} else if (matchSig == bytes4(keccak256("mintPerformanceFee(uint256)"))) {
 			onlyGovernanceOrSafe();
 			isFound = true;
+		} else if (matchSig == bytes4(keccak256("mintToMany(uint256[],address[])"))) {
+			onlyGovernanceOrSafe();
+			isFound = true;
 		}
 
 		if (isFound == true) {
