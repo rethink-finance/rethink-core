@@ -212,6 +212,25 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 		_lastClaimedPerformanceFees = block.timestamp;
     }
 
+    //sweep funds back into custody contract if they exceed pending withdrawal requests
+	function sweepTokens() external {
+		uint256 ts = totalSupply();
+		uint256 tn = totalNAV();
+		uint256 twb = totalWithrawalBalance();
+		uint256 diffTokens;
+		if (ts > 0) {
+			require(((tn * _withdrawalBal) / ts) <= twb, 'not enough for withdrawals');
+			diffTokens = twb - ((tn * _withdrawalBal) / ts);
+			
+		} else {
+			diffTokens = twb;
+		}
+
+		if (diffTokens > 0) {
+			IERC20(FundSettings.baseToken).safeTransfer(FundSettings.safe, diffTokens);
+		}
+	}
+
 	function collectFees(FundFeeType feeType) external {
     	/*
     		enum FundFeeType {
