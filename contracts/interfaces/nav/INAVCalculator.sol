@@ -13,7 +13,7 @@ interface INAVCalculator {
 	function getNAVLiquidCache(address fund, uint256 navEntryIndex) external view returns (uint256[] calldata);
 	function getNAVComposableCache(address fund, uint256 navEntryIndex) external view returns (int256[]  calldata);
 	function getNAVNFTCache(address fund, uint256 navEntryIndex) external view returns (int256[] calldata);
-
+	function cacheNAVParts(uint256[] calldata data, address fund, uint256 navEntryIndex) external;
 	function liquidCalculationReadOnly(IGovernableFundStorage.NAVLiquidUpdate[] calldata liquid, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external view returns (uint256);
 	function composableCalculationReadOnly(IGovernableFundStorage.NAVComposableUpdate[] calldata composable, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external view returns (int256);
 	function nftCalculationReadOnly(IGovernableFundStorage.NAVNFTUpdate[] calldata nft, address safe, address fund, uint256 navEntryIndex, bool isPastNAVUpdate, uint256 pastNAVUpdateIndex, uint256 pastNAVUpdateEntryIndex, address pastNAVUpdateEntryFundAddress) external view returns (int256);

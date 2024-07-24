@@ -88,12 +88,14 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		_navUpdateLatestIndex++;
 		_navUpdateLatestTime = block.timestamp;
 		navUpdatedTime[_navUpdateLatestIndex] = block.timestamp;
+		bool success;
+		bytes memory navBytes;
 
 		//process nav here, save to storage
 
 		//cast sig "processNav((uint8,(address,address,bytes,address,address,bool,uint256,uint256,uint256)[],(uint256,uint256,address,bool,string[],uint8,uint256,uint256)[],(address,address,uint8,uint256,uint256)[],(address,string,bytes,uint256,bool,uint256,uint256,uint8,uint256,bool)[],bool,uint256,uint256,string)[],address[])" -> 0xb7ec3eda
 
-		(bool success, bytes memory navBytes) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
+		(success, navBytes) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
 			abi.encodeWithSelector(
 				bytes4(0xb7ec3eda),
 				navUpdateData,
@@ -103,6 +105,15 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		require(success == true, "failed processNav");
 
 		_nav = abi.decode(navBytes, (uint256));
+
+		//cache nav not related to calculator, for history
+		(success, ) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
+			abi.encodeWithSelector(
+				bytes4(keccak256("updateNAVPartsCache(uint256)")),
+				totalNAV()
+			)
+		);
+		require(success == true, "failed cache nav parts");
 
 		uint256 ts = totalSupply();
 		if (processWithdraw == true && (ts > 0)) {
