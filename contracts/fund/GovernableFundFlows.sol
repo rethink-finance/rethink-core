@@ -38,7 +38,8 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 	function deposit() external {
 
 		uint bal = IERC20(FundSettings.baseToken).balanceOf(msg.sender);
-		uint safeBal = IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe);
+		//NOTE: this is to mitigte in the case that a manager starts swapping base assets before a nav update has calculated the value of the fund
+		uint safeBal = (navUpdatedTime[_navUpdateLatestIndex] == 0) ? _totalDepositBal : IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe);
 
 		require(bal >= userDepositRequest[msg.sender].amount, "low bal");
 
