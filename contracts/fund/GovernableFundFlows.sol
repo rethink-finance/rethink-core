@@ -29,10 +29,18 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 			require(whitelistedDepositors[msg.sender] == true, "not allowed");
 		}
 
-		require(userDepositRequest[msg.sender].amount == 0 && userDepositRequest[msg.sender].requestTime == 0, "already requested");
+		if (userDepositRequest[msg.sender].amount == 0 && userDepositRequest[msg.sender].requestTime == 0) {
+			//no request made, can deposit request
+		} else {
+			//existing request already made, need to cancel existing request first
+			_depositBal -= userDepositRequest[msg.sender].amount;
+			_userDepositBal[msg.sender] = 0;
+
+		}
+
 		userDepositRequest[msg.sender] = DepositRequestEntry(amount, block.timestamp);
 		_depositBal += amount;
-		_userDepositBal[msg.sender] += amount;
+		_userDepositBal[msg.sender] += amount;		
 	}
 
 	function deposit() external {
@@ -95,7 +103,12 @@ contract GovernableFundFlows is ERC20VotesUpgradeable, GovernableFundStorage {
 			require(whitelistedDepositors[msg.sender] == true, "not allowed");
 		}
 
-		require(userWithdrawRequest[msg.sender].amount == 0 && userWithdrawRequest[msg.sender].requestTime == 0, "already requested");
+		if(userWithdrawRequest[msg.sender].amount == 0 && userWithdrawRequest[msg.sender].requestTime == 0){
+			//no request made, can withdraw request
+		} else {
+			//existing request already made, need to cancel existing request first
+			_withdrawalBal -= userWithdrawRequest[msg.sender].amount;
+		}
 
 		userWithdrawRequest[msg.sender] = WithdrawalRequestEntry(amount, block.timestamp);
 		_withdrawalBal += amount;
