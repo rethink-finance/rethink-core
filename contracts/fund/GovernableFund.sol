@@ -82,18 +82,20 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		}
 	}
 
-	function updateNav(NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, bool processWithdraw) external {
-		onlyGovernanceOrSafe();
+	function updateNav(NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, bool processWithdraw) public {
+    	require(msg.sender == FundSettings.governor || msg.sender == FundSettings.safe || msg.sender == address(this), "only gov");
 
 		_navUpdateLatestIndex++;
 		_navUpdateLatestTime = block.timestamp;
 		navUpdatedTime[_navUpdateLatestIndex] = block.timestamp;
+		bool success;
+		bytes memory navBytes;
 
 		//process nav here, save to storage
 
 		//cast sig "processNav((uint8,(address,address,bytes,address,address,bool,uint256,uint256,uint256)[],(uint256,uint256,address,bool,string[],uint8,uint256,uint256)[],(address,address,uint8,uint256,uint256)[],(address,string,bytes,uint256,bool,uint256,uint256,uint8,uint256,bool)[],bool,uint256,uint256,string)[],address[])" -> 0xb7ec3eda
 
-		(bool success, bytes memory navBytes) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
+		(success, navBytes) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
 			abi.encodeWithSelector(
 				bytes4(0xb7ec3eda),
 				navUpdateData,
@@ -103,6 +105,15 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		require(success == true, "failed processNav");
 
 		_nav = abi.decode(navBytes, (uint256));
+
+		//cache nav not related to calculator, for history
+		(success, ) = IBeacon(_fundDelgateCallNavAddress).implementation().delegatecall(
+			abi.encodeWithSelector(
+				bytes4(keccak256("updateNAVPartsCache(uint256)")),
+				totalNAV()
+			)
+		);
+		require(success == true, "failed cache nav parts");
 
 		uint256 ts = totalSupply();
 		if (processWithdraw == true && (ts > 0)) {
@@ -117,7 +128,7 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 		(, bytes memory execData) = navExecutor.call(
 			abi.encodeWithSignature("getNAVData(address)", address(this))
 		);
-		(bool success, ) = address(this).call(execData);
+		(bool success, ) = address(this).call(abi.decode(execData, (bytes)));
 		require(success == true, "fail permissioned nav update");
 	}
 
@@ -135,9 +146,14 @@ contract GovernableFund is ERC20VotesUpgradeable, GovernableFundStorage {
 			isFound = true;
 		} else if (matchSig == bytes4(keccak256("withdraw()"))) {
 			isFound = true;
+		} else if (matchSig == bytes4(keccak256("sweepTokens()"))) {
+			isFound = true;
 		} else if (matchSig == bytes4(keccak256("collectFees(uint8)"))) {
 			isFound = true;		
 		} else if (matchSig == bytes4(keccak256("mintPerformanceFee(uint256)"))) {
+			onlyGovernanceOrSafe();
+			isFound = true;
+		} else if (matchSig == bytes4(keccak256("mintToMany(uint256[],address[])"))) {
 			onlyGovernanceOrSafe();
 			isFound = true;
 		}

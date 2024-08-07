@@ -6,25 +6,25 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 abstract contract GovernableFundStorage is IGovernableFundStorage {
 	uint256 _nav; //TODO: NEEDS TO BE IN BASE TOKEN?
 	uint256 public _feeBal;
-	uint256 _depositBal;
-	uint256 _withdrawalBal;
-    uint256 _fundStartTime;
-    uint256 MAX_BPS = 10000;
-	uint256 public _totalDepositBal;
-	uint256 public _navUpdateLatestTime;
-	uint256 public _navUpdateLatestIndex;
-    uint256 _lastClaimedManagementFees;
-	address _navCalculatorAddress;
-	address _fundDelgateCallFlowAddress;
-	address	_fundDelgateCallNavAddress;
-	mapping(address => bool) allowedFundMannagers;
-	mapping(address => bool) whitelistedDepositors;
-	mapping(address => uint256) _userDepositBal;
-	mapping(uint256 => uint256) navUpdatedTime;
-	mapping(uint256 => NavUpdateEntry[]) navUpdate;//nav update index -> nav entries for update
-	bool isRequestedWithdrawals;
-	mapping(address => DepositRequestEntry) userDepositRequest;
-	mapping(address => WithdrawalRequestEntry) userWithdrawRequest;	
+	uint256 _depositBal;//slot 256
+	uint256 _withdrawalBal;//slot 257
+    uint256 _fundStartTime;//slot 258
+    uint256 MAX_BPS = 10000;//slot 259
+	uint256 public _totalDepositBal;//slot 260
+	uint256 public _navUpdateLatestTime;//slot 261
+	uint256 public _navUpdateLatestIndex;//slot 262
+    uint256 _lastClaimedManagementFees;//slot 263
+	address _navCalculatorAddress;//slot 264
+	address _fundDelgateCallFlowAddress;//slot 265
+	address	_fundDelgateCallNavAddress;//slot 266
+	mapping(address => bool) allowedFundMannagers;//slot 267
+	mapping(address => bool) whitelistedDepositors;//slot 268
+	mapping(address => uint256) _userDepositBal;//slot 269
+	mapping(uint256 => uint256) navUpdatedTime;//slot 270
+	mapping(uint256 => NavUpdateEntry[]) navUpdate;//nav update index -> nav entries for update //slot 271
+	bool isRequestedWithdrawals;//slot 272
+	mapping(address => DepositRequestEntry) userDepositRequest;//slot 273
+	mapping(address => WithdrawalRequestEntry) userWithdrawRequest;	//slot 274
 	Settings public FundSettings;
 
 	/*

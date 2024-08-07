@@ -52,6 +52,23 @@ contract GovernableFundNav is ERC20VotesUpgradeable, GovernableFundStorage {
 		return updatedNav;
 	}
 
+	function updateNAVPartsCache(uint256 _totalNAV) public {
+		/*
+				struct NAVInternalCacheType {
+					uint256 baseAssetOIVBal;
+					uint256 baseAssetSafeBal;
+					uint256 feeBal;
+					uint256 totalNAV;
+				}
+		*/
+		uint256[] memory cacheData = new uint256[](4);
+	 	cacheData[0] = IERC20(FundSettings.baseToken).balanceOf(address(this));
+	 	cacheData[1] = IERC20(FundSettings.baseToken).balanceOf(FundSettings.safe);
+	 	cacheData[2] = _feeBal;
+	 	cacheData[3] = _totalNAV;
+		INAVCalculator(_navCalculatorAddress).cacheNAVParts(cacheData, address(this), _navUpdateLatestIndex);
+	}
+
 	function prepLiquid(IGovernableFundStorage.NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, uint256 i) internal returns (uint256) {
 		return INAVCalculator(_navCalculatorAddress).liquidCalculation(
 			navUpdateData[i].liquid,

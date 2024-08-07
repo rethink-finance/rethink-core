@@ -7,7 +7,7 @@ const execData = "0x";
 //const proxy = "0xcd1e65B55cd73860FC80778C8398ae2f4C9222e8"; //goerli
 const proxy = "0x89483Dc199F70268e3aB79D08301456Fb6aF75f4";//polygon
 //time truffle migrate --reset -f 13 --to 13 --skip-dry-run --network=goerli
-const network = "frax";
+const network = "arbsep";
 const isTest = false;
 
 module.exports = async function (deployer) {
@@ -30,6 +30,14 @@ module.exports = async function (deployer) {
 			console.log("RethinkReader singleton is at: "+ RethinkReader.address);
 		} else if (network == 'frax') {
 			let rr = await deployer.deploy(RethinkReader, "0x9825a09FbC727Bb671f08Fa66e3508a2e8938d45", "0x045d6611b93bC7d046c2bA90a780F4577F78e33A");
+			setTimeout(function(){},delay);
+			console.log("RethinkReader singleton is at: "+ RethinkReader.address);
+		} else if (network == 'eth') {
+			let rr = await deployer.deploy(RethinkReader, "0x9825a09FbC727Bb671f08Fa66e3508a2e8938d45", "0x045d6611b93bC7d046c2bA90a780F4577F78e33A");
+			setTimeout(function(){},delay);
+			console.log("RethinkReader singleton is at: "+ RethinkReader.address);
+		} else if (network == 'arbsep') {
+			let rr = await deployer.deploy(RethinkReader, "0x4C342E583A7Aa2840e07B4a3afB71533FBE37726", "0x248a64e3EDd3F521ef2Aa6A3e804845B5A1C8008");
 			setTimeout(function(){},delay);
 			console.log("RethinkReader singleton is at: "+ RethinkReader.address);
 		}

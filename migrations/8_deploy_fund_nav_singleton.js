@@ -8,7 +8,7 @@ const execData = "0x";
 //const proxy = "0x6cb326b573ad0CeFC742d35bC713f8766fb5e027";//goerli
 const proxy = "0x89254d6FF377a21aC0b99BD2e456e75b6C76E505";//polygon
 
-//time truffle migrate --reset -f 8 --to 8 --skip-dry-run --network=goerli
+//time truffle migrate --reset -f 8 --to 8 --skip-dry-run --network=matic --compile-none
 
 module.exports = async function (deployer) {
 	  let d = await deployer.deploy(GovernableFundNav);
