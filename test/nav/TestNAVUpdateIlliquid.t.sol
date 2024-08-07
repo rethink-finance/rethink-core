@@ -19,20 +19,20 @@ contract TestNAVUpdateIlliquid is Base {
         bob.deposit(fundAddr);
         bob.delegate(fundAddr, address(bob));
 
-		address[] memory targets;
+		address[] memory targets = new address[](1);
         targets[0] = fundAddr;
-        uint256[] memory values;
+        uint256[] memory values = new uint256[](1);
         values[0] = 0;
 		
-		IGovernableFundStorage.NavUpdateEntry[] memory navEntries;
+		IGovernableFundStorage.NavUpdateEntry[] memory navEntries = new IGovernableFundStorage.NavUpdateEntry[](1);
 
-		IGovernableFundStorage.NAVIlliquidUpdate[] memory illiquid;
+		IGovernableFundStorage.NAVIlliquidUpdate[] memory illiquid = new IGovernableFundStorage.NAVIlliquidUpdate[](1);
 		string[] memory otcTxHashes;
 
 		illiquid[0] = IGovernableFundStorage.NAVIlliquidUpdate(
 			1e8,
 			1e18,
-			address(0),
+			address(new ERC20Mock(18,"FakeA")),
 			false,
 			otcTxHashes,
 			IGovernableFundStorage.NAVNFTType.NONE,
@@ -52,7 +52,7 @@ contract TestNAVUpdateIlliquid is Base {
             navEntries
         );
 
-        bytes[] memory calldatas;
+        bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = computeNavUpdate;
         string memory description = "testIlliquidCalculation";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
@@ -64,9 +64,13 @@ contract TestNAVUpdateIlliquid is Base {
         	description
         );
 
+        vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
+
         bob.voteYay(settings.governor, proposalId);
 
-        vm.warp(block.timestamp + 85000);
+        vm.warp(block.timestamp + 65);
+        vm.roll(block.number + 65);
         
         IGovernor(settings.governor).execute(
 	        targets,

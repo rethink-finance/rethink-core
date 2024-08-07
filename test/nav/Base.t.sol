@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "../../contracts/token/WrappedTokenFactory.sol";
 import "../../contracts/nav/NAVCalculator.sol";
+import "../../contracts/nav/NAVExecutor.sol";
 import "../../contracts/fund/GovernableFund.sol";
 import "../../contracts/fund/GovernableFundNav.sol";
 import "../../contracts/fund/GovernableFundFlows.sol";
@@ -47,6 +48,8 @@ contract Base is Test {
         address wtfub;
         address navcalcub;
         address navcalcbp;
+        address navexecub;
+        address navexecbp;
         address rfgub;
 
         address gfub;
@@ -77,6 +80,8 @@ contract Base is Test {
         bv.wtfub = address(new UpgradeableBeacon(address(new WrappedTokenFactory())));
         bv.navcalcub = address(new UpgradeableBeacon(address(new NAVCalculator())));
         bv.navcalcbp = address(new BeaconProxy(bv.navcalcub, ""));
+        bv.navexecub = address(new UpgradeableBeacon(address(new NAVExecutor())));
+        bv.navexecbp = address(new BeaconProxy(bv.navexecub, ""));
         bv.rfgub = address(new UpgradeableBeacon(address(new RethinkFundGovernor())));
 
         string memory json = vm.readFile(
