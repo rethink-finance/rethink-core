@@ -7,9 +7,10 @@ const delay = 10000;
 const owner = "0xe977757dA5fd73Ca3D2bA6b7B544bdF42bb2CBf6";
 const execData = "0x";
 //const proxy = "0xCEed8bA2ea5B30eDf31a4c022F51FF0FE4d30166";//goerli
-const proxy = "0x5A7f717B91c998d5DE9764DEA78c2EF20027bDe4";//matic
+//const proxy = "0x5A7f717B91c998d5DE9764DEA78c2EF20027bDe4";//matic
+const proxy = "0x296203D903178e17DEF9C3891A578278aA230754";//eth
 //const proxy = "0xB4c232f0cF194E530c39174F617Ec4ee9d69398C";//arb1
-//time truffle migrate --reset -f 3 --to 3 --skip-dry-run --compile-none --network=matic
+//time truffle migrate --reset -f 3 --to 3 --skip-dry-run --compile-none --network=eth
 module.exports = async function (deployer) {
 	/**/
 	let gf = await deployer.deploy(GovernableFund);
@@ -20,8 +21,8 @@ module.exports = async function (deployer) {
 	/*
 	let p = await UpgradeableBeacon.at(proxy);
 	setTimeout(function(){},delay);
-	p.upgradeTo(GovernableFund.address);
+	//p.upgradeTo(GovernableFund.address);
 	*/
-	//p.upgradeTo("0x1B160D95537762b7c85731E0679423f6d59F3367");
+	//p.upgradeTo("0x5618892Df220778478810049Dc03432f68459654");
 	
 }

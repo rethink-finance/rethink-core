@@ -7,9 +7,9 @@ const delay = 10000;
 const execData = "0x";
 const proxy = "";
 const isTest = false;
-const network = "frax";
+const network = "eth";
 
-//time truffle migrate --reset -f 14 --to 14 --compile-none --skip-dry-run --network=arb1
+//time truffle migrate --reset -f 14 --to 14 --compile-none --skip-dry-run --network=eth
 
 const multiSigs = {
 	"arb1": "0xd8a5076Da13a2d95062de42dD26CB41B9Daa0B53",
