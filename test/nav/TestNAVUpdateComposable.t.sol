@@ -22,16 +22,16 @@ contract TestNAVUpdateComposable is Base {
         bob.deposit(fundAddr);
         bob.delegate(fundAddr, address(bob));
 
-		address[] memory targets;
+		address[] memory targets = new address[](1);
         targets[0] = fundAddr;
-        uint256[] memory values;
+        uint256[] memory values = new uint256[](1);
         values[0] = 0;
 
 		address mvreader = address(new MockMetavaultReader());		
-		IGovernableFundStorage.NavUpdateEntry[] memory navEntries;
 		bytes memory encodedFunctionSignatureWithInputs = generateProtocolEncodedBytes();
 
-		IGovernableFundStorage.NAVComposableUpdate[] memory composable;
+		IGovernableFundStorage.NavUpdateEntry[] memory navEntries = new IGovernableFundStorage.NavUpdateEntry[](1);
+		IGovernableFundStorage.NAVComposableUpdate[] memory composable = new IGovernableFundStorage.NAVComposableUpdate[](1);
 
 		composable[0] = IGovernableFundStorage.NAVComposableUpdate(
 			mvreader,
@@ -53,12 +53,18 @@ contract TestNAVUpdateComposable is Base {
 		navEntries[0].pastNAVUpdateEntryIndex = 0;
 		navEntries[0].description = "Mock Metavault Position";
 
+        address[] memory pastNAVUpdateEntryFundAddress = new address[](1);
+		pastNAVUpdateEntryFundAddress[0] = fundAddr;
+
         bytes memory computeNavUpdate = abi.encodeWithSelector(
             IGovernableFund.updateNav.selector,
-            navEntries
+            navEntries,
+            pastNAVUpdateEntryFundAddress,
+            true
         );
 
-        bytes[] memory calldatas;
+
+        bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = computeNavUpdate;
         string memory description = "testComposableCalculation";
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
@@ -70,9 +76,13 @@ contract TestNAVUpdateComposable is Base {
         	description
         );
 
+        vm.warp(block.timestamp + 2);
+        vm.roll(block.number + 2);
+
         bob.voteYay(settings.governor, proposalId);
 
-        vm.warp(block.timestamp + 85000);
+        vm.warp(block.timestamp + 65);
+        vm.roll(block.number + 65);
         
         IGovernor(settings.governor).execute(
 	        targets,

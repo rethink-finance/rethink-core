@@ -47,9 +47,17 @@ contract TestNAVUpdateIlliquid is Base {
 		navEntries[0].pastNAVUpdateEntryIndex = 0;
 		navEntries[0].description = "Mock OTC DEAL";
 
+		//	function updateNav(NavUpdateEntry[] calldata navUpdateData, address[] calldata pastNAVUpdateEntryFundAddress, bool processWithdraw) public {
+
+
+		address[] memory pastNAVUpdateEntryFundAddress = new address[](1);
+		pastNAVUpdateEntryFundAddress[0] = fundAddr;
+
         bytes memory computeNavUpdate = abi.encodeWithSelector(
             IGovernableFund.updateNav.selector,
-            navEntries
+            navEntries,
+            pastNAVUpdateEntryFundAddress,
+            true
         );
 
         bytes[] memory calldatas = new bytes[](1);
