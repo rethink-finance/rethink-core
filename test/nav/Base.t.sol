@@ -313,6 +313,12 @@ contract Base is Test {
         bytes memory routerInit = abi.encode(mv.gc3code, factory, weth);
         */
         address rt = 0x3C4293F66941eCA00f4950c10d4255d5c271bA2f; //generateBytecode(routerInit);
+        uint size;
+        assembly {
+            size := extcodesize(rt)
+        }
+
+        require(size > 0, "bad univ2 router");
 
         return (rt, factory);
     }
@@ -344,8 +350,22 @@ contract Base is Test {
         vm.roll(block.number + TS_OFFSET);
 
         //add liq
+
+        /*
+
+    function addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint amountADesired,
+        uint amountBDesired,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline
+
+        */
         bytes memory addLiquidity = abi.encodeWithSelector(
-            bytes4(keccak256("addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint32)")),
+            bytes4(keccak256("addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)")),
             t1,
             t2,
             5e18,
@@ -353,10 +373,11 @@ contract Base is Test {
             0,
             0,
             address(this),
-            0
+            block.timestamp
         );
 
-        (success, ) = mv.rt.call(addLiquidity);
+        (success, data) = mv.rt.call(addLiquidity);
+        console.logBytes(data);
         require(success == true, "fail addLiquidity");
 
         //swap
@@ -366,7 +387,7 @@ contract Base is Test {
             1e18,
             [t1, t2],
             address(this),
-            0
+            TS_OFFSET * TS_OFFSET * 2
         );
         
 
